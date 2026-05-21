@@ -1,201 +1,397 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>NEXUS CRM — 行銷名單管理</title>
-
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Insurance CRM</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet" />
-
-<style>
-  * { font-family: 'Noto Sans TC', 'PingFang TC', sans-serif; }
-  body { background: #f8fafc; }
-  .scrollbar-hide::-webkit-scrollbar { display: none; }
-  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-  .line-badge { background: #06C755; }
-  .ig-badge { background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045); }
-  .intro-badge { background: #f59e0b; }
-</style>
-
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet"/>
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+:root {
+  --bg:       #0d0f12;
+  --surface:  #141720;
+  --card:     #1a1e2a;
+  --border:   #242836;
+  --border2:  #2e3347;
+  --text:     #e2e6f0;
+  --muted:    #6b7494;
+  --accent:   #4f8ef7;
+  --accent2:  #3dd6b5;
+  --warn:     #f5a623;
+  --danger:   #f05e6a;
+  --mono:     'DM Mono', monospace;
+}
+* { font-family: 'Noto Sans TC', sans-serif; box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); margin: 0; }
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
 
+/* Animations */
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(14px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+@keyframes pulse-dot {
+  0%,100% { opacity:1; } 50% { opacity:.3; }
+}
+.fade-up { animation: fadeUp .35s ease both; }
+.fade-up-1 { animation-delay:.05s; }
+.fade-up-2 { animation-delay:.10s; }
+.fade-up-3 { animation-delay:.15s; }
+.fade-up-4 { animation-delay:.20s; }
+.fade-up-5 { animation-delay:.25s; }
+.pulse-dot { animation: pulse-dot 1.8s ease-in-out infinite; }
+
+.nav-item {
+  display:flex; align-items:center; gap:10px;
+  padding:9px 14px; border-radius:8px;
+  cursor:pointer; transition:background .15s, color .15s;
+  font-size:14px; font-weight:500; color: var(--muted);
+  border: none; background: none; width:100%; text-align:left;
+}
+.nav-item:hover { background: var(--card); color: var(--text); }
+.nav-item.active { background: var(--card); color: var(--accent); border-left: 2px solid var(--accent); padding-left:12px; }
+
+.kpi-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 22px;
+  transition: border-color .2s;
+}
+.kpi-card:hover { border-color: var(--border2); }
+
+.badge {
+  display:inline-flex; align-items:center; gap:5px;
+  padding:3px 9px; border-radius:99px;
+  font-size:11px; font-weight:600; white-space:nowrap;
+}
+
+.stage-0 { background:#1f2d3d; color:#60a5fa; }
+.stage-1 { background:#2a2515; color:#fbbf24; }
+.stage-2 { background:#1d2f28; color:#34d399; }
+.stage-3 { background:#2f1f28; color:#f472b6; }
+
+.table-row {
+  border-bottom: 1px solid var(--border);
+  transition: background .15s;
+}
+.table-row:hover { background: rgba(79,142,247,.05); }
+.table-row:last-child { border-bottom: none; }
+
+.mono { font-family: var(--mono); }
+
+.btn-primary {
+  display:inline-flex; align-items:center; gap:7px;
+  background: var(--accent); color:#fff;
+  border:none; border-radius:8px;
+  padding:9px 16px; font-size:13px; font-weight:600;
+  cursor:pointer; transition:opacity .15s, transform .1s;
+}
+.btn-primary:hover { opacity:.88; }
+.btn-primary:active { transform:scale(.97); }
+
+.reminder-item {
+  display:flex; align-items:center; gap:12px;
+  padding:11px 14px; border-radius:9px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  transition: border-color .2s;
+}
+.reminder-item:hover { border-color: var(--border2); }
+
+/* Modal */
+.modal-bg {
+  position:fixed; inset:0; background:rgba(0,0,0,.6);
+  display:flex; align-items:center; justify-content:center;
+  z-index:100; backdrop-filter:blur(4px);
+  animation: fadeUp .2s ease;
+}
+.modal-box {
+  background: var(--card); border:1px solid var(--border2);
+  border-radius:14px; padding:28px; width:480px; max-width:94vw;
+}
+.input-field {
+  width:100%; background:var(--surface); border:1px solid var(--border2);
+  border-radius:8px; padding:9px 12px; color:var(--text);
+  font-size:13px; outline:none; transition:border-color .15s;
+}
+.input-field:focus { border-color:var(--accent); }
+.select-field {
+  width:100%; background:var(--surface); border:1px solid var(--border2);
+  border-radius:8px; padding:9px 12px; color:var(--text);
+  font-size:13px; outline:none; appearance:none; cursor:pointer;
+}
+.label { font-size:11px; font-weight:600; color:var(--muted); letter-spacing:.06em; text-transform:uppercase; margin-bottom:5px; display:block; }
+</style>
 </head>
 <body>
 <div id="root"></div>
-
 <script type="text/babel">
-const { useState, useEffect, useRef } = React;
+const { useState, useMemo } = React;
 
-function LucideIcon({ icon, size=18, className="", sw=2 }) {
-  const ICONS = {
-    Users: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
-    UserPlus: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg>,
-    CheckCircle2: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>,
-    Clock: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
-    ArrowUpRight: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>,
-    Bell: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>,
-    Star: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
-    LayoutDashboard: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>,
-    List: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>,
-    MessageSquare: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>,
-    Plus: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><line x1="12" x2="12" y1="5" y2="19"/><line x1="5" x2="19" y1="12" y2="12"/></svg>,
-    Search: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/></svg>,
-    ChevronRight: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>,
-    ChevronLeft: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>,
-    Calendar: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>,
-    Send: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><line x1="22" x2="11" y1="2" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>,
-    Paperclip: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>,
-    Smile: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 13s1.5 2 4 2 4-2 4-2"/><line x1="9" x2="9.01" y1="9" y2="9"/><line x1="15" x2="15.01" y1="9" y2="9"/></svg>,
-    Phone: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.99 12a19.79 19.79 0 0 1-3-8.63A2 2 0 0 1 4 1.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>,
-    Info: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>,
-    AlertCircle: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>,
-    Gift: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect width="20" height="5" x="2" y="7"/><line x1="12" x2="12" y1="22" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>,
-    FileText: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>,
-  };
-  return <span className={`inline-flex items-center justify-center ${className}`}>{ICONS[icon] || null}</span>;
-}
+// ── SVG Icons (inline, no CDN needed for icons) ──────────
+const Ic = ({ d, size=16, cl="" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+    strokeLinejoin="round" className={cl}>
+    {Array.isArray(d) ? d.map((p,i)=><path key={i} d={p}/>) : <path d={d}/>}
+  </svg>
+);
 
-const LEADS = [
-  { id:1, name:"陳雅婷", av:"陳", source:"LINE",  stage:"已簽約",   next:"2026-06-10", note:"年繳保費 NT$48,000，偏好低風險商品", tags:["VIP","保守型"] },
-  { id:2, name:"林俊宏", av:"林", source:"IG",    stage:"方案建議", next:"2026-05-25", note:"對投資型保單有興趣，詢問過美元計價商品", tags:["積極型"] },
-  { id:3, name:"黃美玲", av:"黃", source:"轉介紹", stage:"需求分析", next:"2026-05-22", note:"由陳雅婷轉介紹，剛成立小企業需規劃員工福利", tags:["企業主"] },
-  { id:4, name:"張偉誠", av:"張", source:"LINE",  stage:"初步接觸", next:"2026-05-28", note:"透過官帳活動加入，對退休規劃感興趣", tags:["退休規劃"] },
-  { id:5, name:"王淑芬", av:"王", source:"IG",    stage:"需求分析", next:"2026-06-03", note:"育有兩子，主要需求為子女教育金規劃", tags:["教育金","家庭"] },
-  { id:6, name:"李建志", av:"李", source:"轉介紹", stage:"方案建議", next:"2026-05-29", note:"IT 工程師，月收入穩定，詢問過重疾險", tags:["重疾險"] },
-  { id:7, name:"吳思穎", av:"吳", source:"LINE",  stage:"已簽約",   next:"2026-07-15", note:"二次成交，本月剛加購醫療實支實付", tags:["VIP","醫療"] },
-  { id:8, name:"劉冠霖", av:"劉", source:"IG",    stage:"初步接觸", next:"2026-06-01", note:"看到 IG 貼文私訊，詢問定期壽險費率", tags:["壽險"] },
+const ICONS = {
+  dash:    ["M3 3h7v7H3z","M14 3h7v7h-7z","M14 14h7v7h-7z","M3 14h7v7H3z"],
+  users:   ["M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2","M23 21v-2a4 4 0 0 0-3-3.87","M16 3.13a4 4 0 0 1 0 7.75","M9 7m-4 0a4 4 0 1 0 8 0 4 4 0 1 0-8 0"],
+  bell:    ["M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9","M13.73 21a2 2 0 0 1-3.46 0"],
+  plus:    ["M12 5v14","M5 12h14"],
+  search:  ["M21 21l-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0"],
+  filter:  ["M22 3H2l8 9.46V19l4 2v-8.54L22 3"],
+  close:   ["M18 6 6 18","M6 6l12 12"],
+  cal:     ["M8 2v4","M16 2v4","M3 10h18","M3 6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"],
+  gift:    ["M20 12v10H4V12","M2 7h20v5H2z","M12 22V7","M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z","M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"],
+  trend:   ["M22 7l-8.5 8.5-5-5L2 17","M16 7h6v6"],
+  check:   ["M22 11.08V12a10 10 0 1 1-5.93-9.14","M22 4 12 14.01l-3-3"],
+  phone:   ["M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.99 12 19.79 19.79 0 0 1 1.92 3.38 2 2 0 0 1 3.89 1.21h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"],
+  chevR:   ["M9 18l6-6-6-6"],
+  alert:   ["M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z","M12 9v4","M12 17h.01"],
+};
+
+const Icon = ({n, size=16, cl=""}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+    strokeLinejoin="round" style={{flexShrink:0}} className={cl}>
+    {(Array.isArray(ICONS[n])?ICONS[n]:[ICONS[n]||""]).map((p,i)=><path key={i} d={p}/>)}
+  </svg>
+);
+
+// ── Mock Data ─────────────────────────────────────────────
+const STAGE_LABELS = ["名單開發","需求分析","建議書提案","簽約核保"];
+const STAGE_CLS    = ["stage-0","stage-1","stage-2","stage-3"];
+const INS_TYPES    = ["醫療險","壽險","投資型","儲蓄險","意外險","重疾險","年金險"];
+
+const initClients = [
+  { id:1,  name:"陳雅婷", phone:"0912-345-678", type:"醫療險",  premium:48000,  benefit:500000,  stage:3, next:"2026-06-10", note:"VIP，保守型，偏好實支實付" },
+  { id:2,  name:"林俊宏", phone:"0923-456-789", type:"投資型",  premium:120000, benefit:0,       stage:1, next:"2026-05-25", note:"詢問美元計價，積極型" },
+  { id:3,  name:"黃美玲", phone:"0934-567-890", type:"壽險",    premium:36000,  benefit:3000000, stage:2, next:"2026-05-22", note:"企業主，規劃員工福利" },
+  { id:4,  name:"張偉誠", phone:"0945-678-901", type:"年金險",  premium:60000,  benefit:72000,   stage:0, next:"2026-05-28", note:"退休規劃為主" },
+  { id:5,  name:"王淑芬", phone:"0956-789-012", type:"儲蓄險",  premium:100000, benefit:130000,  stage:1, next:"2026-06-03", note:"子女教育金規劃" },
+  { id:6,  name:"李建志", phone:"0967-890-123", type:"重疾險",  premium:28800,  benefit:1000000, stage:2, next:"2026-05-29", note:"IT工程師，月收入穩定" },
+  { id:7,  name:"吳思穎", phone:"0978-901-234", type:"醫療險",  premium:52000,  benefit:600000,  stage:3, next:"2026-07-15", note:"二次成交，已加購" },
+  { id:8,  name:"劉冠霖", phone:"0989-012-345", type:"意外險",  premium:18000,  benefit:2000000, stage:0, next:"2026-06-01", note:"IG詢問，初步接觸" },
+  { id:9,  name:"蔡明哲", phone:"0910-234-567", type:"投資型",  premium:180000, benefit:0,       stage:1, next:"2026-06-08", note:"高資產客戶，已有基金" },
+  { id:10, name:"許雅雯", phone:"0921-345-678", type:"壽險",    premium:42000,  benefit:2000000, stage:3, next:"2026-08-20", note:"已簽約，定期追蹤" },
+  { id:11, name:"楊博宇", phone:"0932-456-789", type:"醫療險",  premium:33600,  benefit:400000,  stage:2, next:"2026-06-15", note:"提案中，競品比較" },
+  { id:12, name:"謝欣怡", phone:"0943-567-890", type:"儲蓄險",  premium:240000, benefit:310000,  stage:1, next:"2026-05-30", note:"主管層，詢問節稅方案" },
 ];
 
 const REMINDERS = [
-  { id:1, icon:"FileText", client:"陳雅婷", desc:"保單週年檢視",   date:"2026-05-23", urgency:"high" },
-  { id:2, icon:"Gift",     client:"林俊宏", desc:"生日祝賀",       date:"2026-05-27", urgency:"medium" },
-  { id:3, icon:"Phone",    client:"黃美玲", desc:"方案討論回訪",   date:"2026-05-22", urgency:"high" },
-  { id:4, icon:"CheckCircle2", client:"吳思穎", desc:"新契約90天關懷", date:"2026-06-01", urgency:"low" },
-  { id:5, icon:"Gift",     client:"王淑芬", desc:"生日祝賀",       date:"2026-06-05", urgency:"low" },
+  { id:1, type:"birthday", client:"林俊宏", detail:"生日祝賀",         date:"2026-05-27", urgent:true },
+  { id:2, type:"policy",   client:"陳雅婷", detail:"保單週年生效日",   date:"2026-05-30", urgent:true },
+  { id:3, type:"follow",   client:"黃美玲", detail:"建議書回覆追蹤",   date:"2026-05-22", urgent:true },
+  { id:4, type:"birthday", client:"謝欣怡", detail:"生日祝賀",         date:"2026-06-04", urgent:false },
+  { id:5, type:"policy",   client:"吳思穎", detail:"新契約90天關懷",   date:"2026-06-10", urgent:false },
+  { id:6, type:"follow",   client:"蔡明哲", detail:"第二次需求訪談",   date:"2026-06-08", urgent:false },
 ];
 
-const CONVERSATIONS = [
-  { id:1, name:"陳雅婷", av:"陳", source:"LINE", unread:2, last:"好的！那我明天下午方便通話嗎？", time:"11:42",
-    msgs:[
-      {from:"them", text:"您好！想請問一下我的保單今年幾月到期？", time:"11:30"},
-      {from:"me",   text:"陳小姐您好！您的保單（PA-20210815）於今年 8 月 15 日到期，屆時我會提前提醒您做週年檢視 😊", time:"11:35"},
-      {from:"them", text:"太好了謝謝！還有，我想了解一下新的增額壽險有沒有比較適合我的？", time:"11:38"},
-      {from:"me",   text:"有的！最近有一款 6 年期的商品，預定利率不錯，很適合您的保守型規劃。我整理一份比較表給您看看？", time:"11:39"},
-      {from:"them", text:"好的！那我明天下午方便通話嗎？", time:"11:42"},
-    ]},
-  { id:2, name:"林俊宏", av:"林", source:"IG", unread:0, last:"收到，我看完再跟你說", time:"昨天",
-    msgs:[
-      {from:"me",   text:"林先生您好，這是您詢問的美元利率變動型壽險資料，請參考 📄", time:"昨天 14:20"},
-      {from:"them", text:"收到，我看完再跟你說", time:"昨天 18:05"},
-    ]},
-  { id:3, name:"黃美玲", av:"黃", source:"轉介紹", unread:5, last:"請問員工團體險大概多少錢？", time:"10:15",
-    msgs:[
-      {from:"them", text:"你好，我是陳雅婷介紹來的！", time:"10:00"},
-      {from:"me",   text:"黃小姐您好！雅婷有提到您，歡迎～請問您目前公司大概有幾位員工呢？", time:"10:05"},
-      {from:"them", text:"目前 8 個人，未來可能擴編到 15 人", time:"10:08"},
-      {from:"them", text:"請問員工團體險大概多少錢？", time:"10:15"},
-    ]},
-  { id:4, name:"張偉誠", av:"張", source:"LINE", unread:0, last:"好的沒問題，期待您的回覆！", time:"週一",
-    msgs:[
-      {from:"them", text:"您好我從活動認識您的，想了解退休規劃", time:"週一 09:00"},
-      {from:"me",   text:"張先生您好！我們可以先簡單聊聊您目前的狀況，幫您做初步的退休需求分析～", time:"週一 09:30"},
-      {from:"them", text:"好的沒問題，期待您的回覆！", time:"週一 09:45"},
-    ]},
-  { id:5, name:"劉冠霖", av:"劉", source:"IG", unread:1, last:"想知道定期壽險跟終身壽險差在哪", time:"09:03",
-    msgs:[{from:"them", text:"想知道定期壽險跟終身壽險差在哪", time:"09:03"}]},
-];
+// ── Helpers ───────────────────────────────────────────────
+const fmt = n => n ? n.toLocaleString() : "—";
+const today = () => new Date().toISOString().slice(0,10);
+let nextId = 13;
 
-const STAGE_CFG = {
-  "初步接觸": { wrap:"bg-slate-100 text-slate-600",    dot:"bg-slate-400" },
-  "需求分析": { wrap:"bg-amber-50 text-amber-700",     dot:"bg-amber-400" },
-  "方案建議": { wrap:"bg-blue-50 text-blue-700",       dot:"bg-blue-500" },
-  "已簽約":   { wrap:"bg-emerald-50 text-emerald-700", dot:"bg-emerald-500" },
-};
-const URGENCY_CFG = {
-  high:   { ring:"ring-red-200",   dot:"bg-red-400",   badge:"bg-red-50 text-red-600" },
-  medium: { ring:"ring-amber-200", dot:"bg-amber-400", badge:"bg-amber-50 text-amber-700" },
-  low:    { ring:"ring-slate-200", dot:"bg-slate-300", badge:"bg-slate-50 text-slate-500" },
-};
-const AV_COLORS = ["bg-violet-500","bg-blue-500","bg-emerald-500","bg-amber-500","bg-rose-500","bg-cyan-500"];
-
-function Av({ name, size="md", cls="" }) {
-  const sz = { sm:"w-8 h-8 text-sm", md:"w-10 h-10 text-base", lg:"w-12 h-12 text-lg" }[size];
-  const col = AV_COLORS[name.charCodeAt(0) % AV_COLORS.length];
-  return <div className={`${sz} ${col} rounded-full flex items-center justify-center font-bold text-white flex-shrink-0 ${cls}`}>{name[0]}</div>;
+function daysUntil(dateStr) {
+  const d = Math.ceil((new Date(dateStr) - new Date()) / 86400000);
+  return d;
 }
 
-function SourceBadge({ source }) {
-  const labels = { LINE:"LINE", IG:"IG", "轉介紹":"介紹" };
-  const style = source === "IG" ? {background:"linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045)"} : {};
-  const cls = source === "LINE" ? "line-badge" : source === "IG" ? "ig-badge" : "intro-badge";
-  return <span className={`inline-flex items-center rounded-full font-semibold text-white text-xs px-2 py-0.5 ${cls}`} style={style}>{labels[source]||source}</span>;
-}
+// ── Components ────────────────────────────────────────────
 
-function StageBadge({ stage }) {
-  const cfg = STAGE_CFG[stage] || STAGE_CFG["初步接觸"];
-  return <span className={`inline-flex items-center gap-1.5 rounded-full text-xs font-medium px-2.5 py-1 ${cfg.wrap}`}><span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`}/>{stage}</span>;
-}
-
-function Dashboard() {
-  const total = LEADS.length;
-  const cards = [
-    { label:"總客戶數",    value:total,   icon:"Users",        light:"bg-violet-50 text-violet-600", trend:"+12%" },
-    { label:"本月新增名單", value:LEADS.filter(l=>l.stage==="初步接觸").length+2, icon:"UserPlus", light:"bg-blue-50 text-blue-600", trend:"+3 本週" },
-    { label:"本月成交",    value:LEADS.filter(l=>l.stage==="已簽約").length, icon:"CheckCircle2", light:"bg-emerald-50 text-emerald-600", trend:"2 件進行中" },
-    { label:"待跟進名單",  value:LEADS.filter(l=>l.stage!=="已簽約").length, icon:"Clock", light:"bg-amber-50 text-amber-600", trend:"3 件本週到期" },
-  ];
+function KpiCard({ label, value, sub, accent, delay }) {
+  const colors = { blue:"#4f8ef7", teal:"#3dd6b5", amber:"#f5a623" };
+  const c = colors[accent] || colors.blue;
   return (
-    <div className="p-5 space-y-5">
-      <div>
-        <h2 className="text-2xl font-black text-slate-800 tracking-tight">儀表板</h2>
-        <p className="text-slate-500 text-sm mt-1">2026 年 5 月 21 日，您今天有 3 件待辦事項</p>
+    <div className={`kpi-card fade-up ${delay}`}>
+      <div style={{fontSize:12,color:"var(--muted)",fontWeight:600,letterSpacing:".06em",textTransform:"uppercase",marginBottom:10}}>{label}</div>
+      <div style={{fontSize:36,fontWeight:700,fontFamily:"var(--mono)",color:c,lineHeight:1}}>{value}</div>
+      {sub && <div style={{fontSize:12,color:"var(--muted)",marginTop:8}}>{sub}</div>}
+    </div>
+  );
+}
+
+function ReminderItem({ r }) {
+  const days = daysUntil(r.date);
+  const typeIcon = r.type === "birthday" ? "gift" : r.type === "policy" ? "cal" : "bell";
+  const urgentColor = r.urgent ? "var(--danger)" : "var(--accent2)";
+  return (
+    <div className="reminder-item" style={{gap:12}}>
+      <div style={{width:34,height:34,borderRadius:8,background:"var(--card)",border:"1px solid var(--border2)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,color:urgentColor}}>
+        <Icon n={typeIcon} size={15}/>
       </div>
-      <div className="grid grid-cols-2 gap-3">
-        {cards.map(c => (
-          <div key={c.label} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
-            <div className={`w-9 h-9 rounded-xl flex items-center justify-center mb-3 ${c.light}`}><LucideIcon icon={c.icon} size={17}/></div>
-            <div className="text-3xl font-black text-slate-800">{c.value}</div>
-            <div className="text-xs text-slate-500 mt-0.5">{c.label}</div>
-            <div className="text-xs font-semibold text-emerald-600 mt-2 flex items-center gap-1"><LucideIcon icon="ArrowUpRight" size={12}/>{c.trend}</div>
-          </div>
-        ))}
+      <div style={{flex:1,minWidth:0}}>
+        <div style={{fontSize:13,fontWeight:600,color:"var(--text)"}}>{r.client}</div>
+        <div style={{fontSize:12,color:"var(--muted)",marginTop:1}}>{r.detail}</div>
       </div>
-      <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
-        <h3 className="text-sm font-bold text-slate-700 mb-3">名單漏斗</h3>
-        {Object.entries(STAGE_CFG).map(([stage, cfg]) => {
-          const cnt = LEADS.filter(l=>l.stage===stage).length;
-          return (
-            <div key={stage} className="mb-2">
-              <div className="flex justify-between text-xs mb-1"><span className="text-slate-600">{stage}</span><span className="font-bold text-slate-800">{cnt} 人</span></div>
-              <div className="h-2 bg-slate-100 rounded-full overflow-hidden"><div className={`h-full rounded-full ${cfg.dot}`} style={{width:`${Math.round(cnt/total*100)}%`}}/></div>
-            </div>
-          );
-        })}
-      </div>
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-bold text-slate-700 flex items-center gap-2"><span className="text-amber-500"><LucideIcon icon="Bell" size={15}/></span>近期提醒</h3>
-          <span className="text-xs text-violet-600 font-semibold">全部查看</span>
+      <div style={{textAlign:"right",flexShrink:0}}>
+        <div style={{fontFamily:"var(--mono)",fontSize:12,color:urgentColor,fontWeight:600}}>
+          {days <= 0 ? "今天" : days === 1 ? "明天" : `${days} 天後`}
         </div>
-        <div className="space-y-2">
-          {REMINDERS.map(r => {
-            const uc = URGENCY_CFG[r.urgency];
+        <div style={{fontSize:11,color:"var(--muted)",marginTop:2}}>{r.date.slice(5).replace("-","/")}</div>
+      </div>
+      {r.urgent && <div className="pulse-dot" style={{width:7,height:7,borderRadius:"50%",background:"var(--danger)",flexShrink:0}}/>}
+    </div>
+  );
+}
+
+function StageDot({ stage }) {
+  const colors = ["#60a5fa","#fbbf24","#34d399","#f472b6"];
+  return <span style={{display:"inline-block",width:7,height:7,borderRadius:"50%",background:colors[stage],marginRight:5}}/>;
+}
+
+function AddModal({ onClose, onAdd }) {
+  const [form, setForm] = useState({
+    name:"", phone:"", type:"醫療險", premium:"", benefit:"",
+    stage:0, next:today(), note:""
+  });
+  const set = (k,v) => setForm(f=>({...f,[k]:v}));
+
+  function submit() {
+    if (!form.name.trim()) return;
+    onAdd({
+      id: nextId++,
+      name: form.name,
+      phone: form.phone,
+      type: form.type,
+      premium: parseInt(form.premium)||0,
+      benefit: parseInt(form.benefit)||0,
+      stage: parseInt(form.stage),
+      next: form.next,
+      note: form.note,
+    });
+    onClose();
+  }
+
+  return (
+    <div className="modal-bg" onClick={e=>e.target===e.currentTarget&&onClose()}>
+      <div className="modal-box">
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:22}}>
+          <span style={{fontWeight:700,fontSize:16,color:"var(--text)"}}>新增客戶</span>
+          <button onClick={onClose} style={{background:"none",border:"none",color:"var(--muted)",cursor:"pointer",display:"flex",padding:4}}>
+            <Icon n="close" size={18}/>
+          </button>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
+          <div style={{gridColumn:"1"}}>
+            <label className="label">客戶姓名 *</label>
+            <input className="input-field" placeholder="王小明" value={form.name} onChange={e=>set("name",e.target.value)}/>
+          </div>
+          <div>
+            <label className="label">聯絡電話</label>
+            <input className="input-field" placeholder="09xx-xxx-xxx" value={form.phone} onChange={e=>set("phone",e.target.value)}/>
+          </div>
+          <div>
+            <label className="label">險種規劃</label>
+            <select className="select-field" value={form.type} onChange={e=>set("type",e.target.value)}>
+              {INS_TYPES.map(t=><option key={t}>{t}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="label">目前階段</label>
+            <select className="select-field" value={form.stage} onChange={e=>set("stage",e.target.value)}>
+              {STAGE_LABELS.map((l,i)=><option key={i} value={i}>{l}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="label">年繳保費 (NT$)</label>
+            <input className="input-field" type="number" placeholder="48000" value={form.premium} onChange={e=>set("premium",e.target.value)}/>
+          </div>
+          <div>
+            <label className="label">年給付/保額 (NT$)</label>
+            <input className="input-field" type="number" placeholder="500000" value={form.benefit} onChange={e=>set("benefit",e.target.value)}/>
+          </div>
+          <div>
+            <label className="label">下次追蹤日</label>
+            <input className="input-field" type="date" value={form.next} onChange={e=>set("next",e.target.value)}/>
+          </div>
+          <div>
+            <label className="label">備註</label>
+            <input className="input-field" placeholder="簡短備忘" value={form.note} onChange={e=>set("note",e.target.value)}/>
+          </div>
+        </div>
+        <div style={{display:"flex",justifyContent:"flex-end",gap:10,marginTop:22}}>
+          <button onClick={onClose} style={{background:"var(--surface)",border:"1px solid var(--border2)",borderRadius:8,padding:"9px 16px",fontSize:13,color:"var(--muted)",cursor:"pointer",fontWeight:500}}>取消</button>
+          <button className="btn-primary" onClick={submit}><Icon n="check" size={15}/>確認新增</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Dashboard Page ────────────────────────────────────────
+function Dashboard({ clients }) {
+  const total = clients.length;
+  const thisMonth = clients.filter(c => c.next && c.next.startsWith("2026-05")).length;
+  const pending = clients.filter(c => c.stage < 3).length;
+  const urgentR = REMINDERS.filter(r => r.urgent);
+  const otherR  = REMINDERS.filter(r => !r.urgent);
+
+  return (
+    <div style={{padding:"28px 32px",maxWidth:1100}}>
+      {/* Header */}
+      <div className="fade-up" style={{marginBottom:28}}>
+        <div style={{fontSize:22,fontWeight:700,color:"var(--text)",letterSpacing:"-.01em"}}>數據總覽</div>
+        <div style={{fontSize:13,color:"var(--muted)",marginTop:4}}>Insurance CRM &nbsp;·&nbsp; 2026 年 5 月</div>
+      </div>
+
+      {/* KPI */}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:16,marginBottom:28}}>
+        <KpiCard label="總客戶數" value={total} sub={`${clients.filter(c=>c.stage===3).length} 位已簽約`} accent="blue" delay="fade-up-1"/>
+        <KpiCard label="本月新增名單" value={thisMonth} sub="5 月追蹤記錄" accent="teal" delay="fade-up-2"/>
+        <KpiCard label="本月待跟進" value={pending} sub={`${clients.filter(c=>c.stage===1).length} 位需求分析中`} accent="amber" delay="fade-up-3"/>
+      </div>
+
+      {/* Reminders */}
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20}}>
+        <div className="fade-up fade-up-4">
+          <div style={{fontSize:12,fontWeight:600,color:"var(--muted)",letterSpacing:".06em",textTransform:"uppercase",marginBottom:12,display:"flex",alignItems:"center",gap:8}}>
+            <Icon n="alert" size={13} cl="text-danger"/> 緊急提醒
+          </div>
+          <div style={{display:"flex",flexDirection:"column",gap:8}}>
+            {urgentR.map(r=><ReminderItem key={r.id} r={r}/>)}
+            {urgentR.length===0 && <div style={{color:"var(--muted)",fontSize:13,padding:"16px 0"}}>目前無緊急提醒</div>}
+          </div>
+        </div>
+        <div className="fade-up fade-up-5">
+          <div style={{fontSize:12,fontWeight:600,color:"var(--muted)",letterSpacing:".06em",textTransform:"uppercase",marginBottom:12,display:"flex",alignItems:"center",gap:8}}>
+            <Icon n="bell" size={13}/> 近期安排
+          </div>
+          <div style={{display:"flex",flexDirection:"column",gap:8}}>
+            {otherR.map(r=><ReminderItem key={r.id} r={r}/>)}
+          </div>
+        </div>
+      </div>
+
+      {/* Stage Distribution */}
+      <div className="fade-up" style={{marginTop:28,background:"var(--card)",border:"1px solid var(--border)",borderRadius:12,padding:"20px 22px"}}>
+        <div style={{fontSize:12,fontWeight:600,color:"var(--muted)",letterSpacing:".06em",textTransform:"uppercase",marginBottom:16}}>名單階段分佈</div>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12}}>
+          {STAGE_LABELS.map((lbl,i)=>{
+            const cnt = clients.filter(c=>c.stage===i).length;
+            const pct = total ? Math.round(cnt/total*100) : 0;
+            const barColors = ["#4f8ef7","#fbbf24","#34d399","#f472b6"];
             return (
-              <div key={r.id} className={`bg-white rounded-xl p-3 shadow-sm border border-slate-100 flex items-center gap-3 ring-1 ${uc.ring}`}>
-                <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${uc.badge}`}><LucideIcon icon={r.icon} size={15}/></div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-bold text-slate-800">{r.client}</div>
-                  <div className="text-xs text-slate-500">{r.desc}</div>
+              <div key={i}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+                  <span style={{fontSize:12,color:"var(--muted)"}}>{lbl}</span>
+                  <span style={{fontFamily:"var(--mono)",fontSize:12,color:"var(--text)",fontWeight:600}}>{cnt}</span>
                 </div>
-                <div className="text-right flex-shrink-0">
-                  <div className="text-xs font-medium text-slate-600">{r.date.slice(5).replace("-","/")}</div>
-                  <div className={`mt-1 w-2 h-2 rounded-full ml-auto ${uc.dot}`}/>
+                <div style={{height:5,background:"var(--surface)",borderRadius:99,overflow:"hidden"}}>
+                  <div style={{width:`${pct}%`,height:"100%",background:barColors[i],borderRadius:99,transition:"width .4s ease"}}/>
                 </div>
+                <div style={{fontSize:11,color:"var(--muted)",marginTop:4}}>{pct}%</div>
               </div>
             );
           })}
@@ -205,179 +401,211 @@ function Dashboard() {
   );
 }
 
-function LeadManagement() {
+// ── Lead & Policy Table ───────────────────────────────────
+function LeadTable({ clients, onAdd, onUpdateStage }) {
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState("全部");
-  const [open, setOpen] = useState(null);
-  const stages = ["全部","初步接觸","需求分析","方案建議","已簽約"];
-  const filtered = LEADS.filter(l => (l.name.includes(search)||l.note.includes(search)) && (filter==="全部"||l.stage===filter));
-  return (
-    <div className="flex flex-col h-full">
-      <div className="p-5 pb-3 bg-white sticky top-0 z-10 border-b border-slate-100">
-        <div className="flex items-center justify-between mb-4">
-          <div><h2 className="text-2xl font-black text-slate-800 tracking-tight">行銷名單</h2><p className="text-slate-500 text-sm mt-0.5">共 {LEADS.length} 筆名單</p></div>
-          <button className="flex items-center gap-1.5 bg-violet-600 text-white text-sm font-bold px-4 py-2.5 rounded-xl shadow-sm"><LucideIcon icon="Plus" size={16}/> 新增客戶</button>
-        </div>
-        <div className="relative mb-3">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"><LucideIcon icon="Search" size={15}/></span>
-          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="搜尋姓名、備註…" className="w-full pl-9 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-300"/>
-        </div>
-        <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
-          {stages.map(s => <button key={s} onClick={()=>setFilter(s)} className={`flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full transition-all ${filter===s?"bg-violet-600 text-white":"bg-slate-100 text-slate-600"}`}>{s}</button>)}
-        </div>
-      </div>
-      <div className="flex-1 overflow-y-auto p-5 pt-4 space-y-3">
-        {filtered.map(lead => (
-          <div key={lead.id} onClick={()=>setOpen(open===lead.id?null:lead.id)} className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 cursor-pointer hover:border-violet-200 transition-all">
-            <div className="flex items-start gap-3">
-              <Av name={lead.av}/>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap"><span className="font-bold text-slate-800">{lead.name}</span><SourceBadge source={lead.source}/></div>
-                <div className="mt-1.5 flex items-center gap-2 flex-wrap"><StageBadge stage={lead.stage}/><span className="text-xs text-slate-400 flex items-center gap-1"><LucideIcon icon="Calendar" size={11}/>{lead.next}</span></div>
-              </div>
-              <span className="text-slate-300 mt-1" style={{display:"inline-block",transform:open===lead.id?"rotate(90deg)":"none",transition:"transform 0.2s"}}><LucideIcon icon="ChevronRight" size={16}/></span>
-            </div>
-            {open===lead.id && (
-              <div className="mt-3 pt-3 border-t border-slate-100 space-y-2">
-                <div className="text-xs text-slate-600 bg-slate-50 rounded-xl p-3 leading-relaxed">📝 {lead.note}</div>
-                <div className="flex gap-2 flex-wrap">{lead.tags.map(t=><span key={t} className="text-xs bg-violet-50 text-violet-700 px-2 py-0.5 rounded-full font-semibold">#{t}</span>)}</div>
-                <div className="flex gap-2 pt-1">
-                  <button className="flex-1 text-xs font-bold text-violet-700 bg-violet-50 py-2 rounded-xl">編輯資料</button>
-                  <button className="flex-1 text-xs font-bold text-slate-700 bg-slate-50 py-2 rounded-xl">發送訊息</button>
-                </div>
-              </div>
-            )}
-          </div>
-        ))}
-        {filtered.length===0 && <div className="text-center py-20 text-slate-400"><div className="flex justify-center mb-3 opacity-30"><LucideIcon icon="Search" size={40}/></div><p className="text-sm">找不到相符的名單</p></div>}
-      </div>
-    </div>
-  );
-}
+  const [stageF, setStageF] = useState(-1);
+  const [showModal, setShowModal] = useState(false);
+  const [sortKey, setSortKey] = useState("next");
+  const [sortAsc, setSortAsc] = useState(true);
 
-function InboxPage() {
-  const [active, setActive] = useState(CONVERSATIONS[0]);
-  const [view, setView] = useState("list");
-  const [input, setInput] = useState("");
-  const [msgs, setMsgs] = useState(CONVERSATIONS[0].msgs);
+  const filtered = useMemo(() => {
+    let r = clients.filter(c =>
+      (stageF < 0 || c.stage === stageF) &&
+      (c.name.includes(search) || c.phone.includes(search) || c.type.includes(search) || c.note.includes(search))
+    );
+    r.sort((a,b) => {
+      let av = a[sortKey], bv = b[sortKey];
+      if (typeof av === "string") return sortAsc ? av.localeCompare(bv) : bv.localeCompare(av);
+      return sortAsc ? av-bv : bv-av;
+    });
+    return r;
+  }, [clients, search, stageF, sortKey, sortAsc]);
 
-  function openChat(conv) { setActive(conv); setMsgs(conv.msgs); setView("chat"); }
-  function send() {
-    if (!input.trim()) return;
-    const now = new Date();
-    setMsgs(prev=>[...prev,{from:"me",text:input.trim(),time:`${now.getHours()}:${String(now.getMinutes()).padStart(2,"0")}`}]);
-    setInput("");
+  function toggleSort(k) {
+    if (sortKey===k) setSortAsc(a=>!a);
+    else { setSortKey(k); setSortAsc(true); }
   }
-  const srcDot = s => ({LINE:"bg-green-500",IG:"bg-pink-500","轉介紹":"bg-amber-500"}[s]||"bg-slate-400");
 
-  if (view==="chat") return (
-    <div className="flex flex-col h-full">
-      <div className="px-4 py-3 bg-white border-b border-slate-100 flex items-center gap-3 sticky top-0 z-10">
-        <button onClick={()=>setView("list")} className="flex items-center gap-1 text-violet-600 font-bold text-sm"><LucideIcon icon="ChevronLeft" size={18}/>返回</button>
-        <Av name={active.av} size="sm"/>
-        <div className="flex-1"><div className="flex items-center gap-2"><span className="font-bold text-slate-800 text-sm">{active.name}</span><SourceBadge source={active.source}/></div><div className="text-xs text-emerald-500 font-semibold">線上</div></div>
-        <span className="text-slate-400"><LucideIcon icon="Phone" size={18}/></span>
-        <span className="text-slate-400 ml-1"><LucideIcon icon="Info" size={18}/></span>
-      </div>
-      <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50">
-        {msgs.map((m,i)=>(
-          <div key={i} className={`flex ${m.from==="me"?"justify-end":"justify-start"}`}>
-            {m.from!=="me" && <Av name={active.av} size="sm" cls="mr-2 mt-1"/>}
-            <div className={`max-w-xs px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm ${m.from==="me"?"bg-violet-600 text-white rounded-br-sm":"bg-white text-slate-800 rounded-bl-sm"}`}>
-              {m.text}<div className={`text-xs mt-1 ${m.from==="me"?"text-violet-200":"text-slate-400"}`}>{m.time}</div>
-            </div>
-          </div>
-        ))}
-        <div className="text-center pt-1"><span className="text-xs text-slate-400 bg-white px-3 py-1.5 rounded-full shadow-sm border border-slate-100">🔗 此對話透過 {active.source} 串接</span></div>
-      </div>
-      <div className="p-3 bg-white border-t border-slate-100">
-        <div className="flex items-center gap-2 bg-slate-50 rounded-2xl px-3 py-2 border border-slate-200">
-          <span className="text-slate-400"><LucideIcon icon="Smile" size={20}/></span>
-          <input value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&send()} placeholder="輸入訊息…" className="flex-1 bg-transparent text-sm focus:outline-none text-slate-700 min-w-0"/>
-          <span className="text-slate-400"><LucideIcon icon="Paperclip" size={18}/></span>
-          <button onClick={send} className="w-8 h-8 bg-violet-600 rounded-xl flex items-center justify-center flex-shrink-0"><span className="text-white"><LucideIcon icon="Send" size={14}/></span></button>
-        </div>
-      </div>
-    </div>
+  const TH = ({label, k, style={}}) => (
+    <th onClick={()=>toggleSort(k)} style={{padding:"10px 14px",textAlign:"left",fontSize:11,fontWeight:600,color:"var(--muted)",letterSpacing:".06em",textTransform:"uppercase",cursor:"pointer",userSelect:"none",whiteSpace:"nowrap",...style}}>
+      {label} {sortKey===k ? (sortAsc?"↑":"↓") : ""}
+    </th>
   );
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="p-5 pb-3">
-        <h2 className="text-2xl font-black text-slate-800 tracking-tight">訊息收件匣</h2>
-        <p className="text-slate-500 text-sm mt-0.5">整合 LINE・Instagram 訊息</p>
-        <div className="flex gap-2 mt-4">
-          {[{label:"全部",cnt:CONVERSATIONS.length},{label:"LINE",cnt:CONVERSATIONS.filter(c=>c.source==="LINE").length},{label:"IG",cnt:CONVERSATIONS.filter(c=>c.source==="IG").length}].map((t,i)=>(
-            <button key={t.label} className={`flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full ${i===0?"bg-violet-600 text-white":"bg-slate-100 text-slate-600"}`}>
-              {t.label}<span className={`text-xs font-black px-1.5 py-0.5 rounded-full ${i===0?"bg-violet-500 text-white":"bg-slate-200 text-slate-500"}`}>{t.cnt}</span>
+    <div style={{padding:"28px 32px"}}>
+      {/* Header */}
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:20}} className="fade-up">
+        <div>
+          <div style={{fontSize:22,fontWeight:700,color:"var(--text)",letterSpacing:"-.01em"}}>客戶與保單名單</div>
+          <div style={{fontSize:13,color:"var(--muted)",marginTop:4}}>共 {filtered.length} / {clients.length} 筆</div>
+        </div>
+        <button className="btn-primary fade-up" onClick={()=>setShowModal(true)}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          新增客戶
+        </button>
+      </div>
+
+      {/* Filters */}
+      <div className="fade-up fade-up-1" style={{display:"flex",gap:10,marginBottom:18,flexWrap:"wrap"}}>
+        <div style={{position:"relative",flex:"1",minWidth:180}}>
+          <Icon n="search" size={14} cl="" style={{position:"absolute"}}/>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="2" strokeLinecap="round" style={{position:"absolute",left:11,top:"50%",transform:"translateY(-50%)"}}><path d="M21 21l-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0"/></svg>
+          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="搜尋姓名、電話、險種…"
+            style={{width:"100%",paddingLeft:34,paddingRight:12,paddingTop:8,paddingBottom:8,background:"var(--card)",border:"1px solid var(--border2)",borderRadius:8,color:"var(--text)",fontSize:13,outline:"none"}}/>
+        </div>
+        <div style={{display:"flex",gap:6}}>
+          {[{l:"全部",v:-1},...STAGE_LABELS.map((l,i)=>({l,v:i}))].map(({l,v})=>(
+            <button key={v} onClick={()=>setStageF(v)}
+              style={{padding:"7px 13px",borderRadius:7,fontSize:12,fontWeight:600,cursor:"pointer",border:"1px solid",
+                borderColor:stageF===v?"var(--accent)":"var(--border2)",
+                background:stageF===v?"rgba(79,142,247,.12)":"var(--card)",
+                color:stageF===v?"var(--accent)":"var(--muted)",transition:"all .15s"}}>
+              {l}
             </button>
           ))}
         </div>
       </div>
-      <div className="mx-5 mb-3 bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-start gap-2">
-        <span className="text-amber-600 flex-shrink-0 mt-0.5"><LucideIcon icon="AlertCircle" size={15}/></span>
-        <p className="text-xs text-amber-700 leading-relaxed"><span className="font-bold">串接準備中：</span>LINE 官方帳號與 Instagram API 將在下一版本整合，目前顯示模擬資料。</p>
+
+      {/* Table */}
+      <div className="fade-up fade-up-2" style={{background:"var(--card)",border:"1px solid var(--border)",borderRadius:12,overflow:"hidden"}}>
+        <div style={{overflowX:"auto"}}>
+          <table style={{width:"100%",borderCollapse:"collapse"}}>
+            <thead>
+              <tr style={{borderBottom:"1px solid var(--border)"}}>
+                <TH label="客戶 / 電話" k="name"/>
+                <TH label="險種" k="type"/>
+                <TH label="年繳保費" k="premium"/>
+                <TH label="保額 / 年給付" k="benefit"/>
+                <TH label="階段" k="stage"/>
+                <TH label="下次追蹤" k="next"/>
+                <th style={{padding:"10px 14px",width:40}}/>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((c,idx)=>{
+                const days = daysUntil(c.next);
+                const dateColor = days <= 0 ? "var(--danger)" : days <= 3 ? "var(--warn)" : "var(--muted)";
+                return (
+                  <tr key={c.id} className="table-row">
+                    <td style={{padding:"13px 14px"}}>
+                      <div style={{fontWeight:600,fontSize:14,color:"var(--text)"}}>{c.name}</div>
+                      <div style={{fontSize:12,color:"var(--muted)",fontFamily:"var(--mono)",marginTop:2}}>{c.phone||"—"}</div>
+                    </td>
+                    <td style={{padding:"13px 14px"}}>
+                      <span className="badge" style={{background:"var(--surface)",color:"var(--text)",border:"1px solid var(--border2)",fontSize:11}}>
+                        {c.type}
+                      </span>
+                    </td>
+                    <td style={{padding:"13px 14px"}}>
+                      <div style={{fontFamily:"var(--mono)",fontSize:13,fontWeight:600,color:"var(--accent2)"}}>
+                        {c.premium ? `NT$ ${fmt(c.premium)}` : "—"}
+                      </div>
+                    </td>
+                    <td style={{padding:"13px 14px"}}>
+                      <div style={{fontFamily:"var(--mono)",fontSize:13,color:"var(--text)"}}>
+                        {c.benefit ? `NT$ ${fmt(c.benefit)}` : "—"}
+                      </div>
+                    </td>
+                    <td style={{padding:"13px 14px"}}>
+                      <select value={c.stage}
+                        onChange={e=>onUpdateStage(c.id, parseInt(e.target.value))}
+                        className={`badge ${STAGE_CLS[c.stage]}`}
+                        style={{border:"none",cursor:"pointer",appearance:"none",paddingRight:8,outline:"none",fontSize:11,fontWeight:600,fontFamily:"inherit"}}>
+                        {STAGE_LABELS.map((l,i)=><option key={i} value={i}>{l}</option>)}
+                      </select>
+                    </td>
+                    <td style={{padding:"13px 14px"}}>
+                      <div style={{fontFamily:"var(--mono)",fontSize:12,color:dateColor,fontWeight:600}}>
+                        {c.next || "—"}
+                      </div>
+                      {days <= 3 && days >= 0 && (
+                        <div style={{fontSize:10,color:dateColor,marginTop:2}}>
+                          {days===0?"今天":days===1?"明天":`${days}天後`}
+                        </div>
+                      )}
+                    </td>
+                    <td style={{padding:"13px 14px",color:"var(--muted)"}}>
+                      <Icon n="chevR" size={15}/>
+                    </td>
+                  </tr>
+                );
+              })}
+              {filtered.length===0 && (
+                <tr><td colSpan={7} style={{padding:"40px",textAlign:"center",color:"var(--muted)",fontSize:13}}>
+                  找不到符合條件的客戶
+                </td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
-      <div className="flex-1 overflow-y-auto px-4 pb-6 space-y-1">
-        {CONVERSATIONS.map(conv=>(
-          <div key={conv.id} onClick={()=>openChat(conv)} className="flex items-center gap-3 p-3 rounded-2xl hover:bg-slate-50 cursor-pointer active:bg-slate-100 transition-colors">
-            <div className="relative">
-              <Av name={conv.av}/>
-              <span className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 ${srcDot(conv.source)} rounded-full flex items-center justify-center text-white font-black`} style={{fontSize:"7px"}}>{conv.source==="LINE"?"L":conv.source==="IG"?"IG":"介"}</span>
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between"><span className="font-bold text-slate-800 text-sm">{conv.name}</span><span className="text-xs text-slate-400">{conv.time}</span></div>
-              <p className="text-xs text-slate-500 truncate mt-0.5">{conv.last}</p>
-            </div>
-            {conv.unread>0 && <span className="w-5 h-5 bg-violet-600 text-white text-xs font-black rounded-full flex items-center justify-center flex-shrink-0">{conv.unread}</span>}
-          </div>
-        ))}
-      </div>
+
+      {showModal && <AddModal onClose={()=>setShowModal(false)} onAdd={c=>{onAdd(c);setShowModal(false);}}/>}
     </div>
   );
 }
 
-const NAV = [{id:"dashboard",label:"儀表板",icon:"LayoutDashboard"},{id:"leads",label:"名單管理",icon:"List"},{id:"inbox",label:"收件匣",icon:"MessageSquare"}];
-
+// ── App Shell ─────────────────────────────────────────────
 function App() {
-  const [page, setPage] = useState("dashboard");
-  const totalUnread = CONVERSATIONS.reduce((s,c)=>s+c.unread,0);
-  const highUrgent = REMINDERS.filter(r=>r.urgency==="high").length;
+  const [page, setPage] = useState("dash");
+  const [clients, setClients] = useState(initClients);
+
+  function addClient(c) { setClients(prev=>[c,...prev]); }
+  function updateStage(id, s) { setClients(prev=>prev.map(c=>c.id===id?{...c,stage:s}:c)); }
+
+  const urgentCount = REMINDERS.filter(r=>r.urgent).length;
+
+  const navItems = [
+    { id:"dash",  label:"數據總覽",   icon:"dash" },
+    { id:"leads", label:"客戶名單",   icon:"users" },
+  ];
+
   return (
-    <div style={{maxWidth:430,margin:"0 auto",minHeight:"100vh",display:"flex",flexDirection:"column",background:"#f8fafc"}}>
-      <header className="bg-white border-b border-slate-100 px-5 py-3.5 flex items-center justify-between sticky top-0 z-20">
-        <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white flex-shrink-0" style={{background:"linear-gradient(135deg,#7c3aed,#4f46e5)"}}><LucideIcon icon="Star" size={16}/></div>
-          <div><div className="font-black text-slate-800 text-sm leading-tight tracking-widest">NEXUS CRM</div><div className="text-slate-400 leading-tight" style={{fontSize:"10px"}}>行銷名單管理系統</div></div>
+    <div style={{display:"flex",minHeight:"100vh",background:"var(--bg)"}}>
+
+      {/* Sidebar */}
+      <aside style={{width:220,flexShrink:0,background:"var(--surface)",borderRight:"1px solid var(--border)",display:"flex",flexDirection:"column",padding:"20px 12px"}}>
+        {/* Brand */}
+        <div style={{padding:"4px 10px 20px",borderBottom:"1px solid var(--border)",marginBottom:12}}>
+          <div style={{fontSize:13,fontWeight:700,color:"var(--text)",letterSpacing:".04em"}}>INSURANCE</div>
+          <div style={{fontSize:11,color:"var(--muted)",marginTop:1,fontFamily:"var(--mono)"}}>CRM v1.0</div>
         </div>
-        <div className="flex items-center gap-3">
-          <button className="relative text-slate-500">
-            <LucideIcon icon="Bell" size={20}/>
-            {highUrgent>0 && <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white font-black rounded-full flex items-center justify-center" style={{fontSize:"9px"}}>{highUrgent}</span>}
-          </button>
-          <div className="w-8 h-8 rounded-full flex items-center justify-center text-white font-black text-sm" style={{background:"linear-gradient(135deg,#7c3aed,#6d28d9)"}}>我</div>
-        </div>
-      </header>
-      <main style={{flex:1,overflowY:"auto"}}>
-        {page==="dashboard" && <Dashboard/>}
-        {page==="leads" && <LeadManagement/>}
-        {page==="inbox" && <InboxPage/>}
-      </main>
-      <nav className="bg-white border-t border-slate-100 px-2 py-2 flex items-center justify-around sticky bottom-0 z-20">
-        {NAV.map(item=>{
-          const active=page===item.id;
-          return (
-            <button key={item.id} onClick={()=>setPage(item.id)} className={`flex flex-col items-center gap-1 px-5 py-2 rounded-2xl transition-all relative ${active?"text-violet-600":"text-slate-400"}`}>
-              {active && <span className="absolute inset-0 bg-violet-50 rounded-2xl"/>}
-              <span className="relative">
-                <LucideIcon icon={item.icon} size={22} sw={active?2.5:1.8}/>
-                {item.id==="inbox" && totalUnread>0 && <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-red-500 text-white font-black rounded-full flex items-center justify-center" style={{fontSize:"9px"}}>{totalUnread}</span>}
-              </span>
-              <span className={`relative font-semibold ${active?"text-violet-600":"text-slate-400"}`} style={{fontSize:"10px"}}>{item.label}</span>
+
+        {/* Nav */}
+        <nav style={{display:"flex",flexDirection:"column",gap:3}}>
+          {navItems.map(n=>(
+            <button key={n.id} className={`nav-item ${page===n.id?"active":""}`} onClick={()=>setPage(n.id)}>
+              <Icon n={n.icon} size={16}/>
+              {n.label}
             </button>
-          );
-        })}
-      </nav>
+          ))}
+        </nav>
+
+        {/* Alerts */}
+        <div style={{marginTop:"auto",padding:"12px",background:"var(--card)",borderRadius:9,border:"1px solid var(--border)"}}>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
+            <div className="pulse-dot" style={{width:7,height:7,borderRadius:"50%",background:"var(--danger)",flexShrink:0}}/>
+            <span style={{fontSize:11,fontWeight:600,color:"var(--danger)"}}>緊急提醒</span>
+          </div>
+          <div style={{fontSize:12,color:"var(--muted)"}}>本週有 <span style={{color:"var(--text)",fontWeight:600}}>{urgentCount} 件</span> 待處理事項</div>
+          <button onClick={()=>setPage("dash")} style={{marginTop:10,width:"100%",padding:"6px 0",background:"rgba(240,94,106,.08)",border:"1px solid rgba(240,94,106,.2)",borderRadius:6,fontSize:11,color:"var(--danger)",cursor:"pointer",fontWeight:600}}>
+            查看提醒
+          </button>
+        </div>
+
+        {/* Footer */}
+        <div style={{marginTop:12,padding:"8px 10px",fontSize:11,color:"var(--muted)",fontFamily:"var(--mono)"}}>
+          {clients.length} clients
+        </div>
+      </aside>
+
+      {/* Main */}
+      <main style={{flex:1,overflowY:"auto",overflowX:"hidden"}}>
+        {page==="dash" && <Dashboard clients={clients}/>}
+        {page==="leads" && <LeadTable clients={clients} onAdd={addClient} onUpdateStage={updateStage}/>}
+      </main>
     </div>
   );
 }
