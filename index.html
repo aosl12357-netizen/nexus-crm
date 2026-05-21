@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NEXUS CRM — 行銷名單管理</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet" />
+
+<style>
+  * { font-family: 'Noto Sans TC', 'PingFang TC', sans-serif; }
+  body { background: #f8fafc; }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+  .line-badge { background: #06C755; }
+  .ig-badge { background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045); }
+  .intro-badge { background: #f59e0b; }
+</style>
+
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+function LucideIcon({ icon, size=18, className="", sw=2 }) {
+  const ICONS = {
+    Users: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+    UserPlus: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg>,
+    CheckCircle2: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>,
+    Clock: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+    ArrowUpRight: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>,
+    Bell: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>,
+    Star: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
+    LayoutDashboard: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>,
+    List: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>,
+    MessageSquare: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>,
+    Plus: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><line x1="12" x2="12" y1="5" y2="19"/><line x1="5" x2="19" y1="12" y2="12"/></svg>,
+    Search: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/></svg>,
+    ChevronRight: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>,
+    ChevronLeft: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>,
+    Calendar: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>,
+    Send: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><line x1="22" x2="11" y1="2" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>,
+    Paperclip: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>,
+    Smile: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 13s1.5 2 4 2 4-2 4-2"/><line x1="9" x2="9.01" y1="9" y2="9"/><line x1="15" x2="15.01" y1="9" y2="9"/></svg>,
+    Phone: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.99 12a19.79 19.79 0 0 1-3-8.63A2 2 0 0 1 4 1.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>,
+    Info: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>,
+    AlertCircle: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>,
+    Gift: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect width="20" height="5" x="2" y="7"/><line x1="12" x2="12" y1="22" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>,
+    FileText: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>,
+  };
+  return <span className={`inline-flex items-center justify-center ${className}`}>{ICONS[icon] || null}</span>;
+}
+
+const LEADS = [
+  { id:1, name:"陳雅婷", av:"陳", source:"LINE",  stage:"已簽約",   next:"2026-06-10", note:"年繳保費 NT$48,000，偏好低風險商品", tags:["VIP","保守型"] },
+  { id:2, name:"林俊宏", av:"林", source:"IG",    stage:"方案建議", next:"2026-05-25", note:"對投資型保單有興趣，詢問過美元計價商品", tags:["積極型"] },
+  { id:3, name:"黃美玲", av:"黃", source:"轉介紹", stage:"需求分析", next:"2026-05-22", note:"由陳雅婷轉介紹，剛成立小企業需規劃員工福利", tags:["企業主"] },
+  { id:4, name:"張偉誠", av:"張", source:"LINE",  stage:"初步接觸", next:"2026-05-28", note:"透過官帳活動加入，對退休規劃感興趣", tags:["退休規劃"] },
+  { id:5, name:"王淑芬", av:"王", source:"IG",    stage:"需求分析", next:"2026-06-03", note:"育有兩子，主要需求為子女教育金規劃", tags:["教育金","家庭"] },
+  { id:6, name:"李建志", av:"李", source:"轉介紹", stage:"方案建議", next:"2026-05-29", note:"IT 工程師，月收入穩定，詢問過重疾險", tags:["重疾險"] },
+  { id:7, name:"吳思穎", av:"吳", source:"LINE",  stage:"已簽約",   next:"2026-07-15", note:"二次成交，本月剛加購醫療實支實付", tags:["VIP","醫療"] },
+  { id:8, name:"劉冠霖", av:"劉", source:"IG",    stage:"初步接觸", next:"2026-06-01", note:"看到 IG 貼文私訊，詢問定期壽險費率", tags:["壽險"] },
+];
+
+const REMINDERS = [
+  { id:1, icon:"FileText", client:"陳雅婷", desc:"保單週年檢視",   date:"2026-05-23", urgency:"high" },
+  { id:2, icon:"Gift",     client:"林俊宏", desc:"生日祝賀",       date:"2026-05-27", urgency:"medium" },
+  { id:3, icon:"Phone",    client:"黃美玲", desc:"方案討論回訪",   date:"2026-05-22", urgency:"high" },
+  { id:4, icon:"CheckCircle2", client:"吳思穎", desc:"新契約90天關懷", date:"2026-06-01", urgency:"low" },
+  { id:5, icon:"Gift",     client:"王淑芬", desc:"生日祝賀",       date:"2026-06-05", urgency:"low" },
+];
+
+const CONVERSATIONS = [
+  { id:1, name:"陳雅婷", av:"陳", source:"LINE", unread:2, last:"好的！那我明天下午方便通話嗎？", time:"11:42",
+    msgs:[
+      {from:"them", text:"您好！想請問一下我的保單今年幾月到期？", time:"11:30"},
+      {from:"me",   text:"陳小姐您好！您的保單（PA-20210815）於今年 8 月 15 日到期，屆時我會提前提醒您做週年檢視 😊", time:"11:35"},
+      {from:"them", text:"太好了謝謝！還有，我想了解一下新的增額壽險有沒有比較適合我的？", time:"11:38"},
+      {from:"me",   text:"有的！最近有一款 6 年期的商品，預定利率不錯，很適合您的保守型規劃。我整理一份比較表給您看看？", time:"11:39"},
+      {from:"them", text:"好的！那我明天下午方便通話嗎？", time:"11:42"},
+    ]},
+  { id:2, name:"林俊宏", av:"林", source:"IG", unread:0, last:"收到，我看完再跟你說", time:"昨天",
+    msgs:[
+      {from:"me",   text:"林先生您好，這是您詢問的美元利率變動型壽險資料，請參考 📄", time:"昨天 14:20"},
+      {from:"them", text:"收到，我看完再跟你說", time:"昨天 18:05"},
+    ]},
+  { id:3, name:"黃美玲", av:"黃", source:"轉介紹", unread:5, last:"請問員工團體險大概多少錢？", time:"10:15",
+    msgs:[
+      {from:"them", text:"你好，我是陳雅婷介紹來的！", time:"10:00"},
+      {from:"me",   text:"黃小姐您好！雅婷有提到您，歡迎～請問您目前公司大概有幾位員工呢？", time:"10:05"},
+      {from:"them", text:"目前 8 個人，未來可能擴編到 15 人", time:"10:08"},
+      {from:"them", text:"請問員工團體險大概多少錢？", time:"10:15"},
+    ]},
+  { id:4, name:"張偉誠", av:"張", source:"LINE", unread:0, last:"好的沒問題，期待您的回覆！", time:"週一",
+    msgs:[
+      {from:"them", text:"您好我從活動認識您的，想了解退休規劃", time:"週一 09:00"},
+      {from:"me",   text:"張先生您好！我們可以先簡單聊聊您目前的狀況，幫您做初步的退休需求分析～", time:"週一 09:30"},
+      {from:"them", text:"好的沒問題，期待您的回覆！", time:"週一 09:45"},
+    ]},
+  { id:5, name:"劉冠霖", av:"劉", source:"IG", unread:1, last:"想知道定期壽險跟終身壽險差在哪", time:"09:03",
+    msgs:[{from:"them", text:"想知道定期壽險跟終身壽險差在哪", time:"09:03"}]},
+];
+
+const STAGE_CFG = {
+  "初步接觸": { wrap:"bg-slate-100 text-slate-600",    dot:"bg-slate-400" },
+  "需求分析": { wrap:"bg-amber-50 text-amber-700",     dot:"bg-amber-400" },
+  "方案建議": { wrap:"bg-blue-50 text-blue-700",       dot:"bg-blue-500" },
+  "已簽約":   { wrap:"bg-emerald-50 text-emerald-700", dot:"bg-emerald-500" },
+};
+const URGENCY_CFG = {
+  high:   { ring:"ring-red-200",   dot:"bg-red-400",   badge:"bg-red-50 text-red-600" },
+  medium: { ring:"ring-amber-200", dot:"bg-amber-400", badge:"bg-amber-50 text-amber-700" },
+  low:    { ring:"ring-slate-200", dot:"bg-slate-300", badge:"bg-slate-50 text-slate-500" },
+};
+const AV_COLORS = ["bg-violet-500","bg-blue-500","bg-emerald-500","bg-amber-500","bg-rose-500","bg-cyan-500"];
+
+function Av({ name, size="md", cls="" }) {
+  const sz = { sm:"w-8 h-8 text-sm", md:"w-10 h-10 text-base", lg:"w-12 h-12 text-lg" }[size];
+  const col = AV_COLORS[name.charCodeAt(0) % AV_COLORS.length];
+  return <div className={`${sz} ${col} rounded-full flex items-center justify-center font-bold text-white flex-shrink-0 ${cls}`}>{name[0]}</div>;
+}
+
+function SourceBadge({ source }) {
+  const labels = { LINE:"LINE", IG:"IG", "轉介紹":"介紹" };
+  const style = source === "IG" ? {background:"linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045)"} : {};
+  const cls = source === "LINE" ? "line-badge" : source === "IG" ? "ig-badge" : "intro-badge";
+  return <span className={`inline-flex items-center rounded-full font-semibold text-white text-xs px-2 py-0.5 ${cls}`} style={style}>{labels[source]||source}</span>;
+}
+
+function StageBadge({ stage }) {
+  const cfg = STAGE_CFG[stage] || STAGE_CFG["初步接觸"];
+  return <span className={`inline-flex items-center gap-1.5 rounded-full text-xs font-medium px-2.5 py-1 ${cfg.wrap}`}><span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`}/>{stage}</span>;
+}
+
+function Dashboard() {
+  const total = LEADS.length;
+  const cards = [
+    { label:"總客戶數",    value:total,   icon:"Users",        light:"bg-violet-50 text-violet-600", trend:"+12%" },
+    { label:"本月新增名單", value:LEADS.filter(l=>l.stage==="初步接觸").length+2, icon:"UserPlus", light:"bg-blue-50 text-blue-600", trend:"+3 本週" },
+    { label:"本月成交",    value:LEADS.filter(l=>l.stage==="已簽約").length, icon:"CheckCircle2", light:"bg-emerald-50 text-emerald-600", trend:"2 件進行中" },
+    { label:"待跟進名單",  value:LEADS.filter(l=>l.stage!=="已簽約").length, icon:"Clock", light:"bg-amber-50 text-amber-600", trend:"3 件本週到期" },
+  ];
+  return (
+    <div className="p-5 space-y-5">
+      <div>
+        <h2 className="text-2xl font-black text-slate-800 tracking-tight">儀表板</h2>
+        <p className="text-slate-500 text-sm mt-1">2026 年 5 月 21 日，您今天有 3 件待辦事項</p>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        {cards.map(c => (
+          <div key={c.label} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+            <div className={`w-9 h-9 rounded-xl flex items-center justify-center mb-3 ${c.light}`}><LucideIcon icon={c.icon} size={17}/></div>
+            <div className="text-3xl font-black text-slate-800">{c.value}</div>
+            <div className="text-xs text-slate-500 mt-0.5">{c.label}</div>
+            <div className="text-xs font-semibold text-emerald-600 mt-2 flex items-center gap-1"><LucideIcon icon="ArrowUpRight" size={12}/>{c.trend}</div>
+          </div>
+        ))}
+      </div>
+      <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+        <h3 className="text-sm font-bold text-slate-700 mb-3">名單漏斗</h3>
+        {Object.entries(STAGE_CFG).map(([stage, cfg]) => {
+          const cnt = LEADS.filter(l=>l.stage===stage).length;
+          return (
+            <div key={stage} className="mb-2">
+              <div className="flex justify-between text-xs mb-1"><span className="text-slate-600">{stage}</span><span className="font-bold text-slate-800">{cnt} 人</span></div>
+              <div className="h-2 bg-slate-100 rounded-full overflow-hidden"><div className={`h-full rounded-full ${cfg.dot}`} style={{width:`${Math.round(cnt/total*100)}%`}}/></div>
+            </div>
+          );
+        })}
+      </div>
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-bold text-slate-700 flex items-center gap-2"><span className="text-amber-500"><LucideIcon icon="Bell" size={15}/></span>近期提醒</h3>
+          <span className="text-xs text-violet-600 font-semibold">全部查看</span>
+        </div>
+        <div className="space-y-2">
+          {REMINDERS.map(r => {
+            const uc = URGENCY_CFG[r.urgency];
+            return (
+              <div key={r.id} className={`bg-white rounded-xl p-3 shadow-sm border border-slate-100 flex items-center gap-3 ring-1 ${uc.ring}`}>
+                <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${uc.badge}`}><LucideIcon icon={r.icon} size={15}/></div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-bold text-slate-800">{r.client}</div>
+                  <div className="text-xs text-slate-500">{r.desc}</div>
+                </div>
+                <div className="text-right flex-shrink-0">
+                  <div className="text-xs font-medium text-slate-600">{r.date.slice(5).replace("-","/")}</div>
+                  <div className={`mt-1 w-2 h-2 rounded-full ml-auto ${uc.dot}`}/>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function LeadManagement() {
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("全部");
+  const [open, setOpen] = useState(null);
+  const stages = ["全部","初步接觸","需求分析","方案建議","已簽約"];
+  const filtered = LEADS.filter(l => (l.name.includes(search)||l.note.includes(search)) && (filter==="全部"||l.stage===filter));
+  return (
+    <div className="flex flex-col h-full">
+      <div className="p-5 pb-3 bg-white sticky top-0 z-10 border-b border-slate-100">
+        <div className="flex items-center justify-between mb-4">
+          <div><h2 className="text-2xl font-black text-slate-800 tracking-tight">行銷名單</h2><p className="text-slate-500 text-sm mt-0.5">共 {LEADS.length} 筆名單</p></div>
+          <button className="flex items-center gap-1.5 bg-violet-600 text-white text-sm font-bold px-4 py-2.5 rounded-xl shadow-sm"><LucideIcon icon="Plus" size={16}/> 新增客戶</button>
+        </div>
+        <div className="relative mb-3">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"><LucideIcon icon="Search" size={15}/></span>
+          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="搜尋姓名、備註…" className="w-full pl-9 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-300"/>
+        </div>
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+          {stages.map(s => <button key={s} onClick={()=>setFilter(s)} className={`flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full transition-all ${filter===s?"bg-violet-600 text-white":"bg-slate-100 text-slate-600"}`}>{s}</button>)}
+        </div>
+      </div>
+      <div className="flex-1 overflow-y-auto p-5 pt-4 space-y-3">
+        {filtered.map(lead => (
+          <div key={lead.id} onClick={()=>setOpen(open===lead.id?null:lead.id)} className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 cursor-pointer hover:border-violet-200 transition-all">
+            <div className="flex items-start gap-3">
+              <Av name={lead.av}/>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap"><span className="font-bold text-slate-800">{lead.name}</span><SourceBadge source={lead.source}/></div>
+                <div className="mt-1.5 flex items-center gap-2 flex-wrap"><StageBadge stage={lead.stage}/><span className="text-xs text-slate-400 flex items-center gap-1"><LucideIcon icon="Calendar" size={11}/>{lead.next}</span></div>
+              </div>
+              <span className="text-slate-300 mt-1" style={{display:"inline-block",transform:open===lead.id?"rotate(90deg)":"none",transition:"transform 0.2s"}}><LucideIcon icon="ChevronRight" size={16}/></span>
+            </div>
+            {open===lead.id && (
+              <div className="mt-3 pt-3 border-t border-slate-100 space-y-2">
+                <div className="text-xs text-slate-600 bg-slate-50 rounded-xl p-3 leading-relaxed">📝 {lead.note}</div>
+                <div className="flex gap-2 flex-wrap">{lead.tags.map(t=><span key={t} className="text-xs bg-violet-50 text-violet-700 px-2 py-0.5 rounded-full font-semibold">#{t}</span>)}</div>
+                <div className="flex gap-2 pt-1">
+                  <button className="flex-1 text-xs font-bold text-violet-700 bg-violet-50 py-2 rounded-xl">編輯資料</button>
+                  <button className="flex-1 text-xs font-bold text-slate-700 bg-slate-50 py-2 rounded-xl">發送訊息</button>
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+        {filtered.length===0 && <div className="text-center py-20 text-slate-400"><div className="flex justify-center mb-3 opacity-30"><LucideIcon icon="Search" size={40}/></div><p className="text-sm">找不到相符的名單</p></div>}
+      </div>
+    </div>
+  );
+}
+
+function InboxPage() {
+  const [active, setActive] = useState(CONVERSATIONS[0]);
+  const [view, setView] = useState("list");
+  const [input, setInput] = useState("");
+  const [msgs, setMsgs] = useState(CONVERSATIONS[0].msgs);
+
+  function openChat(conv) { setActive(conv); setMsgs(conv.msgs); setView("chat"); }
+  function send() {
+    if (!input.trim()) return;
+    const now = new Date();
+    setMsgs(prev=>[...prev,{from:"me",text:input.trim(),time:`${now.getHours()}:${String(now.getMinutes()).padStart(2,"0")}`}]);
+    setInput("");
+  }
+  const srcDot = s => ({LINE:"bg-green-500",IG:"bg-pink-500","轉介紹":"bg-amber-500"}[s]||"bg-slate-400");
+
+  if (view==="chat") return (
+    <div className="flex flex-col h-full">
+      <div className="px-4 py-3 bg-white border-b border-slate-100 flex items-center gap-3 sticky top-0 z-10">
+        <button onClick={()=>setView("list")} className="flex items-center gap-1 text-violet-600 font-bold text-sm"><LucideIcon icon="ChevronLeft" size={18}/>返回</button>
+        <Av name={active.av} size="sm"/>
+        <div className="flex-1"><div className="flex items-center gap-2"><span className="font-bold text-slate-800 text-sm">{active.name}</span><SourceBadge source={active.source}/></div><div className="text-xs text-emerald-500 font-semibold">線上</div></div>
+        <span className="text-slate-400"><LucideIcon icon="Phone" size={18}/></span>
+        <span className="text-slate-400 ml-1"><LucideIcon icon="Info" size={18}/></span>
+      </div>
+      <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50">
+        {msgs.map((m,i)=>(
+          <div key={i} className={`flex ${m.from==="me"?"justify-end":"justify-start"}`}>
+            {m.from!=="me" && <Av name={active.av} size="sm" cls="mr-2 mt-1"/>}
+            <div className={`max-w-xs px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm ${m.from==="me"?"bg-violet-600 text-white rounded-br-sm":"bg-white text-slate-800 rounded-bl-sm"}`}>
+              {m.text}<div className={`text-xs mt-1 ${m.from==="me"?"text-violet-200":"text-slate-400"}`}>{m.time}</div>
+            </div>
+          </div>
+        ))}
+        <div className="text-center pt-1"><span className="text-xs text-slate-400 bg-white px-3 py-1.5 rounded-full shadow-sm border border-slate-100">🔗 此對話透過 {active.source} 串接</span></div>
+      </div>
+      <div className="p-3 bg-white border-t border-slate-100">
+        <div className="flex items-center gap-2 bg-slate-50 rounded-2xl px-3 py-2 border border-slate-200">
+          <span className="text-slate-400"><LucideIcon icon="Smile" size={20}/></span>
+          <input value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&send()} placeholder="輸入訊息…" className="flex-1 bg-transparent text-sm focus:outline-none text-slate-700 min-w-0"/>
+          <span className="text-slate-400"><LucideIcon icon="Paperclip" size={18}/></span>
+          <button onClick={send} className="w-8 h-8 bg-violet-600 rounded-xl flex items-center justify-center flex-shrink-0"><span className="text-white"><LucideIcon icon="Send" size={14}/></span></button>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="flex flex-col h-full">
+      <div className="p-5 pb-3">
+        <h2 className="text-2xl font-black text-slate-800 tracking-tight">訊息收件匣</h2>
+        <p className="text-slate-500 text-sm mt-0.5">整合 LINE・Instagram 訊息</p>
+        <div className="flex gap-2 mt-4">
+          {[{label:"全部",cnt:CONVERSATIONS.length},{label:"LINE",cnt:CONVERSATIONS.filter(c=>c.source==="LINE").length},{label:"IG",cnt:CONVERSATIONS.filter(c=>c.source==="IG").length}].map((t,i)=>(
+            <button key={t.label} className={`flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full ${i===0?"bg-violet-600 text-white":"bg-slate-100 text-slate-600"}`}>
+              {t.label}<span className={`text-xs font-black px-1.5 py-0.5 rounded-full ${i===0?"bg-violet-500 text-white":"bg-slate-200 text-slate-500"}`}>{t.cnt}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="mx-5 mb-3 bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-start gap-2">
+        <span className="text-amber-600 flex-shrink-0 mt-0.5"><LucideIcon icon="AlertCircle" size={15}/></span>
+        <p className="text-xs text-amber-700 leading-relaxed"><span className="font-bold">串接準備中：</span>LINE 官方帳號與 Instagram API 將在下一版本整合，目前顯示模擬資料。</p>
+      </div>
+      <div className="flex-1 overflow-y-auto px-4 pb-6 space-y-1">
+        {CONVERSATIONS.map(conv=>(
+          <div key={conv.id} onClick={()=>openChat(conv)} className="flex items-center gap-3 p-3 rounded-2xl hover:bg-slate-50 cursor-pointer active:bg-slate-100 transition-colors">
+            <div className="relative">
+              <Av name={conv.av}/>
+              <span className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 ${srcDot(conv.source)} rounded-full flex items-center justify-center text-white font-black`} style={{fontSize:"7px"}}>{conv.source==="LINE"?"L":conv.source==="IG"?"IG":"介"}</span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between"><span className="font-bold text-slate-800 text-sm">{conv.name}</span><span className="text-xs text-slate-400">{conv.time}</span></div>
+              <p className="text-xs text-slate-500 truncate mt-0.5">{conv.last}</p>
+            </div>
+            {conv.unread>0 && <span className="w-5 h-5 bg-violet-600 text-white text-xs font-black rounded-full flex items-center justify-center flex-shrink-0">{conv.unread}</span>}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+const NAV = [{id:"dashboard",label:"儀表板",icon:"LayoutDashboard"},{id:"leads",label:"名單管理",icon:"List"},{id:"inbox",label:"收件匣",icon:"MessageSquare"}];
+
+function App() {
+  const [page, setPage] = useState("dashboard");
+  const totalUnread = CONVERSATIONS.reduce((s,c)=>s+c.unread,0);
+  const highUrgent = REMINDERS.filter(r=>r.urgency==="high").length;
+  return (
+    <div style={{maxWidth:430,margin:"0 auto",minHeight:"100vh",display:"flex",flexDirection:"column",background:"#f8fafc"}}>
+      <header className="bg-white border-b border-slate-100 px-5 py-3.5 flex items-center justify-between sticky top-0 z-20">
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white flex-shrink-0" style={{background:"linear-gradient(135deg,#7c3aed,#4f46e5)"}}><LucideIcon icon="Star" size={16}/></div>
+          <div><div className="font-black text-slate-800 text-sm leading-tight tracking-widest">NEXUS CRM</div><div className="text-slate-400 leading-tight" style={{fontSize:"10px"}}>行銷名單管理系統</div></div>
+        </div>
+        <div className="flex items-center gap-3">
+          <button className="relative text-slate-500">
+            <LucideIcon icon="Bell" size={20}/>
+            {highUrgent>0 && <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white font-black rounded-full flex items-center justify-center" style={{fontSize:"9px"}}>{highUrgent}</span>}
+          </button>
+          <div className="w-8 h-8 rounded-full flex items-center justify-center text-white font-black text-sm" style={{background:"linear-gradient(135deg,#7c3aed,#6d28d9)"}}>我</div>
+        </div>
+      </header>
+      <main style={{flex:1,overflowY:"auto"}}>
+        {page==="dashboard" && <Dashboard/>}
+        {page==="leads" && <LeadManagement/>}
+        {page==="inbox" && <InboxPage/>}
+      </main>
+      <nav className="bg-white border-t border-slate-100 px-2 py-2 flex items-center justify-around sticky bottom-0 z-20">
+        {NAV.map(item=>{
+          const active=page===item.id;
+          return (
+            <button key={item.id} onClick={()=>setPage(item.id)} className={`flex flex-col items-center gap-1 px-5 py-2 rounded-2xl transition-all relative ${active?"text-violet-600":"text-slate-400"}`}>
+              {active && <span className="absolute inset-0 bg-violet-50 rounded-2xl"/>}
+              <span className="relative">
+                <LucideIcon icon={item.icon} size={22} sw={active?2.5:1.8}/>
+                {item.id==="inbox" && totalUnread>0 && <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-red-500 text-white font-black rounded-full flex items-center justify-center" style={{fontSize:"9px"}}>{totalUnread}</span>}
+              </span>
+              <span className={`relative font-semibold ${active?"text-violet-600":"text-slate-400"}`} style={{fontSize:"10px"}}>{item.label}</span>
+            </button>
+          );
+        })}
+      </nav>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
