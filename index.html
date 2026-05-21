@@ -3,614 +3,838 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Insurance CRM</title>
+<title>財務健檢儀表板</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet"/>
-<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
-:root {
-  --bg:       #0d0f12;
-  --surface:  #141720;
-  --card:     #1a1e2a;
-  --border:   #242836;
-  --border2:  #2e3347;
-  --text:     #e2e6f0;
-  --muted:    #6b7494;
-  --accent:   #4f8ef7;
-  --accent2:  #3dd6b5;
-  --warn:     #f5a623;
-  --danger:   #f05e6a;
-  --mono:     'DM Mono', monospace;
-}
-* { font-family: 'Noto Sans TC', sans-serif; box-sizing: border-box; }
-body { background: var(--bg); color: var(--text); margin: 0; }
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: var(--surface); }
-::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
-
-/* Animations */
-@keyframes fadeUp {
-  from { opacity:0; transform:translateY(14px); }
-  to   { opacity:1; transform:translateY(0); }
-}
-@keyframes pulse-dot {
-  0%,100% { opacity:1; } 50% { opacity:.3; }
-}
-.fade-up { animation: fadeUp .35s ease both; }
-.fade-up-1 { animation-delay:.05s; }
-.fade-up-2 { animation-delay:.10s; }
-.fade-up-3 { animation-delay:.15s; }
-.fade-up-4 { animation-delay:.20s; }
-.fade-up-5 { animation-delay:.25s; }
-.pulse-dot { animation: pulse-dot 1.8s ease-in-out infinite; }
-
-.nav-item {
-  display:flex; align-items:center; gap:10px;
-  padding:9px 14px; border-radius:8px;
-  cursor:pointer; transition:background .15s, color .15s;
-  font-size:14px; font-weight:500; color: var(--muted);
-  border: none; background: none; width:100%; text-align:left;
-}
-.nav-item:hover { background: var(--card); color: var(--text); }
-.nav-item.active { background: var(--card); color: var(--accent); border-left: 2px solid var(--accent); padding-left:12px; }
-
-.kpi-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 20px 22px;
-  transition: border-color .2s;
-}
-.kpi-card:hover { border-color: var(--border2); }
-
-.badge {
-  display:inline-flex; align-items:center; gap:5px;
-  padding:3px 9px; border-radius:99px;
-  font-size:11px; font-weight:600; white-space:nowrap;
-}
-
-.stage-0 { background:#1f2d3d; color:#60a5fa; }
-.stage-1 { background:#2a2515; color:#fbbf24; }
-.stage-2 { background:#1d2f28; color:#34d399; }
-.stage-3 { background:#2f1f28; color:#f472b6; }
-
-.table-row {
-  border-bottom: 1px solid var(--border);
-  transition: background .15s;
-}
-.table-row:hover { background: rgba(79,142,247,.05); }
-.table-row:last-child { border-bottom: none; }
-
-.mono { font-family: var(--mono); }
-
-.btn-primary {
-  display:inline-flex; align-items:center; gap:7px;
-  background: var(--accent); color:#fff;
-  border:none; border-radius:8px;
-  padding:9px 16px; font-size:13px; font-weight:600;
-  cursor:pointer; transition:opacity .15s, transform .1s;
-}
-.btn-primary:hover { opacity:.88; }
-.btn-primary:active { transform:scale(.97); }
-
-.reminder-item {
-  display:flex; align-items:center; gap:12px;
-  padding:11px 14px; border-radius:9px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  transition: border-color .2s;
-}
-.reminder-item:hover { border-color: var(--border2); }
-
-/* Modal */
-.modal-bg {
-  position:fixed; inset:0; background:rgba(0,0,0,.6);
-  display:flex; align-items:center; justify-content:center;
-  z-index:100; backdrop-filter:blur(4px);
-  animation: fadeUp .2s ease;
-}
-.modal-box {
-  background: var(--card); border:1px solid var(--border2);
-  border-radius:14px; padding:28px; width:480px; max-width:94vw;
-}
-.input-field {
-  width:100%; background:var(--surface); border:1px solid var(--border2);
-  border-radius:8px; padding:9px 12px; color:var(--text);
-  font-size:13px; outline:none; transition:border-color .15s;
-}
-.input-field:focus { border-color:var(--accent); }
-.select-field {
-  width:100%; background:var(--surface); border:1px solid var(--border2);
-  border-radius:8px; padding:9px 12px; color:var(--text);
-  font-size:13px; outline:none; appearance:none; cursor:pointer;
-}
-.label { font-size:11px; font-weight:600; color:var(--muted); letter-spacing:.06em; text-transform:uppercase; margin-bottom:5px; display:block; }
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#080d14;color:#e2e8f0;font-family:'Sora',sans-serif;min-height:100vh;overflow-x:hidden}
+.mono{font-family:'DM Mono',monospace}
+.card{background:#0d1525;border:1px solid rgba(99,130,190,0.13);border-radius:16px;transition:border-color .2s}
+.card:hover{border-color:rgba(99,130,190,0.28)}
+.card2{background:#111827;border:1px solid rgba(99,130,190,0.1);border-radius:10px}
+input,select{background:rgba(8,13,20,0.9);border:1px solid rgba(99,130,190,0.18);border-radius:8px;color:#e2e8f0;padding:8px 12px;font-family:'DM Mono',monospace;font-size:13px;width:100%;outline:none;transition:border-color .2s,box-shadow .2s}
+input:focus,select:focus{border-color:rgba(59,130,246,0.55);box-shadow:0 0 0 3px rgba(59,130,246,0.09)}
+select option{background:#1e293b}
+label{font-size:11px;color:#64748b;letter-spacing:.05em;text-transform:uppercase;display:block;margin-bottom:5px;font-weight:600}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(99,130,190,0.2);border-radius:99px}
+.tab-btn{padding:9px 20px;border-radius:9px;font-size:13px;font-weight:500;cursor:pointer;transition:all .18s;border:1px solid transparent;color:#64748b;background:transparent;white-space:nowrap;font-family:'Sora',sans-serif}
+.tab-btn.active{background:rgba(59,130,246,0.14);border-color:rgba(59,130,246,0.32);color:#93c5fd}
+.tab-btn:hover:not(.active){color:#e2e8f0;background:rgba(255,255,255,0.04)}
+.btn-primary{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border:none;border-radius:9px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;transition:all .18s;font-family:'Sora',sans-serif;display:inline-flex;align-items:center;gap:6px}
+.btn-primary:hover{filter:brightness(1.15);transform:translateY(-1px)}
+.btn-ghost{background:transparent;color:#64748b;border:1px solid rgba(99,130,190,0.18);border-radius:8px;padding:8px 14px;font-size:12px;cursor:pointer;transition:all .15s;font-family:'Sora',sans-serif;display:inline-flex;align-items:center;gap:5px}
+.btn-ghost:hover{border-color:rgba(99,130,190,0.35);color:#e2e8f0}
+.btn-danger{background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.2);border-radius:7px;padding:5px 10px;font-size:11px;cursor:pointer;transition:all .15s;font-family:'Sora',sans-serif}
+.btn-danger:hover{background:rgba(239,68,68,0.2)}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600;letter-spacing:.02em}
+.chip-blue{background:rgba(59,130,246,0.12);color:#93c5fd;border:1px solid rgba(59,130,246,0.22)}
+.chip-green{background:rgba(16,185,129,0.12);color:#6ee7b7;border:1px solid rgba(16,185,129,0.22)}
+.chip-amber{background:rgba(245,158,11,0.12);color:#fcd34d;border:1px solid rgba(245,158,11,0.22)}
+.chip-red{background:rgba(239,68,68,0.12);color:#fca5a5;border:1px solid rgba(239,68,68,0.22)}
+.chip-purple{background:rgba(139,92,246,0.12);color:#c4b5fd;border:1px solid rgba(139,92,246,0.22)}
+.chip-cyan{background:rgba(6,182,212,0.12);color:#67e8f9;border:1px solid rgba(6,182,212,0.22)}
+.progress-track{background:rgba(30,41,59,0.8);border-radius:99px;overflow:hidden}
+.progress-bar{height:100%;border-radius:99px;transition:width .9s cubic-bezier(.34,1.56,.64,1)}
+.rider-indent{margin-left:18px;border-left:2px solid rgba(59,130,246,0.18);padding-left:14px}
+.section-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#334155;font-weight:700}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeIn .4s ease forwards}
+.grid-dots{background-image:radial-gradient(rgba(59,130,246,0.06) 1px,transparent 1px);background-size:28px 28px}
 </style>
 </head>
-<body>
+<body class="grid-dots">
 <div id="root"></div>
 <script type="text/babel">
-const { useState, useMemo } = React;
+const {useState,useMemo,useCallback,useEffect,useRef}=React;
 
-// ── SVG Icons (inline, no CDN needed for icons) ──────────
-const Ic = ({ d, size=16, cl="" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
-    stroke="currentColor" strokeWidth="2" strokeLinecap="round"
-    strokeLinejoin="round" className={cl}>
-    {Array.isArray(d) ? d.map((p,i)=><path key={i} d={p}/>) : <path d={d}/>}
-  </svg>
-);
+// ── helpers ──────────────────────────────────────────────────────────────────
+const n=v=>parseFloat(String(v).replace(/,/g,''))||0;
+const fmt=v=>isNaN(v)||v===undefined?'—':new Intl.NumberFormat('zh-TW').format(Math.round(v));
+const fmtM=v=>{if(!v&&v!==0)return'—';const a=Math.abs(v);const s=v<0?'-':'';if(a>=10000000)return s+(a/10000000).toFixed(2)+'千萬';if(a>=10000)return s+(a/10000).toFixed(1)+'萬';return s+fmt(v)};
+const pct=(v,d=1)=>isNaN(v)?'—':`${(v*100).toFixed(d)}%`;
+const clamp=(v,mn,mx)=>Math.min(mx,Math.max(mn,v));
+const lerp=(a,b,t)=>a+(b-a)*clamp(t,0,1);
 
-const ICONS = {
-  dash:    ["M3 3h7v7H3z","M14 3h7v7h-7z","M14 14h7v7h-7z","M3 14h7v7H3z"],
-  users:   ["M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2","M23 21v-2a4 4 0 0 0-3-3.87","M16 3.13a4 4 0 0 1 0 7.75","M9 7m-4 0a4 4 0 1 0 8 0 4 4 0 1 0-8 0"],
-  bell:    ["M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9","M13.73 21a2 2 0 0 1-3.46 0"],
-  plus:    ["M12 5v14","M5 12h14"],
-  search:  ["M21 21l-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0"],
-  filter:  ["M22 3H2l8 9.46V19l4 2v-8.54L22 3"],
-  close:   ["M18 6 6 18","M6 6l12 12"],
-  cal:     ["M8 2v4","M16 2v4","M3 10h18","M3 6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"],
-  gift:    ["M20 12v10H4V12","M2 7h20v5H2z","M12 22V7","M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z","M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"],
-  trend:   ["M22 7l-8.5 8.5-5-5L2 17","M16 7h6v6"],
-  check:   ["M22 11.08V12a10 10 0 1 1-5.93-9.14","M22 4 12 14.01l-3-3"],
-  phone:   ["M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.99 12 19.79 19.79 0 0 1 1.92 3.38 2 2 0 0 1 3.89 1.21h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"],
-  chevR:   ["M9 18l6-6-6-6"],
-  alert:   ["M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z","M12 9v4","M12 17h.01"],
+// ── score color ───────────────────────────────────────────────────────────────
+const sCol=(v,mx=25)=>{const r=v/mx;return r>=.8?'#10b981':r>=.5?'#f59e0b':'#ef4444'};
+const tCol=s=>s>=75?'#10b981':s>=50?'#f59e0b':'#ef4444';
+const tGrade=s=>s>=88?'A+':s>=78?'A':s>=68?'B+':s>=55?'B':'C';
+
+// ── initial mock data ─────────────────────────────────────────────────────────
+const INIT={
+  income:{salary:150000,bonus:300000,dividend:80000},
+  expenses:{
+    monthly:{housing:38000,food:12000,transport:8000,entertainment:5000,misc:7000},
+    annual:{tax:180000,other:60000}
+  },
+  assets:{
+    cash:1800000,
+    property:18000000,
+    stocks:[
+      {id:'s1',ticker:'2330',name:'台積電',shares:300,price:920,cost:650},
+      {id:'s2',ticker:'3231',name:'緯創',shares:2000,price:98,cost:55},
+      {id:'s3',ticker:'5274',name:'信驊',shares:150,price:1250,cost:900},
+      {id:'s4',ticker:'6806',name:'森崴能源',shares:1000,price:65,cost:42},
+      {id:'s5',ticker:'0050',name:'元大台灣50',shares:500,price:198,cost:140},
+      {id:'s6',ticker:'006208',name:'富邦台灣ESG',shares:800,price:85,cost:62},
+    ]
+  },
+  liabilities:{mortgage:8500000,personalLoan:350000},
+  goals:{currentAge:38,retireAge:55,targetAmount:50000000},
+  policies:[
+    {
+      id:'p1',company:'富邦人壽',productName:'鑫旺一生終身壽險',type:'終身壽險',
+      insuredAmount:5000000,annualPremium:120000,startYear:2018,
+      riders:[
+        {id:'r1',type:'medical',name:'實支實付醫療附約',annualPremium:18000,miscLimit:150000,dailyLimit:2000,surgeryLimit:120000},
+        {id:'r2',type:'critical',name:'重大傷病一次金',annualPremium:22000,lumpSum:1000000},
+        {id:'r3',type:'accident',name:'意外傷害附約',annualPremium:8000,accidentAmount:3000000,accidentMedical:30000},
+      ]
+    },
+    {
+      id:'p2',company:'南山人壽',productName:'多倍保重大疾病險',type:'重大疾病',
+      insuredAmount:2000000,annualPremium:68000,startYear:2020,
+      riders:[
+        {id:'r4',type:'medical',name:'實支實付醫療(限額型)',annualPremium:12000,miscLimit:100000,dailyLimit:1500,surgeryLimit:80000},
+        {id:'r5',type:'disability',name:'失能扶助月給付',annualPremium:15000,monthlyBenefit:50000},
+      ]
+    }
+  ]
 };
 
-const Icon = ({n, size=16, cl=""}) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
-    stroke="currentColor" strokeWidth="2" strokeLinecap="round"
-    strokeLinejoin="round" style={{flexShrink:0}} className={cl}>
-    {(Array.isArray(ICONS[n])?ICONS[n]:[ICONS[n]||""]).map((p,i)=><path key={i} d={p}/>)}
-  </svg>
-);
-
-// ── Mock Data ─────────────────────────────────────────────
-const STAGE_LABELS = ["名單開發","需求分析","建議書提案","簽約核保"];
-const STAGE_CLS    = ["stage-0","stage-1","stage-2","stage-3"];
-const INS_TYPES    = ["醫療險","壽險","投資型","儲蓄險","意外險","重疾險","年金險"];
-
-const initClients = [
-  { id:1,  name:"陳雅婷", phone:"0912-345-678", type:"醫療險",  premium:48000,  benefit:500000,  stage:3, next:"2026-06-10", note:"VIP，保守型，偏好實支實付" },
-  { id:2,  name:"林俊宏", phone:"0923-456-789", type:"投資型",  premium:120000, benefit:0,       stage:1, next:"2026-05-25", note:"詢問美元計價，積極型" },
-  { id:3,  name:"黃美玲", phone:"0934-567-890", type:"壽險",    premium:36000,  benefit:3000000, stage:2, next:"2026-05-22", note:"企業主，規劃員工福利" },
-  { id:4,  name:"張偉誠", phone:"0945-678-901", type:"年金險",  premium:60000,  benefit:72000,   stage:0, next:"2026-05-28", note:"退休規劃為主" },
-  { id:5,  name:"王淑芬", phone:"0956-789-012", type:"儲蓄險",  premium:100000, benefit:130000,  stage:1, next:"2026-06-03", note:"子女教育金規劃" },
-  { id:6,  name:"李建志", phone:"0967-890-123", type:"重疾險",  premium:28800,  benefit:1000000, stage:2, next:"2026-05-29", note:"IT工程師，月收入穩定" },
-  { id:7,  name:"吳思穎", phone:"0978-901-234", type:"醫療險",  premium:52000,  benefit:600000,  stage:3, next:"2026-07-15", note:"二次成交，已加購" },
-  { id:8,  name:"劉冠霖", phone:"0989-012-345", type:"意外險",  premium:18000,  benefit:2000000, stage:0, next:"2026-06-01", note:"IG詢問，初步接觸" },
-  { id:9,  name:"蔡明哲", phone:"0910-234-567", type:"投資型",  premium:180000, benefit:0,       stage:1, next:"2026-06-08", note:"高資產客戶，已有基金" },
-  { id:10, name:"許雅雯", phone:"0921-345-678", type:"壽險",    premium:42000,  benefit:2000000, stage:3, next:"2026-08-20", note:"已簽約，定期追蹤" },
-  { id:11, name:"楊博宇", phone:"0932-456-789", type:"醫療險",  premium:33600,  benefit:400000,  stage:2, next:"2026-06-15", note:"提案中，競品比較" },
-  { id:12, name:"謝欣怡", phone:"0943-567-890", type:"儲蓄險",  premium:240000, benefit:310000,  stage:1, next:"2026-05-30", note:"主管層，詢問節稅方案" },
-];
-
-const REMINDERS = [
-  { id:1, type:"birthday", client:"林俊宏", detail:"生日祝賀",         date:"2026-05-27", urgent:true },
-  { id:2, type:"policy",   client:"陳雅婷", detail:"保單週年生效日",   date:"2026-05-30", urgent:true },
-  { id:3, type:"follow",   client:"黃美玲", detail:"建議書回覆追蹤",   date:"2026-05-22", urgent:true },
-  { id:4, type:"birthday", client:"謝欣怡", detail:"生日祝賀",         date:"2026-06-04", urgent:false },
-  { id:5, type:"policy",   client:"吳思穎", detail:"新契約90天關懷",   date:"2026-06-10", urgent:false },
-  { id:6, type:"follow",   client:"蔡明哲", detail:"第二次需求訪談",   date:"2026-06-08", urgent:false },
-];
-
-// ── Helpers ───────────────────────────────────────────────
-const fmt = n => n ? n.toLocaleString() : "—";
-const today = () => new Date().toISOString().slice(0,10);
-let nextId = 13;
-
-function daysUntil(dateStr) {
-  const d = Math.ceil((new Date(dateStr) - new Date()) / 86400000);
-  return d;
+// ── score engine ──────────────────────────────────────────────────────────────
+function calcScores(st){
+  const mInc=n(st.income.salary)+n(st.income.bonus)/12+n(st.income.dividend)/12;
+  const mExp=Object.values(st.expenses.monthly).reduce((s,v)=>s+n(v),0)
+    +Object.values(st.expenses.annual).reduce((s,v)=>s+n(v),0)/12;
+  const cash=n(st.assets.cash);
+  const mDebt=n(st.liabilities.mortgage)*0.004+n(st.liabilities.personalLoan)*0.006;
+  const totalDebt=n(st.liabilities.mortgage)+n(st.liabilities.personalLoan);
+  const emMonths=cash/(mExp||1);
+  const debtRatio=mDebt/(mInc||1);
+  const savRate=(mInc-mExp)/(mInc||1);
+  const s1=clamp(lerp(0,25,(emMonths-3)/3),0,25);
+  const s2=clamp(lerp(25,0,(debtRatio-.30)/.10),0,25);
+  const s3=clamp(lerp(0,25,(savRate-.10)/.10),0,25);
+  const totalIns=st.policies.reduce((s,p)=>{
+    let v=n(p.insuredAmount);
+    (p.riders||[]).forEach(r=>{if(r.type==='accident')v+=n(r.accidentAmount)||0});
+    return s+v;
+  },0);
+  const protTarget=totalDebt+mExp*12*5;
+  const s4=totalIns>=protTarget?25:clamp(lerp(0,25,totalIns/protTarget),0,25);
+  return{s1,s2,s3,s4,total:s1+s2+s3+s4,mInc,mExp,mDebt,totalDebt,emMonths,debtRatio,savRate,totalIns,protTarget,cash};
 }
 
-// ── Components ────────────────────────────────────────────
+function calcProtection(policies){
+  let miscLimit=0,lumpSum=0,accident=0,disability=0;
+  policies.forEach(p=>(p.riders||[]).forEach(r=>{
+    if(r.type==='medical')miscLimit+=n(r.miscLimit)||0;
+    if(r.type==='critical')lumpSum+=n(r.lumpSum)||0;
+    if(r.type==='accident')accident+=n(r.accidentAmount)||0;
+    if(r.type==='disability')disability+=n(r.monthlyBenefit)||0;
+  }));
+  return{miscLimit,lumpSum,accident,disability};
+}
 
-function KpiCard({ label, value, sub, accent, delay }) {
-  const colors = { blue:"#4f8ef7", teal:"#3dd6b5", amber:"#f5a623" };
-  const c = colors[accent] || colors.blue;
-  return (
-    <div className={`kpi-card fade-up ${delay}`}>
-      <div style={{fontSize:12,color:"var(--muted)",fontWeight:600,letterSpacing:".06em",textTransform:"uppercase",marginBottom:10}}>{label}</div>
-      <div style={{fontSize:36,fontWeight:700,fontFamily:"var(--mono)",color:c,lineHeight:1}}>{value}</div>
-      {sub && <div style={{fontSize:12,color:"var(--muted)",marginTop:8}}>{sub}</div>}
+// ── SVG components ────────────────────────────────────────────────────────────
+function ScoreRing({score,size=200}){
+  const r=78,cx=size/2,cy=size/2,circ=2*Math.PI*r;
+  const filled=circ*(score/100);
+  const col=tCol(score);
+  const grade=tGrade(score);
+  return(
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+      <defs>
+        <linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor={col} stopOpacity=".5"/>
+          <stop offset="100%" stopColor={col}/>
+        </linearGradient>
+        <filter id="glow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(30,41,59,0.8)" strokeWidth="12"/>
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke="url(#rg)" strokeWidth="12"
+        strokeDasharray={circ} strokeDashoffset={circ-filled} strokeLinecap="round"
+        transform={`rotate(-90 ${cx} ${cy})`} filter="url(#glow)"
+        style={{transition:'stroke-dashoffset 1.3s cubic-bezier(.34,1.56,.64,1)'}}/>
+      <text x={cx} y={cy-14} textAnchor="middle" fill={col} fontSize="42" fontWeight="700" fontFamily="DM Mono">{Math.round(score)}</text>
+      <text x={cx} y={cy+10} textAnchor="middle" fill="#475569" fontSize="13" fontFamily="Sora">/ 100 分</text>
+      <text x={cx} y={cy+32} textAnchor="middle" fill={col} fontSize="18" fontWeight="700" fontFamily="Sora">{grade}</text>
+    </svg>
+  );
+}
+
+function MiniBar({value,max=25,label,sub}){
+  const p=clamp(value/max,0,1);
+  const col=sCol(value,max);
+  return(
+    <div className="space-y-1.5">
+      <div className="flex justify-between items-center">
+        <span style={{fontSize:12,color:'#94a3b8'}}>{label}</span>
+        <span className="mono" style={{fontSize:12,color:col}}>{value.toFixed(1)}<span style={{color:'#475569'}}>/{max}</span></span>
+      </div>
+      <div className="progress-track" style={{height:8}}>
+        <div className="progress-bar" style={{width:`${p*100}%`,height:8,background:col}}/>
+      </div>
+      {sub&&<div style={{fontSize:11,color:'#475569'}}>{sub}</div>}
     </div>
   );
 }
 
-function ReminderItem({ r }) {
-  const days = daysUntil(r.date);
-  const typeIcon = r.type === "birthday" ? "gift" : r.type === "policy" ? "cal" : "bell";
-  const urgentColor = r.urgent ? "var(--danger)" : "var(--accent2)";
-  return (
-    <div className="reminder-item" style={{gap:12}}>
-      <div style={{width:34,height:34,borderRadius:8,background:"var(--card)",border:"1px solid var(--border2)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,color:urgentColor}}>
-        <Icon n={typeIcon} size={15}/>
+function ProtBar({label,value,target,color='#3b82f6'}){
+  const p=clamp(value/target,0,1);
+  const ok=p>=1;
+  return(
+    <div className="space-y-1.5">
+      <div className="flex justify-between items-end">
+        <span style={{fontSize:12,color:'#94a3b8'}}>{label}</span>
+        <div style={{display:'flex',alignItems:'center',gap:8}}>
+          <span className={`chip ${ok?'chip-green':'chip-amber'}`}>{ok?'✓ 覆蓋':'缺口'}</span>
+          <span className="mono" style={{fontSize:11,color:'#94a3b8'}}>{fmtM(value)}<span style={{color:'#475569'}}> / {fmtM(target)}</span></span>
+        </div>
       </div>
-      <div style={{flex:1,minWidth:0}}>
-        <div style={{fontSize:13,fontWeight:600,color:"var(--text)"}}>{r.client}</div>
-        <div style={{fontSize:12,color:"var(--muted)",marginTop:1}}>{r.detail}</div>
-      </div>
-      <div style={{textAlign:"right",flexShrink:0}}>
-        <div style={{fontFamily:"var(--mono)",fontSize:12,color:urgentColor,fontWeight:600}}>
-          {days <= 0 ? "今天" : days === 1 ? "明天" : `${days} 天後`}
-        </div>
-        <div style={{fontSize:11,color:"var(--muted)",marginTop:2}}>{r.date.slice(5).replace("-","/")}</div>
-      </div>
-      {r.urgent && <div className="pulse-dot" style={{width:7,height:7,borderRadius:"50%",background:"var(--danger)",flexShrink:0}}/>}
-    </div>
-  );
-}
-
-function StageDot({ stage }) {
-  const colors = ["#60a5fa","#fbbf24","#34d399","#f472b6"];
-  return <span style={{display:"inline-block",width:7,height:7,borderRadius:"50%",background:colors[stage],marginRight:5}}/>;
-}
-
-function AddModal({ onClose, onAdd }) {
-  const [form, setForm] = useState({
-    name:"", phone:"", type:"醫療險", premium:"", benefit:"",
-    stage:0, next:today(), note:""
-  });
-  const set = (k,v) => setForm(f=>({...f,[k]:v}));
-
-  function submit() {
-    if (!form.name.trim()) return;
-    onAdd({
-      id: nextId++,
-      name: form.name,
-      phone: form.phone,
-      type: form.type,
-      premium: parseInt(form.premium)||0,
-      benefit: parseInt(form.benefit)||0,
-      stage: parseInt(form.stage),
-      next: form.next,
-      note: form.note,
-    });
-    onClose();
-  }
-
-  return (
-    <div className="modal-bg" onClick={e=>e.target===e.currentTarget&&onClose()}>
-      <div className="modal-box">
-        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:22}}>
-          <span style={{fontWeight:700,fontSize:16,color:"var(--text)"}}>新增客戶</span>
-          <button onClick={onClose} style={{background:"none",border:"none",color:"var(--muted)",cursor:"pointer",display:"flex",padding:4}}>
-            <Icon n="close" size={18}/>
-          </button>
-        </div>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
-          <div style={{gridColumn:"1"}}>
-            <label className="label">客戶姓名 *</label>
-            <input className="input-field" placeholder="王小明" value={form.name} onChange={e=>set("name",e.target.value)}/>
-          </div>
-          <div>
-            <label className="label">聯絡電話</label>
-            <input className="input-field" placeholder="09xx-xxx-xxx" value={form.phone} onChange={e=>set("phone",e.target.value)}/>
-          </div>
-          <div>
-            <label className="label">險種規劃</label>
-            <select className="select-field" value={form.type} onChange={e=>set("type",e.target.value)}>
-              {INS_TYPES.map(t=><option key={t}>{t}</option>)}
-            </select>
-          </div>
-          <div>
-            <label className="label">目前階段</label>
-            <select className="select-field" value={form.stage} onChange={e=>set("stage",e.target.value)}>
-              {STAGE_LABELS.map((l,i)=><option key={i} value={i}>{l}</option>)}
-            </select>
-          </div>
-          <div>
-            <label className="label">年繳保費 (NT$)</label>
-            <input className="input-field" type="number" placeholder="48000" value={form.premium} onChange={e=>set("premium",e.target.value)}/>
-          </div>
-          <div>
-            <label className="label">年給付/保額 (NT$)</label>
-            <input className="input-field" type="number" placeholder="500000" value={form.benefit} onChange={e=>set("benefit",e.target.value)}/>
-          </div>
-          <div>
-            <label className="label">下次追蹤日</label>
-            <input className="input-field" type="date" value={form.next} onChange={e=>set("next",e.target.value)}/>
-          </div>
-          <div>
-            <label className="label">備註</label>
-            <input className="input-field" placeholder="簡短備忘" value={form.note} onChange={e=>set("note",e.target.value)}/>
-          </div>
-        </div>
-        <div style={{display:"flex",justifyContent:"flex-end",gap:10,marginTop:22}}>
-          <button onClick={onClose} style={{background:"var(--surface)",border:"1px solid var(--border2)",borderRadius:8,padding:"9px 16px",fontSize:13,color:"var(--muted)",cursor:"pointer",fontWeight:500}}>取消</button>
-          <button className="btn-primary" onClick={submit}><Icon n="check" size={15}/>確認新增</button>
-        </div>
+      <div className="progress-track" style={{height:10}}>
+        <div className="progress-bar" style={{width:`${p*100}%`,height:10,background:ok?'#10b981':color}}/>
       </div>
     </div>
   );
 }
 
-// ── Dashboard Page ────────────────────────────────────────
-function Dashboard({ clients }) {
-  const total = clients.length;
-  const thisMonth = clients.filter(c => c.next && c.next.startsWith("2026-05")).length;
-  const pending = clients.filter(c => c.stage < 3).length;
-  const urgentR = REMINDERS.filter(r => r.urgent);
-  const otherR  = REMINDERS.filter(r => !r.urgent);
-
-  return (
-    <div style={{padding:"28px 32px",maxWidth:1100}}>
-      {/* Header */}
-      <div className="fade-up" style={{marginBottom:28}}>
-        <div style={{fontSize:22,fontWeight:700,color:"var(--text)",letterSpacing:"-.01em"}}>數據總覽</div>
-        <div style={{fontSize:13,color:"var(--muted)",marginTop:4}}>Insurance CRM &nbsp;·&nbsp; 2026 年 5 月</div>
-      </div>
-
-      {/* KPI */}
-      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:16,marginBottom:28}}>
-        <KpiCard label="總客戶數" value={total} sub={`${clients.filter(c=>c.stage===3).length} 位已簽約`} accent="blue" delay="fade-up-1"/>
-        <KpiCard label="本月新增名單" value={thisMonth} sub="5 月追蹤記錄" accent="teal" delay="fade-up-2"/>
-        <KpiCard label="本月待跟進" value={pending} sub={`${clients.filter(c=>c.stage===1).length} 位需求分析中`} accent="amber" delay="fade-up-3"/>
-      </div>
-
-      {/* Reminders */}
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20}}>
-        <div className="fade-up fade-up-4">
-          <div style={{fontSize:12,fontWeight:600,color:"var(--muted)",letterSpacing:".06em",textTransform:"uppercase",marginBottom:12,display:"flex",alignItems:"center",gap:8}}>
-            <Icon n="alert" size={13} cl="text-danger"/> 緊急提醒
-          </div>
-          <div style={{display:"flex",flexDirection:"column",gap:8}}>
-            {urgentR.map(r=><ReminderItem key={r.id} r={r}/>)}
-            {urgentR.length===0 && <div style={{color:"var(--muted)",fontSize:13,padding:"16px 0"}}>目前無緊急提醒</div>}
-          </div>
-        </div>
-        <div className="fade-up fade-up-5">
-          <div style={{fontSize:12,fontWeight:600,color:"var(--muted)",letterSpacing:".06em",textTransform:"uppercase",marginBottom:12,display:"flex",alignItems:"center",gap:8}}>
-            <Icon n="bell" size={13}/> 近期安排
-          </div>
-          <div style={{display:"flex",flexDirection:"column",gap:8}}>
-            {otherR.map(r=><ReminderItem key={r.id} r={r}/>)}
-          </div>
-        </div>
-      </div>
-
-      {/* Stage Distribution */}
-      <div className="fade-up" style={{marginTop:28,background:"var(--card)",border:"1px solid var(--border)",borderRadius:12,padding:"20px 22px"}}>
-        <div style={{fontSize:12,fontWeight:600,color:"var(--muted)",letterSpacing:".06em",textTransform:"uppercase",marginBottom:16}}>名單階段分佈</div>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12}}>
-          {STAGE_LABELS.map((lbl,i)=>{
-            const cnt = clients.filter(c=>c.stage===i).length;
-            const pct = total ? Math.round(cnt/total*100) : 0;
-            const barColors = ["#4f8ef7","#fbbf24","#34d399","#f472b6"];
-            return (
-              <div key={i}>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
-                  <span style={{fontSize:12,color:"var(--muted)"}}>{lbl}</span>
-                  <span style={{fontFamily:"var(--mono)",fontSize:12,color:"var(--text)",fontWeight:600}}>{cnt}</span>
-                </div>
-                <div style={{height:5,background:"var(--surface)",borderRadius:99,overflow:"hidden"}}>
-                  <div style={{width:`${pct}%`,height:"100%",background:barColors[i],borderRadius:99,transition:"width .4s ease"}}/>
-                </div>
-                <div style={{fontSize:11,color:"var(--muted)",marginTop:4}}>{pct}%</div>
-              </div>
-            );
-          })}
-        </div>
+// ── form helpers ──────────────────────────────────────────────────────────────
+function NI({label,value,onChange,pre='$',suf='',type='number'}){
+  return(
+    <div>
+      <label>{label}</label>
+      <div style={{position:'relative'}}>
+        {pre&&<span style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',color:'#475569',fontSize:12,fontFamily:'DM Mono'}}>{pre}</span>}
+        <input type={type==='text'?'text':'number'} value={value} onChange={e=>onChange(e.target.value)}
+          style={{paddingLeft:pre?28:12,paddingRight:suf?40:12}}/>
+        {suf&&<span style={{position:'absolute',right:12,top:'50%',transform:'translateY(-50%)',color:'#475569',fontSize:11}}>{suf}</span>}
       </div>
     </div>
   );
 }
 
-// ── Lead & Policy Table ───────────────────────────────────
-function LeadTable({ clients, onAdd, onUpdateStage }) {
-  const [search, setSearch] = useState("");
-  const [stageF, setStageF] = useState(-1);
-  const [showModal, setShowModal] = useState(false);
-  const [sortKey, setSortKey] = useState("next");
-  const [sortAsc, setSortAsc] = useState(true);
-
-  const filtered = useMemo(() => {
-    let r = clients.filter(c =>
-      (stageF < 0 || c.stage === stageF) &&
-      (c.name.includes(search) || c.phone.includes(search) || c.type.includes(search) || c.note.includes(search))
-    );
-    r.sort((a,b) => {
-      let av = a[sortKey], bv = b[sortKey];
-      if (typeof av === "string") return sortAsc ? av.localeCompare(bv) : bv.localeCompare(av);
-      return sortAsc ? av-bv : bv-av;
-    });
-    return r;
-  }, [clients, search, stageF, sortKey, sortAsc]);
-
-  function toggleSort(k) {
-    if (sortKey===k) setSortAsc(a=>!a);
-    else { setSortKey(k); setSortAsc(true); }
-  }
-
-  const TH = ({label, k, style={}}) => (
-    <th onClick={()=>toggleSort(k)} style={{padding:"10px 14px",textAlign:"left",fontSize:11,fontWeight:600,color:"var(--muted)",letterSpacing:".06em",textTransform:"uppercase",cursor:"pointer",userSelect:"none",whiteSpace:"nowrap",...style}}>
-      {label} {sortKey===k ? (sortAsc?"↑":"↓") : ""}
-    </th>
-  );
-
-  return (
-    <div style={{padding:"28px 32px"}}>
-      {/* Header */}
-      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:20}} className="fade-up">
+function SH({icon,title,sub,badge}){
+  const icons={
+    'trending-up':'M23 6l-9.5 9.5-5-5L1 18',
+    'arrow-up-right':'M7 7h10v10M7 17L17 7',
+    'arrow-down-right':'M7 7h10v10M17 17L7 7',
+    'landmark':'M3 22V8M21 22V8M12 22V8M3 8l9-6 9 6M1 22h22',
+    'shield-check':'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10zM9 12l2 2 4-4',
+    'target':'M12 22a10 10 0 100-20 10 10 0 000 20zM12 18a6 6 0 100-12 6 6 0 000 12zM12 14a2 2 0 100-4 2 2 0 000 4z',
+    'bar-chart-2':'M18 20V10M12 20V4M6 20v-6',
+    'pie-chart':'M21.21 15.89A10 10 0 118 2.83M22 12A10 10 0 0012 2v10z',
+    'credit-card':'M1 4h22v16H1zM1 10h22',
+    'plus':'M12 5v14M5 12h14',
+    'git-branch':'M6 3v12M18 9a3 3 0 100-6 3 3 0 000 6zM6 21a3 3 0 100-6 3 3 0 000 6zM18 9c0 3.87-3.13 7-7 7H6',
+    'wallet':'M21 12V7H5a2 2 0 010-4h14v4M21 12v5H5a2 2 0 010-4h16zM21 12H5',
+    'line-chart':'M3 3v18h18M3 9l7-4 4 4 7-7M3 15l7-2 4 2 7-4',
+  };
+  const d=icons[icon]||'M12 12h.01';
+  return(
+    <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:20}}>
+      <div style={{display:'flex',alignItems:'center',gap:12}}>
+        <div style={{width:36,height:36,borderRadius:10,background:'rgba(59,130,246,0.1)',border:'1px solid rgba(59,130,246,0.2)',display:'flex',alignItems:'center',justifyContent:'center'}}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#93c5fd" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={d}/></svg>
+        </div>
         <div>
-          <div style={{fontSize:22,fontWeight:700,color:"var(--text)",letterSpacing:"-.01em"}}>客戶與保單名單</div>
-          <div style={{fontSize:13,color:"var(--muted)",marginTop:4}}>共 {filtered.length} / {clients.length} 筆</div>
+          <h2 style={{fontSize:15,fontWeight:600,color:'#e2e8f0'}}>{title}</h2>
+          {sub&&<p style={{fontSize:11,color:'#475569',marginTop:2}}>{sub}</p>}
         </div>
-        <button className="btn-primary fade-up" onClick={()=>setShowModal(true)}>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
-          新增客戶
+      </div>
+      {badge&&<span className="chip chip-blue">{badge}</span>}
+    </div>
+  );
+}
+
+// ── Rider form ────────────────────────────────────────────────────────────────
+const RIDER_TYPES=[
+  {value:'medical',label:'醫療實支實付'},
+  {value:'critical',label:'重大傷病一次金'},
+  {value:'accident',label:'意外傷害防護'},
+  {value:'disability',label:'失能扶助'},
+];
+
+function RiderForm({rider,onChange,onRemove}){
+  return(
+    <div className="rider-indent" style={{paddingTop:12,paddingBottom:12,marginTop:4,marginBottom:4}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
+        <span className="section-label" style={{color:'#3b82f6'}}>附約</span>
+        <button className="btn-danger" onClick={onRemove}>刪除</button>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:10}}>
+        <div>
+          <label>附約類別</label>
+          <select value={rider.type} onChange={e=>onChange('type',e.target.value)}>
+            {RIDER_TYPES.map(t=><option key={t.value} value={t.value}>{t.label}</option>)}
+          </select>
+        </div>
+        <NI label="附約名稱" value={rider.name} onChange={v=>onChange('name',v)} pre="" type="text"/>
+        <NI label="附約年保費" value={rider.annualPremium} onChange={v=>onChange('annualPremium',v)} suf="元/年"/>
+      </div>
+      {rider.type==='medical'&&(
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10}}>
+          <NI label="雜費限額" value={rider.miscLimit||''} onChange={v=>onChange('miscLimit',v)}/>
+          <NI label="每日病房費" value={rider.dailyLimit||''} onChange={v=>onChange('dailyLimit',v)}/>
+          <NI label="手術費限額" value={rider.surgeryLimit||''} onChange={v=>onChange('surgeryLimit',v)}/>
+        </div>
+      )}
+      {rider.type==='critical'&&(
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+          <NI label="重大傷病一次金" value={rider.lumpSum||''} onChange={v=>onChange('lumpSum',v)}/>
+        </div>
+      )}
+      {rider.type==='accident'&&(
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+          <NI label="意外身故/失能保額" value={rider.accidentAmount||''} onChange={v=>onChange('accidentAmount',v)}/>
+          <NI label="意外醫療限額" value={rider.accidentMedical||''} onChange={v=>onChange('accidentMedical',v)}/>
+        </div>
+      )}
+      {rider.type==='disability'&&(
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+          <NI label="月給付金" value={rider.monthlyBenefit||''} onChange={v=>onChange('monthlyBenefit',v)} suf="元/月"/>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Policy Card ───────────────────────────────────────────────────────────────
+function PolicyCard({policy,onChange,onRemove}){
+  const total=n(policy.annualPremium)+(policy.riders||[]).reduce((s,r)=>s+n(r.annualPremium),0);
+  const updRider=(rid,f,v)=>onChange('riders',(policy.riders||[]).map(r=>r.id===rid?{...r,[f]:v}:r));
+  const remRider=rid=>onChange('riders',(policy.riders||[]).filter(r=>r.id!==rid));
+  const addRider=()=>onChange('riders',[...(policy.riders||[]),{id:'r'+Date.now(),type:'medical',name:'新附約',annualPremium:0,miscLimit:0,dailyLimit:0,surgeryLimit:0}]);
+  return(
+    <div className="card" style={{padding:20,marginBottom:16}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:16}}>
+        <div>
+          <div style={{display:'flex',gap:8,marginBottom:6}}>
+            <span className="chip chip-purple">{policy.type||'壽險'}</span>
+            <span style={{fontSize:12,color:'#475569'}}>{policy.company}</span>
+          </div>
+          <div style={{fontSize:15,fontWeight:600,color:'#e2e8f0'}}>{policy.productName}</div>
+        </div>
+        <div style={{textAlign:'right'}}>
+          <div style={{fontSize:11,color:'#475569'}}>年總保費</div>
+          <div className="mono" style={{fontSize:16,fontWeight:700,color:'#f59e0b'}}>${fmt(total)}</div>
+        </div>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:16}}>
+        <NI label="保險公司" value={policy.company} onChange={v=>onChange('company',v)} pre="" type="text"/>
+        <NI label="商品名稱" value={policy.productName} onChange={v=>onChange('productName',v)} pre="" type="text"/>
+        <NI label="主約保額" value={policy.insuredAmount} onChange={v=>onChange('insuredAmount',v)}/>
+        <NI label="主約年保費" value={policy.annualPremium} onChange={v=>onChange('annualPremium',v)} suf="元/年"/>
+        <div>
+          <label>保單類型</label>
+          <select value={policy.type} onChange={e=>onChange('type',e.target.value)}>
+            {['終身壽險','定期壽險','重大疾病','投資型','醫療險'].map(t=><option key={t}>{t}</option>)}
+          </select>
+        </div>
+        <NI label="投保年份" value={policy.startYear} onChange={v=>onChange('startYear',v)} pre=""/>
+      </div>
+      <div style={{borderTop:'1px solid rgba(99,130,190,0.1)',paddingTop:14}}>
+        <div className="section-label" style={{marginBottom:10}}>附約明細</div>
+        {(policy.riders||[]).map(r=>(
+          <RiderForm key={r.id} rider={r} onChange={(f,v)=>updRider(r.id,f,v)} onRemove={()=>remRider(r.id)}/>
+        ))}
+        <button className="btn-ghost" style={{width:'100%',justifyContent:'center',marginTop:8}} onClick={addRider}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          新增附約
         </button>
       </div>
-
-      {/* Filters */}
-      <div className="fade-up fade-up-1" style={{display:"flex",gap:10,marginBottom:18,flexWrap:"wrap"}}>
-        <div style={{position:"relative",flex:"1",minWidth:180}}>
-          <Icon n="search" size={14} cl="" style={{position:"absolute"}}/>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="2" strokeLinecap="round" style={{position:"absolute",left:11,top:"50%",transform:"translateY(-50%)"}}><path d="M21 21l-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0"/></svg>
-          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="搜尋姓名、電話、險種…"
-            style={{width:"100%",paddingLeft:34,paddingRight:12,paddingTop:8,paddingBottom:8,background:"var(--card)",border:"1px solid var(--border2)",borderRadius:8,color:"var(--text)",fontSize:13,outline:"none"}}/>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:12,paddingTop:12,borderTop:'1px solid rgba(99,130,190,0.08)'}}>
+        <div style={{display:'flex',gap:16,fontSize:12,color:'#475569'}}>
+          <span>主約保額 <span className="mono" style={{color:'#e2e8f0'}}>{fmtM(n(policy.insuredAmount))}</span></span>
+          <span>附約數 <span className="mono" style={{color:'#e2e8f0'}}>{(policy.riders||[]).length}</span></span>
         </div>
-        <div style={{display:"flex",gap:6}}>
-          {[{l:"全部",v:-1},...STAGE_LABELS.map((l,i)=>({l,v:i}))].map(({l,v})=>(
-            <button key={v} onClick={()=>setStageF(v)}
-              style={{padding:"7px 13px",borderRadius:7,fontSize:12,fontWeight:600,cursor:"pointer",border:"1px solid",
-                borderColor:stageF===v?"var(--accent)":"var(--border2)",
-                background:stageF===v?"rgba(79,142,247,.12)":"var(--card)",
-                color:stageF===v?"var(--accent)":"var(--muted)",transition:"all .15s"}}>
-              {l}
-            </button>
-          ))}
-        </div>
+        <button className="btn-danger" onClick={onRemove}>刪除保單</button>
       </div>
-
-      {/* Table */}
-      <div className="fade-up fade-up-2" style={{background:"var(--card)",border:"1px solid var(--border)",borderRadius:12,overflow:"hidden"}}>
-        <div style={{overflowX:"auto"}}>
-          <table style={{width:"100%",borderCollapse:"collapse"}}>
-            <thead>
-              <tr style={{borderBottom:"1px solid var(--border)"}}>
-                <TH label="客戶 / 電話" k="name"/>
-                <TH label="險種" k="type"/>
-                <TH label="年繳保費" k="premium"/>
-                <TH label="保額 / 年給付" k="benefit"/>
-                <TH label="階段" k="stage"/>
-                <TH label="下次追蹤" k="next"/>
-                <th style={{padding:"10px 14px",width:40}}/>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((c,idx)=>{
-                const days = daysUntil(c.next);
-                const dateColor = days <= 0 ? "var(--danger)" : days <= 3 ? "var(--warn)" : "var(--muted)";
-                return (
-                  <tr key={c.id} className="table-row">
-                    <td style={{padding:"13px 14px"}}>
-                      <div style={{fontWeight:600,fontSize:14,color:"var(--text)"}}>{c.name}</div>
-                      <div style={{fontSize:12,color:"var(--muted)",fontFamily:"var(--mono)",marginTop:2}}>{c.phone||"—"}</div>
-                    </td>
-                    <td style={{padding:"13px 14px"}}>
-                      <span className="badge" style={{background:"var(--surface)",color:"var(--text)",border:"1px solid var(--border2)",fontSize:11}}>
-                        {c.type}
-                      </span>
-                    </td>
-                    <td style={{padding:"13px 14px"}}>
-                      <div style={{fontFamily:"var(--mono)",fontSize:13,fontWeight:600,color:"var(--accent2)"}}>
-                        {c.premium ? `NT$ ${fmt(c.premium)}` : "—"}
-                      </div>
-                    </td>
-                    <td style={{padding:"13px 14px"}}>
-                      <div style={{fontFamily:"var(--mono)",fontSize:13,color:"var(--text)"}}>
-                        {c.benefit ? `NT$ ${fmt(c.benefit)}` : "—"}
-                      </div>
-                    </td>
-                    <td style={{padding:"13px 14px"}}>
-                      <select value={c.stage}
-                        onChange={e=>onUpdateStage(c.id, parseInt(e.target.value))}
-                        className={`badge ${STAGE_CLS[c.stage]}`}
-                        style={{border:"none",cursor:"pointer",appearance:"none",paddingRight:8,outline:"none",fontSize:11,fontWeight:600,fontFamily:"inherit"}}>
-                        {STAGE_LABELS.map((l,i)=><option key={i} value={i}>{l}</option>)}
-                      </select>
-                    </td>
-                    <td style={{padding:"13px 14px"}}>
-                      <div style={{fontFamily:"var(--mono)",fontSize:12,color:dateColor,fontWeight:600}}>
-                        {c.next || "—"}
-                      </div>
-                      {days <= 3 && days >= 0 && (
-                        <div style={{fontSize:10,color:dateColor,marginTop:2}}>
-                          {days===0?"今天":days===1?"明天":`${days}天後`}
-                        </div>
-                      )}
-                    </td>
-                    <td style={{padding:"13px 14px",color:"var(--muted)"}}>
-                      <Icon n="chevR" size={15}/>
-                    </td>
-                  </tr>
-                );
-              })}
-              {filtered.length===0 && (
-                <tr><td colSpan={7} style={{padding:"40px",textAlign:"center",color:"var(--muted)",fontSize:13}}>
-                  找不到符合條件的客戶
-                </td></tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {showModal && <AddModal onClose={()=>setShowModal(false)} onAdd={c=>{onAdd(c);setShowModal(false);}}/>}
     </div>
   );
 }
 
-// ── App Shell ─────────────────────────────────────────────
-function App() {
-  const [page, setPage] = useState("dash");
-  const [clients, setClients] = useState(initClients);
+// ── Stock Row ─────────────────────────────────────────────────────────────────
+function StockRow({s,onChange,onRemove}){
+  const mv=n(s.shares)*n(s.price);
+  const gain=(n(s.price)-n(s.cost))/(n(s.cost)||1);
+  const pnl=mv-n(s.shares)*n(s.cost);
+  return(
+    <div className="card2" style={{padding:12,marginBottom:8}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+        <div style={{display:'flex',alignItems:'center',gap:8}}>
+          <span className="chip chip-blue mono">{s.ticker}</span>
+          <span style={{fontSize:13,color:'#cbd5e1'}}>{s.name}</span>
+        </div>
+        <div style={{display:'flex',alignItems:'center',gap:10}}>
+          <span className="mono" style={{fontSize:13,fontWeight:600,color:gain>=0?'#34d399':'#f87171'}}>{gain>=0?'+':''}{(gain*100).toFixed(1)}%</span>
+          <button className="btn-danger" onClick={onRemove}>移除</button>
+        </div>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8}}>
+        <NI label="股數" value={s.shares} onChange={v=>onChange('shares',v)} pre=""/>
+        <NI label="現價" value={s.price} onChange={v=>onChange('price',v)}/>
+        <NI label="成本" value={s.cost} onChange={v=>onChange('cost',v)}/>
+      </div>
+      <div style={{display:'flex',justifyContent:'space-between',marginTop:8,fontSize:11,color:'#475569'}}>
+        <span>市值：<span className="mono" style={{color:'#94a3b8'}}>{fmtM(mv)}</span></span>
+        <span>損益：<span className="mono" style={{color:pnl>=0?'#34d399':'#f87171',fontWeight:600}}>{fmtM(pnl)}</span></span>
+      </div>
+    </div>
+  );
+}
 
-  function addClient(c) { setClients(prev=>[c,...prev]); }
-  function updateStage(id, s) { setClients(prev=>prev.map(c=>c.id===id?{...c,stage:s}:c)); }
+// ── Sparkline chart (pure SVG) ────────────────────────────────────────────────
+function Sparkline({data,width=300,height=80,color='#3b82f6'}){
+  if(!data||data.length<2)return null;
+  const mn=Math.min(...data),mx=Math.max(...data),range=mx-mn||1;
+  const pts=data.map((v,i)=>{
+    const x=(i/(data.length-1))*width;
+    const y=height-(((v-mn)/range)*(height*0.8)+height*0.1);
+    return`${x},${y}`;
+  }).join(' ');
+  const area=`M0,${height} L${pts.split(' ').map(p=>`${p}`).join(' L')} L${width},${height} Z`;
+  return(
+    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} style={{overflow:'visible'}}>
+      <defs>
+        <linearGradient id={`sg${color.replace('#','')}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.3"/>
+          <stop offset="100%" stopColor={color} stopOpacity="0"/>
+        </linearGradient>
+      </defs>
+      <path d={area} fill={`url(#sg${color.replace('#','')})`}/>
+      <polyline points={pts} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  );
+}
 
-  const urgentCount = REMINDERS.filter(r=>r.urgent).length;
+// ── Retirement bar chart (SVG) ─────────────────────────────────────────────────
+function RetireChart({currentAge,retireAge,targetAmount,currentAssets,monthlySav}){
+  const years=Array.from({length:retireAge-currentAge+4},(_,i)=>currentAge+i);
+  const r=0.065;
+  const data=years.map(age=>{
+    const y=age-currentAge;
+    const proj=currentAssets*Math.pow(1+r,y)+monthlySav*12*((Math.pow(1+r,y)-1)/r);
+    return{age,proj,target:targetAmount};
+  });
+  const maxV=Math.max(...data.map(d=>Math.max(d.proj,d.target)));
+  const W=560,H=160,pad={l:50,r:10,t:10,b:30};
+  const iW=W-pad.l-pad.r,iH=H-pad.t-pad.b;
+  const xS=i=>(i/(data.length-1))*iW;
+  const yS=v=>(1-(v/maxV))*iH;
+  const projPts=data.map((d,i)=>`${pad.l+xS(i)},${pad.t+yS(d.proj)}`).join(' ');
+  const targPts=data.map((d,i)=>`${pad.l+xS(i)},${pad.t+yS(d.target)}`).join(' ');
+  const area=`M${pad.l},${pad.t+iH} ${data.map((d,i)=>`${pad.l+xS(i)},${pad.t+yS(d.proj)}`).join(' ')} ${pad.l+iW},${pad.t+iH}Z`;
+  const ticks=[0,maxV/4,maxV/2,maxV*3/4,maxV];
+  return(
+    <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{overflow:'visible'}}>
+      <defs>
+        <linearGradient id="retGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#10b981" stopOpacity=".35"/>
+          <stop offset="100%" stopColor="#10b981" stopOpacity="0"/>
+        </linearGradient>
+      </defs>
+      {ticks.map((t,i)=>{
+        const y=pad.t+yS(t);
+        return<g key={i}><line x1={pad.l} y1={y} x2={pad.l+iW} y2={y} stroke="rgba(99,130,190,0.07)" strokeWidth="1"/><text x={pad.l-6} y={y+4} textAnchor="end" fill="#334155" fontSize="9" fontFamily="DM Mono">{fmtM(t)}</text></g>;
+      })}
+      {data.filter((_,i)=>i%3===0).map((d,i,arr)=>{
+        const idx=data.indexOf(d);
+        const x=pad.l+xS(idx);
+        return<text key={i} x={x} y={H-10} textAnchor="middle" fill="#334155" fontSize="9" fontFamily="DM Mono">{d.age}</text>;
+      })}
+      <path d={area} fill="url(#retGrad)"/>
+      <polyline points={projPts} fill="none" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <polyline points={targPts} fill="none" stroke="#f59e0b" strokeWidth="1.5" strokeDasharray="5 4" strokeLinecap="round"/>
+      <text x={W-pad.r} y={pad.t+yS(targetAmount)-6} textAnchor="end" fill="#f59e0b" fontSize="9" fontFamily="Sora">目標 {fmtM(targetAmount)}</text>
+    </svg>
+  );
+}
 
-  const navItems = [
-    { id:"dash",  label:"數據總覽",   icon:"dash" },
-    { id:"leads", label:"客戶名單",   icon:"users" },
+// ── Main App ──────────────────────────────────────────────────────────────────
+function App(){
+  const [st,setSt]=useState(INIT);
+  const [tab,setTab]=useState('cashflow');
+
+  const upd=useCallback((path,val)=>{
+    setSt(prev=>{
+      const next=JSON.parse(JSON.stringify(prev));
+      const keys=path.split('.');
+      let obj=next;
+      for(let i=0;i<keys.length-1;i++)obj=obj[keys[i]];
+      obj[keys[keys.length-1]]=typeof val==='function'?val(obj[keys[keys.length-1]]):val;
+      return next;
+    });
+  },[]);
+
+  const updPolicy=useCallback((pid,field,val)=>setSt(prev=>({...prev,policies:prev.policies.map(p=>p.id===pid?{...p,[field]:val}:p)})),[]);
+  const remPolicy=useCallback(pid=>setSt(prev=>({...prev,policies:prev.policies.filter(p=>p.id!==pid)})),[]);
+  const addPolicy=useCallback(()=>setSt(prev=>({...prev,policies:[...prev.policies,{id:'p'+Date.now(),company:'保險公司',productName:'新保單',type:'終身壽險',insuredAmount:1000000,annualPremium:30000,startYear:2024,riders:[]}]})),[]);
+  const addStock=useCallback(()=>setSt(prev=>({...prev,assets:{...prev.assets,stocks:[...prev.assets.stocks,{id:'s'+Date.now(),ticker:'XXXX',name:'新標的',shares:100,price:50,cost:45}]}})),[]);
+
+  const sc=useMemo(()=>calcScores(st),[st]);
+  const prot=useMemo(()=>calcProtection(st.policies),[st.policies]);
+
+  const stockVal=st.assets.stocks.reduce((s,k)=>s+n(k.shares)*n(k.price),0);
+  const totalAssets=n(st.assets.cash)+n(st.assets.property)+stockVal;
+  const totalLiab=n(st.liabilities.mortgage)+n(st.liabilities.personalLoan);
+  const netWorth=totalAssets-totalLiab;
+  const totalPremium=st.policies.reduce((s,p)=>s+n(p.annualPremium)+(p.riders||[]).reduce((r2,r)=>r2+n(r.annualPremium),0),0);
+
+  const TABS=[
+    {id:'cashflow',label:'收支現金流'},
+    {id:'assets',label:'資產負債'},
+    {id:'goals',label:'財務目標'},
+    {id:'insurance',label:'保單防護網'},
   ];
 
-  return (
-    <div style={{display:"flex",minHeight:"100vh",background:"var(--bg)"}}>
+  return(
+    <div style={{maxWidth:1200,margin:'0 auto',padding:'24px 16px 60px'}}>
 
-      {/* Sidebar */}
-      <aside style={{width:220,flexShrink:0,background:"var(--surface)",borderRight:"1px solid var(--border)",display:"flex",flexDirection:"column",padding:"20px 12px"}}>
-        {/* Brand */}
-        <div style={{padding:"4px 10px 20px",borderBottom:"1px solid var(--border)",marginBottom:12}}>
-          <div style={{fontSize:13,fontWeight:700,color:"var(--text)",letterSpacing:".04em"}}>INSURANCE</div>
-          <div style={{fontSize:11,color:"var(--muted)",marginTop:1,fontFamily:"var(--mono)"}}>CRM v1.0</div>
+      {/* ── Header ── */}
+      <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:32,flexWrap:'wrap',gap:16}}>
+        <div>
+          <div className="section-label" style={{marginBottom:6}}>FinAdvisor Pro · 私人財務健檢系統</div>
+          <h1 style={{fontSize:24,fontWeight:700,color:'#f1f5f9',letterSpacing:'-0.02em'}}>高階財務健檢儀表板</h1>
         </div>
-
-        {/* Nav */}
-        <nav style={{display:"flex",flexDirection:"column",gap:3}}>
-          {navItems.map(n=>(
-            <button key={n.id} className={`nav-item ${page===n.id?"active":""}`} onClick={()=>setPage(n.id)}>
-              <Icon n={n.icon} size={16}/>
-              {n.label}
-            </button>
-          ))}
-        </nav>
-
-        {/* Alerts */}
-        <div style={{marginTop:"auto",padding:"12px",background:"var(--card)",borderRadius:9,border:"1px solid var(--border)"}}>
-          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
-            <div className="pulse-dot" style={{width:7,height:7,borderRadius:"50%",background:"var(--danger)",flexShrink:0}}/>
-            <span style={{fontSize:11,fontWeight:600,color:"var(--danger)"}}>緊急提醒</span>
+        <div style={{display:'flex',alignItems:'center',gap:20}}>
+          <div style={{textAlign:'right'}}>
+            <div style={{fontSize:11,color:'#475569'}}>淨資產總額</div>
+            <div className="mono" style={{fontSize:20,fontWeight:700,color:'#10b981'}}>{fmtM(netWorth)}</div>
           </div>
-          <div style={{fontSize:12,color:"var(--muted)"}}>本週有 <span style={{color:"var(--text)",fontWeight:600}}>{urgentCount} 件</span> 待處理事項</div>
-          <button onClick={()=>setPage("dash")} style={{marginTop:10,width:"100%",padding:"6px 0",background:"rgba(240,94,106,.08)",border:"1px solid rgba(240,94,106,.2)",borderRadius:6,fontSize:11,color:"var(--danger)",cursor:"pointer",fontWeight:600}}>
-            查看提醒
+          <div style={{width:1,height:40,background:'rgba(99,130,190,0.18)'}}/>
+          <div style={{textAlign:'right'}}>
+            <div style={{fontSize:11,color:'#475569'}}>年度總保費</div>
+            <div className="mono" style={{fontSize:20,fontWeight:700,color:'#f59e0b'}}>{fmtM(totalPremium)}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Score Engine ── */}
+      <div className="card fade-in" style={{padding:28,marginBottom:24,boxShadow:'0 0 60px rgba(59,130,246,0.05)'}}>
+        <div className="section-label" style={{marginBottom:20}}>綜合財務健康評分引擎</div>
+        <div style={{display:'flex',flexWrap:'wrap',gap:32,alignItems:'center'}}>
+          <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:8}}>
+            <ScoreRing score={sc.total}/>
+            <span className={`chip ${sc.total>=75?'chip-green':sc.total>=50?'chip-amber':'chip-red'}`} style={{fontSize:12}}>
+              {sc.total>=75?'財務健全':sc.total>=50?'需要優化':'急需改善'}
+            </span>
+          </div>
+          <div style={{flex:1,minWidth:260,display:'flex',flexDirection:'column',gap:20}}>
+            <MiniBar value={sc.s1} label="① 預備金安全度" sub={`現金 ${fmtM(sc.cash)} ÷ 月支出 ${fmt(sc.mExp)} = ${sc.emMonths.toFixed(1)} 個月`}/>
+            <MiniBar value={sc.s2} label="② 債務負擔比" sub={`月還款 ${fmt(sc.mDebt)} ÷ 月收入 ${fmt(sc.mInc)} = ${pct(sc.debtRatio)}`}/>
+            <MiniBar value={sc.s3} label="③ 財富蓄水力" sub={`儲蓄率 ${pct(sc.savRate)}（月結餘 ${fmtM(sc.mInc-sc.mExp)}）`}/>
+            <MiniBar value={sc.s4} label="④ 保障責任缺口" sub={`總保障 ${fmtM(sc.totalIns)} vs 風險缺口 ${fmtM(sc.protTarget)}`}/>
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,minWidth:220}}>
+            {[
+              {label:'月均總收入',val:fmtM(sc.mInc),color:'#3b82f6'},
+              {label:'月均總支出',val:fmtM(sc.mExp),color:'#ef4444'},
+              {label:'月均結餘',val:fmtM(sc.mInc-sc.mExp),color:'#10b981'},
+              {label:'壽險保障總額',val:fmtM(sc.totalIns),color:'#8b5cf6'},
+            ].map(m=>(
+              <div key={m.label} className="card2" style={{padding:12}}>
+                <div style={{fontSize:10,color:'#475569',marginBottom:4}}>{m.label}</div>
+                <div className="mono" style={{fontSize:14,fontWeight:600,color:m.color}}>{m.val}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Tabs ── */}
+      <div style={{display:'flex',gap:8,marginBottom:20,overflowX:'auto',paddingBottom:4}}>
+        {TABS.map(t=><button key={t.id} className={`tab-btn ${tab===t.id?'active':''}`} onClick={()=>setTab(t.id)}>{t.label}</button>)}
+      </div>
+
+      {/* ── Tab: cashflow ── */}
+      {tab==='cashflow'&&(
+        <div className="fade-in">
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:20,marginBottom:20}}>
+            <div className="card" style={{padding:20}}>
+              <SH icon="arrow-up-right" title="收入結構" sub="月均 / 年化數據" badge="收入"/>
+              <div style={{display:'flex',flexDirection:'column',gap:12}}>
+                <NI label="固定月薪" value={st.income.salary} onChange={v=>upd('income.salary',v)} suf="元/月"/>
+                <NI label="年度分紅獎金" value={st.income.bonus} onChange={v=>upd('income.bonus',v)} suf="元/年"/>
+                <NI label="股息/非經常性收入" value={st.income.dividend} onChange={v=>upd('income.dividend',v)} suf="元/年"/>
+                <div style={{borderTop:'1px solid rgba(99,130,190,0.1)',paddingTop:12,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                  <span style={{fontSize:13,color:'#94a3b8'}}>月均總收入</span>
+                  <span className="mono" style={{fontSize:16,fontWeight:700,color:'#3b82f6'}}>{fmtM(sc.mInc)}</span>
+                </div>
+              </div>
+            </div>
+            <div className="card" style={{padding:20}}>
+              <SH icon="arrow-down-right" title="支出結構" sub="月固定 + 年度隱形支出" badge="支出"/>
+              <div style={{display:'flex',flexDirection:'column',gap:10}}>
+                <div className="section-label" style={{marginBottom:4}}>每月固定支出</div>
+                {Object.entries(st.expenses.monthly).map(([k,v])=>(
+                  <NI key={k} label={{housing:'住房(房貸/租金)',food:'餐飲伙食',transport:'交通費',entertainment:'娛樂休閒',misc:'其他日常'}[k]||k}
+                    value={v} onChange={val=>upd(`expenses.monthly.${k}`,val)} suf="元/月"/>
+                ))}
+                <div className="section-label" style={{marginTop:8,marginBottom:4}}>年度隱形支出</div>
+                <NI label="所得稅金" value={st.expenses.annual.tax} onChange={v=>upd('expenses.annual.tax',v)} suf="元/年"/>
+                <NI label="其他年度支出" value={st.expenses.annual.other} onChange={v=>upd('expenses.annual.other',v)} suf="元/年"/>
+                <div style={{borderTop:'1px solid rgba(99,130,190,0.1)',paddingTop:12,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                  <span style={{fontSize:13,color:'#94a3b8'}}>月均總支出</span>
+                  <span className="mono" style={{fontSize:16,fontWeight:700,color:'#ef4444'}}>{fmtM(sc.mExp)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* cashflow visual */}
+          <div className="card" style={{padding:20}}>
+            <SH icon="bar-chart-2" title="全年收支概覽" sub="月度收支差異視覺化"/>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(12,1fr)',gap:4,alignItems:'flex-end',height:120,marginBottom:8}}>
+              {Array.from({length:12},(_,i)=>{
+                const hasBonus=i===2||i===11;
+                const inc=sc.mInc+(hasBonus?n(st.income.bonus)/2:0);
+                const exp=sc.mExp*(0.95+Math.random()*0.1);
+                const maxV=sc.mInc+n(st.income.bonus)/2;
+                const iH=Math.max(4,(inc/maxV)*110);
+                const eH=Math.max(4,(exp/maxV)*110);
+                const surplus=inc>exp;
+                return(
+                  <div key={i} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:2,height:120,justifyContent:'flex-end'}}>
+                    <div style={{width:'100%',display:'flex',gap:1,alignItems:'flex-end',justifyContent:'center',height:110}}>
+                      <div style={{width:'45%',height:iH,background:'rgba(59,130,246,0.7)',borderRadius:'3px 3px 0 0'}}/>
+                      <div style={{width:'45%',height:eH,background:'rgba(239,68,68,0.6)',borderRadius:'3px 3px 0 0'}}/>
+                    </div>
+                    <span style={{fontSize:9,color:'#334155',fontFamily:'DM Mono'}}>{i+1}月</span>
+                  </div>
+                );
+              })}
+            </div>
+            <div style={{display:'flex',gap:20,justifyContent:'flex-end',fontSize:11,color:'#475569',marginTop:8}}>
+              <span style={{display:'flex',alignItems:'center',gap:5}}><span style={{width:10,height:10,borderRadius:2,background:'rgba(59,130,246,0.7)',display:'inline-block'}}/>收入</span>
+              <span style={{display:'flex',alignItems:'center',gap:5}}><span style={{width:10,height:10,borderRadius:2,background:'rgba(239,68,68,0.6)',display:'inline-block'}}/>支出</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Tab: assets ── */}
+      {tab==='assets'&&(
+        <div className="fade-in">
+          <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12,marginBottom:20}}>
+            {[
+              {label:'總資產',val:fmtM(totalAssets),color:'#3b82f6'},
+              {label:'總負債',val:fmtM(totalLiab),color:'#ef4444'},
+              {label:'淨資產',val:fmtM(netWorth),color:'#10b981'},
+            ].map(m=>(
+              <div key={m.label} className="card" style={{padding:16}}>
+                <div style={{fontSize:11,color:'#475569',marginBottom:6}}>{m.label}</div>
+                <div className="mono" style={{fontSize:22,fontWeight:700,color:m.color}}>{m.val}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:20}}>
+            <div style={{display:'flex',flexDirection:'column',gap:16}}>
+              <div className="card" style={{padding:20}}>
+                <SH icon="wallet" title="現金與不動產" sub="核心資產項目"/>
+                <div style={{display:'flex',flexDirection:'column',gap:12}}>
+                  <NI label="緊急預備金 / 活存現金" value={st.assets.cash} onChange={v=>upd('assets.cash',v)}/>
+                  <NI label="不動產現值" value={st.assets.property} onChange={v=>upd('assets.property',v)}/>
+                </div>
+              </div>
+              <div className="card" style={{padding:20}}>
+                <SH icon="credit-card" title="負債明細" sub="長期 / 短期負債"/>
+                <div style={{display:'flex',flexDirection:'column',gap:12}}>
+                  <NI label="房貸餘額" value={st.liabilities.mortgage} onChange={v=>upd('liabilities.mortgage',v)}/>
+                  <NI label="信貸餘額" value={st.liabilities.personalLoan} onChange={v=>upd('liabilities.personalLoan',v)}/>
+                  <div style={{borderTop:'1px solid rgba(99,130,190,0.1)',paddingTop:12,display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+                    <div className="card2" style={{padding:10}}>
+                      <div style={{fontSize:10,color:'#475569'}}>月均還款估計</div>
+                      <div className="mono" style={{fontSize:13,fontWeight:600,color:'#f87171'}}>{fmtM(sc.mDebt)}</div>
+                    </div>
+                    <div className="card2" style={{padding:10}}>
+                      <div style={{fontSize:10,color:'#475569'}}>負債/資產比</div>
+                      <div className="mono" style={{fontSize:13,fontWeight:600,color:'#fcd34d'}}>{pct(totalLiab/totalAssets)}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="card" style={{padding:20}}>
+              <SH icon="bar-chart-2" title="股票 / ETF 持倉" sub="六大持倉標的" badge={`${st.assets.stocks.length} 檔`}/>
+              {st.assets.stocks.map((s,i)=>(
+                <StockRow key={s.id||i} s={s}
+                  onChange={(f,v)=>setSt(prev=>{const stocks=[...prev.assets.stocks];stocks[i]={...stocks[i],[f]:v};return{...prev,assets:{...prev.assets,stocks}}})}
+                  onRemove={()=>setSt(prev=>({...prev,assets:{...prev.assets,stocks:prev.assets.stocks.filter((_,j)=>j!==i)}}))}
+                />
+              ))}
+              <button className="btn-ghost" style={{width:'100%',justifyContent:'center',marginTop:4}} onClick={addStock}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                新增標的
+              </button>
+              <div style={{borderTop:'1px solid rgba(99,130,190,0.1)',marginTop:12,paddingTop:12,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                <span style={{fontSize:13,color:'#94a3b8'}}>股票/ETF 總市值</span>
+                <span className="mono" style={{fontSize:16,fontWeight:700,color:'#06b6d4'}}>{fmtM(stockVal)}</span>
+              </div>
+              {/* Mini asset allocation bar */}
+              <div style={{marginTop:16}}>
+                <div className="section-label" style={{marginBottom:8}}>資產配置比例</div>
+                <div style={{display:'flex',height:16,borderRadius:8,overflow:'hidden',gap:2}}>
+                  {totalAssets>0&&[
+                    {val:n(st.assets.cash),color:'#3b82f6',label:'現金'},
+                    {val:n(st.assets.property),color:'#8b5cf6',label:'不動產'},
+                    {val:stockVal,color:'#06b6d4',label:'股票ETF'},
+                  ].map(m=>(
+                    <div key={m.label} style={{flex:m.val/totalAssets,background:m.color,opacity:.8,borderRadius:4,minWidth:m.val>0?4:0}}/>
+                  ))}
+                </div>
+                <div style={{display:'flex',gap:16,marginTop:8,fontSize:11,color:'#475569'}}>
+                  {[{val:n(st.assets.cash),color:'#3b82f6',label:'現金'},{val:n(st.assets.property),color:'#8b5cf6',label:'不動產'},{val:stockVal,color:'#06b6d4',label:'股票ETF'}].map(m=>(
+                    <span key={m.label} style={{display:'flex',alignItems:'center',gap:4}}>
+                      <span style={{width:8,height:8,borderRadius:2,background:m.color,display:'inline-block'}}/>
+                      {m.label} {totalAssets>0?pct(m.val/totalAssets):'—'}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Tab: goals ── */}
+      {tab==='goals'&&(
+        <div className="fade-in">
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:20}}>
+            <div className="card" style={{padding:20}}>
+              <SH icon="target" title="退休財務目標" sub="輸入目標進行試算"/>
+              <div style={{display:'flex',flexDirection:'column',gap:12}}>
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+                  <NI label="現在年齡" value={st.goals.currentAge} onChange={v=>upd('goals.currentAge',v)} pre="" suf="歲"/>
+                  <NI label="預計退休年齡" value={st.goals.retireAge} onChange={v=>upd('goals.retireAge',v)} pre="" suf="歲"/>
+                </div>
+                <NI label="退休目標金額" value={st.goals.targetAmount} onChange={v=>upd('goals.targetAmount',v)}/>
+                <div className="card2" style={{padding:14,display:'flex',flexDirection:'column',gap:8}}>
+                  <div className="section-label">試算假設條件</div>
+                  {[
+                    {k:'年化報酬率假設',v:'6.5%',c:'#10b981'},
+                    {k:'距退休年數',v:`${Math.max(0,n(st.goals.retireAge)-n(st.goals.currentAge))} 年`,c:'#3b82f6'},
+                    {k:'月均可投資結餘',v:fmtM(sc.mInc-sc.mExp),c:'#3b82f6'},
+                    {k:'當前總資產',v:fmtM(totalAssets),c:'#8b5cf6'},
+                  ].map(m=>(
+                    <div key={m.k} style={{display:'flex',justifyContent:'space-between',fontSize:12,color:'#64748b'}}>
+                      <span>{m.k}</span><span className="mono" style={{color:m.c}}>{m.v}</span>
+                    </div>
+                  ))}
+                </div>
+                {(()=>{
+                  const yrs=n(st.goals.retireAge)-n(st.goals.currentAge);
+                  const r=0.065,sav=sc.mInc-sc.mExp;
+                  const proj=totalAssets*Math.pow(1+r,yrs)+sav*12*((Math.pow(1+r,yrs)-1)/r);
+                  const ok=proj>=n(st.goals.targetAmount);
+                  return(
+                    <div className="card2" style={{padding:14,border:`1px solid ${ok?'rgba(16,185,129,0.2)':'rgba(245,158,11,0.2)'}`}}>
+                      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+                        <span style={{fontSize:13,color:'#cbd5e1'}}>退休時預估資產</span>
+                        <span className={`chip ${ok?'chip-green':'chip-amber'}`}>{ok?'✓ 達標':'需加速儲蓄'}</span>
+                      </div>
+                      <div className="mono" style={{fontSize:28,fontWeight:700,color:ok?'#10b981':'#f59e0b'}}>{fmtM(proj)}</div>
+                      <div style={{fontSize:11,color:'#475569',marginTop:4}}>vs 目標 {fmtM(n(st.goals.targetAmount))}</div>
+                      <div style={{marginTop:12}}>
+                        <div className="progress-track" style={{height:8}}>
+                          <div className="progress-bar" style={{width:`${clamp(proj/n(st.goals.targetAmount),0,1)*100}%`,height:8,background:ok?'#10b981':'#f59e0b'}}/>
+                        </div>
+                        <div style={{fontSize:10,color:'#475569',marginTop:4,textAlign:'right'}}>{pct(clamp(proj/n(st.goals.targetAmount),0,1))} 達成率</div>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+            </div>
+            <div className="card" style={{padding:20}}>
+              <SH icon="line-chart" title="資產成長軌跡" sub="含月均儲蓄 6.5% 複利累積"/>
+              <RetireChart
+                currentAge={n(st.goals.currentAge)}
+                retireAge={n(st.goals.retireAge)}
+                targetAmount={n(st.goals.targetAmount)}
+                currentAssets={totalAssets}
+                monthlySav={sc.mInc-sc.mExp}
+              />
+              <div style={{display:'flex',gap:16,marginTop:12,fontSize:11,color:'#475569'}}>
+                <span style={{display:'flex',alignItems:'center',gap:5}}><span style={{width:14,height:2,background:'#10b981',display:'inline-block',borderRadius:99}}/>資產預估</span>
+                <span style={{display:'flex',alignItems:'center',gap:5}}><span style={{width:14,height:0,border:'1.5px dashed #f59e0b',display:'inline-block'}}/>退休目標</span>
+              </div>
+              {/* Milestone chips */}
+              <div style={{marginTop:20}}>
+                <div className="section-label" style={{marginBottom:10}}>關鍵里程碑</div>
+                <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                  {[
+                    {label:'預計達成 5000 萬',age:n(st.goals.retireAge),color:'#10b981'},
+                    {label:'退休前最後 5 年加速期',age:n(st.goals.retireAge)-5,color:'#f59e0b'},
+                    {label:'資產超越負債總額',age:n(st.goals.currentAge)+3,color:'#3b82f6'},
+                  ].map(m=>(
+                    <div key={m.label} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'8px 12px',borderRadius:8,background:'rgba(15,23,42,0.5)',border:'1px solid rgba(99,130,190,0.1)'}}>
+                      <span style={{fontSize:12,color:'#94a3b8'}}>{m.label}</span>
+                      <span className="mono" style={{fontSize:13,fontWeight:600,color:m.color}}>{m.age} 歲</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Tab: insurance ── */}
+      {tab==='insurance'&&(
+        <div className="fade-in">
+          {/* Protection summary */}
+          <div className="card" style={{padding:20,marginBottom:20}}>
+            <SH icon="shield-check" title="總防護網進度" sub="各類保障額度彙整" badge={`${st.policies.length} 張保單`}/>
+            <div style={{display:'flex',flexDirection:'column',gap:16,marginBottom:20}}>
+              <ProtBar label="壽險保障 vs 責任缺口（負債+5年開銷）" value={sc.totalIns} target={sc.protTarget}/>
+              <ProtBar label="醫療實支實付雜費限額（建議 ≥30萬）" value={prot.miscLimit} target={300000} color="#06b6d4"/>
+              <ProtBar label="重大傷病一次金（建議 ≥200萬）" value={prot.lumpSum} target={2000000} color="#8b5cf6"/>
+              <ProtBar label="意外傷害保障（建議 ≥500萬）" value={prot.accident} target={5000000} color="#f59e0b"/>
+            </div>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10}}>
+              {[
+                {label:'壽險總保額',val:fmtM(sc.totalIns),color:'#3b82f6'},
+                {label:'實支雜費限額',val:fmtM(prot.miscLimit),color:'#06b6d4'},
+                {label:'重疾一次金',val:fmtM(prot.lumpSum),color:'#8b5cf6'},
+                {label:'失能月給付',val:`${fmt(prot.disability)}/月`,color:'#10b981'},
+              ].map(m=>(
+                <div key={m.label} className="card2" style={{padding:12,textAlign:'center'}}>
+                  <div style={{fontSize:10,color:'#475569',marginBottom:4}}>{m.label}</div>
+                  <div className="mono" style={{fontSize:13,fontWeight:600,color:m.color}}>{m.val}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* Policy cards */}
+          {st.policies.map(p=>(
+            <PolicyCard key={p.id} policy={p}
+              onChange={(f,v)=>updPolicy(p.id,f,v)}
+              onRemove={()=>remPolicy(p.id)}/>
+          ))}
+          <button className="btn-primary" style={{width:'100%',justifyContent:'center',padding:'13px 0'}} onClick={addPolicy}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            新增保單
           </button>
         </div>
+      )}
 
-        {/* Footer */}
-        <div style={{marginTop:12,padding:"8px 10px",fontSize:11,color:"var(--muted)",fontFamily:"var(--mono)"}}>
-          {clients.length} clients
-        </div>
-      </aside>
-
-      {/* Main */}
-      <main style={{flex:1,overflowY:"auto",overflowX:"hidden"}}>
-        {page==="dash" && <Dashboard clients={clients}/>}
-        {page==="leads" && <LeadTable clients={clients} onAdd={addClient} onUpdateStage={updateStage}/>}
-      </main>
+      {/* Footer */}
+      <div style={{marginTop:48,paddingTop:20,borderTop:'1px solid rgba(99,130,190,0.1)',display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:8}}>
+        <div style={{fontSize:11,color:'#1e293b'}}>FinAdvisor Pro · 財務數據僅供顧問分析參考，不構成投資建議</div>
+        <div className="mono" style={{fontSize:11,color:'#1e293b'}}>v2.1.0 · All data stored locally</div>
+      </div>
     </div>
   );
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 </script>
 </body>
 </html>
