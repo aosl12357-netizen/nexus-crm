@@ -96,19 +96,23 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Noto San
   will-change:transform; z-index:1;
 }
 
-/* 每個畫面：固定寬度，不滾動（除了表格那頁） */
+/* 每個畫面：固定寬度，不滾動 */
 .screen {
   width:25%;
   height:100%;
   padding:22px 36px 16px;
   display:flex; flex-direction:column; gap:14px;
-  overflow:hidden;   /* 預設不滾動 */
+  overflow:hidden;
 }
-/* 只有 Step1b（年齡表格）那頁允許垂直滾動 */
-#screen1b { overflow-y:auto; overflow-x:hidden; }
-#screen1b::-webkit-scrollbar { width:4px; }
-#screen1b::-webkit-scrollbar-thumb { background:rgba(0,169,157,.35); border-radius:2px; }
-/* 其他畫面也允許垂直滾動（內容較多時） */
+/* 年齡對照表頁（screen1）：允許垂直滾動 */
+#screen1 {
+  overflow-y:auto;
+  overflow-x:hidden;
+}
+#screen1::-webkit-scrollbar { width:5px; }
+#screen1::-webkit-scrollbar-track { background:transparent; }
+#screen1::-webkit-scrollbar-thumb { background:rgba(0,169,157,.4); border-radius:3px; }
+/* 儲蓄險 & 投資藍圖：允許垂直滾動 */
 #screen2, #screen3 { overflow-y:auto; overflow-x:hidden; }
 #screen2::-webkit-scrollbar, #screen3::-webkit-scrollbar { width:4px; }
 #screen2::-webkit-scrollbar-thumb, #screen3::-webkit-scrollbar-thumb { background:rgba(0,169,157,.35); border-radius:2px; }
@@ -253,7 +257,7 @@ input[type="range"]::-webkit-slider-thumb:active { transform:scale(1.15); }
 }
 .table-header-bar span { font-size:12px; font-weight:400; color:var(--teal-light); }
 
-.age-table-wrap { flex:1; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:var(--rxl); overflow:hidden; display:flex; flex-direction:column; }
+.age-table-wrap { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:var(--rxl); overflow:hidden; }
 .age-table { width:100%; border-collapse:collapse; font-size:14px; }
 .age-table thead th {
   position:sticky; top:0; z-index:2;
