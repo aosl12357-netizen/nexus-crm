@@ -1,1079 +1,1153 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>財務健檢儀表板 · FinAdvisor Pro</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>專屬資產規劃</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:#070b11;color:#e2e8f0;font-family:'Sora',sans-serif;min-height:100vh;overflow-x:hidden}
-.mono{font-family:'DM Mono',monospace}
-.card{background:#0c1322;border:1px solid rgba(99,130,190,0.14);border-radius:16px;transition:border-color .25s,box-shadow .25s}
-.card:hover{border-color:rgba(99,130,190,0.3);box-shadow:0 0 30px rgba(59,130,246,0.04)}
-.card2{background:#101a2e;border:1px solid rgba(99,130,190,0.1);border-radius:10px}
-.card3{background:#0d1525;border:1px solid rgba(99,130,190,0.08);border-radius:8px}
-input,select{background:rgba(7,11,17,.95);border:1px solid rgba(99,130,190,0.2);border-radius:8px;color:#e2e8f0;padding:8px 12px;font-family:'DM Mono',monospace;font-size:13px;width:100%;outline:none;transition:border-color .2s,box-shadow .2s}
-input:focus,select:focus{border-color:rgba(59,130,246,.6);box-shadow:0 0 0 3px rgba(59,130,246,.08)}
-select option{background:#0c1322;color:#e2e8f0}
-label{font-size:10px;color:#4b5e7a;letter-spacing:.07em;text-transform:uppercase;display:block;margin-bottom:5px;font-weight:700}
-::-webkit-scrollbar{width:5px;height:5px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:rgba(99,130,190,0.18);border-radius:99px}
-.tab-btn{padding:9px 20px;border-radius:9px;font-size:13px;font-weight:500;cursor:pointer;transition:all .18s;border:1px solid transparent;color:#4b5e7a;background:transparent;white-space:nowrap;font-family:'Sora',sans-serif}
-.tab-btn.active{background:rgba(59,130,246,.13);border-color:rgba(59,130,246,.35);color:#93c5fd}
-.tab-btn:hover:not(.active){color:#e2e8f0;background:rgba(255,255,255,.04)}
-.btn-primary{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border:none;border-radius:9px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;transition:all .18s;font-family:'Sora',sans-serif;display:inline-flex;align-items:center;justify-content:center;gap:7px}
-.btn-primary:hover{filter:brightness(1.15);transform:translateY(-1px)}
-.btn-ghost{background:transparent;color:#4b5e7a;border:1px solid rgba(99,130,190,.2);border-radius:8px;padding:8px 14px;font-size:12px;cursor:pointer;transition:all .15s;font-family:'Sora',sans-serif;display:inline-flex;align-items:center;justify-content:center;gap:5px}
-.btn-ghost:hover{border-color:rgba(99,130,190,.38);color:#e2e8f0}
-.btn-danger{background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.22);border-radius:7px;padding:5px 10px;font-size:11px;cursor:pointer;transition:all .15s;font-family:'Sora',sans-serif}
-.btn-danger:hover{background:rgba(239,68,68,.2)}
-.btn-sm{background:rgba(59,130,246,.12);color:#93c5fd;border:1px solid rgba(59,130,246,.22);border-radius:7px;padding:5px 11px;font-size:11px;cursor:pointer;transition:all .15s;font-family:'Sora',sans-serif;display:inline-flex;align-items:center;gap:4px}
-.btn-sm:hover{background:rgba(59,130,246,.2)}
-.chip{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600;letter-spacing:.02em}
-.chip-blue{background:rgba(59,130,246,.12);color:#93c5fd;border:1px solid rgba(59,130,246,.22)}
-.chip-green{background:rgba(16,185,129,.12);color:#6ee7b7;border:1px solid rgba(16,185,129,.22)}
-.chip-amber{background:rgba(245,158,11,.12);color:#fcd34d;border:1px solid rgba(245,158,11,.22)}
-.chip-red{background:rgba(239,68,68,.12);color:#fca5a5;border:1px solid rgba(239,68,68,.22)}
-.chip-purple{background:rgba(139,92,246,.12);color:#c4b5fd;border:1px solid rgba(139,92,246,.22)}
-.chip-cyan{background:rgba(6,182,212,.12);color:#67e8f9;border:1px solid rgba(6,182,212,.22)}
-.progress-track{background:rgba(15,23,42,.9);border-radius:99px;overflow:hidden}
-.progress-bar{height:100%;border-radius:99px;transition:width 1s cubic-bezier(.34,1.56,.64,1)}
-.rider-indent{margin-left:16px;border-left:2px solid rgba(59,130,246,.18);padding-left:14px;margin-top:6px;margin-bottom:6px}
-.section-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#243040;font-weight:700}
-.divider{border:none;border-top:1px solid rgba(99,130,190,.1);margin:0}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.fade-in{animation:fadeIn .38s ease forwards}
-@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.4}}
-.live-dot{animation:pulse-dot 2s ease-in-out infinite}
-.grid-bg{background-image:radial-gradient(rgba(59,130,246,.055) 1px,transparent 1px);background-size:30px 30px}
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px}
-.modal-box{background:#0c1322;border:1px solid rgba(99,130,190,.25);border-radius:18px;padding:28px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto}
-.stat-card{display:flex;flex-direction:column;gap:4px;padding:14px 16px;background:#101a2e;border:1px solid rgba(99,130,190,.1);border-radius:12px}
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700;900&family=DM+Mono:wght@400;500&display=swap');
+
+/* === 防重整鎖定 === */
+html, body {
+  margin: 0; padding: 0; width: 100%; height: 100%;
+  position: fixed; overflow: hidden;
+  overscroll-behavior: none;
+  font-family: -apple-system, "PingFang TC", "Microsoft JhengHei", sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  background-color: var(--bg); color: var(--text);
+}
+
+.container {
+  height: 100%; overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 20px 18px 140px 18px;
+  box-sizing: border-box;
+  display: flex; flex-direction: column; gap: 16px;
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+}
+
+/* === 配色系統 === */
+:root {
+  --font-scale: 1.0;
+  --bg: #f5f4ef; --card: #ffffff; --input-bg: #eeecea; --border: #d8d5ce;
+  --text: #1a1714; --sub: #6b6560; --primary: #2d5a27; --primary-light: #4a8f42;
+  --accent: #c4732a; --accent-light: #e8a05a; --danger: #c0392b;
+  --highlight-bg: #fef9f0;
+  --gold-start: #bf953f; --gold-end: #fcf6ba; --gold-mid: #b38728;
+  --gold-shadow: 0 4px 20px rgba(180,130,40,0.35);
+  --gold-text: #3d2500; --gold-row-text: #2a1800;
+  --income-color: #2d5a27;
+  --shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+[data-theme="dark"] {
+  --bg: #0d0d0d; --card: #1a1a1a; --input-bg: #242424; --border: #333;
+  --text: #f0ede8; --sub: #999; --primary: #5ab050; --primary-light: #7acc70;
+  --accent: #e8a05a; --accent-light: #f5c080;
+  --highlight-bg: #2a1f0d;
+  --gold-start: #8a6e2f; --gold-end: #d4af37; --gold-mid: #8a6e2f;
+  --gold-text: #fff; --gold-row-text: #fff;
+  --income-color: #6ad060;
+  --shadow: 0 2px 16px rgba(0,0,0,0.4);
+}
+[data-theme="navy"] {
+  --bg: #0a0f1e; --card: #111827; --input-bg: #1a2235; --border: #2a3555;
+  --text: #e8edf5; --sub: #8899bb; --primary: #4a9fff; --primary-light: #70b5ff;
+  --accent: #f59e0b; --accent-light: #fbbf24;
+  --highlight-bg: #1a1000;
+  --income-color: #70b5ff; --shadow: 0 2px 20px rgba(0,0,0,0.5);
+}
+[data-theme="gold"] {
+  --bg: #1c1408; --card: #251c0a; --input-bg: #332500; --border: #5a400a;
+  --text: #f5e8c0; --sub: #c4a862; --primary: #d4af37; --primary-light: #f0cc60;
+  --accent: #ff8c42; --accent-light: #ffb07a;
+  --highlight-bg: #3a1a00; --income-color: #f0cc60; --shadow: 0 2px 20px rgba(0,0,0,0.6);
+}
+[data-theme="rose"] {
+  --bg: #fdf4f0; --card: #fff8f5; --input-bg: #f5ebe5; --border: #e8cfc5;
+  --text: #3d1810; --sub: #8a5548; --primary: #c0392b; --primary-light: #e05a4a;
+  --accent: #8b5e3c; --accent-light: #c08060;
+  --income-color: #c0392b; --shadow: 0 2px 12px rgba(192,57,43,0.12);
+}
+
+/* 字體縮放 */
+.container { font-size: calc(15px * var(--font-scale)); }
+
+/* === HEADER === */
+.header {
+  text-align: center; padding-bottom: 16px; margin-top: 8px;
+  position: relative; flex-shrink: 0;
+  border-bottom: 1px solid var(--border);
+}
+.header h2 {
+  margin: 0; font-size: calc(2rem * var(--font-scale));
+  font-weight: 900; color: var(--text); letter-spacing: -0.5px;
+  font-family: 'Noto Serif TC', serif;
+}
+.header p { margin: 4px 0 0; color: var(--sub); font-size: calc(0.85rem * var(--font-scale)); font-weight: 600; letter-spacing: 2px; text-transform: uppercase; }
+.top-controls { position: absolute; right: 0; top: 0; display: flex; gap: 8px; }
+.icon-btn {
+  background: var(--input-bg); border: 1px solid var(--border); border-radius: 12px;
+  width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; cursor: pointer; color: var(--text); transition: 0.15s;
+}
+.icon-btn:active { transform: scale(0.92); opacity: 0.7; }
+
+/* === 卡片與章節 === */
+.card {
+  background: var(--card); border-radius: 20px; padding: 20px;
+  border: 1px solid var(--border); box-shadow: var(--shadow);
+}
+.section-title {
+  font-size: calc(1.05rem * var(--font-scale)); font-weight: 800;
+  color: var(--primary); margin-bottom: 14px;
+  display: flex; align-items: center; gap: 8px; letter-spacing: 0.5px;
+}
+.section-title::before { content: ''; display: inline-block; width: 4px; height: 1.1em; background: var(--primary); border-radius: 2px; }
+
+/* === GRID === */
+.input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.full-width { grid-column: 1 / -1; }
+
+label {
+  display: block; font-size: calc(0.9rem * var(--font-scale));
+  color: var(--sub); margin-bottom: 7px; font-weight: 700; letter-spacing: 0.3px;
+}
+.input-wrapper { position: relative; }
+input[type="tel"], input[type="text"], input[type="number"] {
+  width: 100%; background: var(--input-bg); border: 1.5px solid var(--border);
+  color: var(--text); font-size: calc(1.3rem * var(--font-scale));
+  padding: 14px 16px; border-radius: 14px; box-sizing: border-box;
+  font-weight: 700; -webkit-appearance: none; transition: border-color 0.2s, box-shadow 0.2s;
+}
+input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(45,90,39,0.15); }
+input[readonly] { opacity: 0.6; border-style: dashed; color: var(--sub); }
+.suffix {
+  position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+  color: var(--sub); font-size: 1.1rem; pointer-events: none; font-weight: 600;
+}
+.hint-text { font-size: calc(0.85rem * var(--font-scale)); color: var(--accent); margin-top: 5px; font-weight: 700; text-align: right; display: block; }
+
+/* 年齡資訊顯示 */
+.age-info-row {
+  grid-column: 1 / -1;
+  display: flex; gap: 10px; flex-wrap: wrap;
+}
+.age-badge {
+  flex: 1; min-width: 120px;
+  background: var(--input-bg); border: 1.5px solid var(--border);
+  border-radius: 14px; padding: 12px 16px; text-align: center;
+}
+.age-badge-label { font-size: 0.8rem; color: var(--sub); font-weight: 700; margin-bottom: 4px; }
+.age-badge-value { font-size: calc(1.6rem * var(--font-scale)); font-weight: 900; color: var(--primary); font-family: 'DM Mono', monospace; }
+
+/* === 年期選擇按鈕 === */
+.period-tabs { display: flex; gap: 10px; }
+.period-tab {
+  flex: 1; background: var(--input-bg); border: 2px solid var(--border);
+  color: var(--sub); border-radius: 14px; padding: 16px 8px;
+  font-size: calc(1.05rem * var(--font-scale)); font-weight: 800;
+  cursor: pointer; text-align: center; transition: all 0.2s;
+}
+.period-tab.active {
+  background: var(--primary); color: white; border-color: var(--primary);
+  box-shadow: 0 4px 15px rgba(45,90,39,0.3);
+}
+.period-tab:active { transform: scale(0.96); }
+
+/* 雙向計算 */
+.dual-calc-row { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: center; margin-top: 10px; }
+.dual-arrow { text-align: center; color: var(--sub); font-size: 1.3rem; padding-top: 20px; }
+
+/* 直接投資按鈕 */
+.btn-direct {
+  background: var(--card); border: 2px dashed var(--accent); color: var(--accent);
+  border-radius: 16px; padding: 16px; font-size: calc(1.05rem * var(--font-scale));
+  font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+  margin-top: 10px; transition: all 0.2s;
+}
+.btn-direct.active { background: var(--accent); color: white; border-style: solid; }
+.btn-direct span { font-size: 0.9rem; font-weight: 500; opacity: 0.85; }
+
+/* 儲蓄輸入展開區 */
+.save-inputs { margin-top: 14px; display: none; }
+
+/* === 投資標的區 === */
+.target-add-row { display: flex; gap: 10px; margin-top: 10px; }
+.target-add-row input { flex: 1; }
+.btn-add-target {
+  background: var(--primary); color: white; border: none; border-radius: 14px;
+  padding: 14px 18px; font-size: 1rem; font-weight: 800; cursor: pointer;
+  white-space: nowrap; flex-shrink: 0;
+}
+.btn-add-target:active { opacity: 0.8; transform: scale(0.96); }
+.targets-list { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; min-height: 30px; }
+.target-chip {
+  background: var(--primary); color: white; border-radius: 20px;
+  padding: 8px 14px; font-size: 0.95rem; font-weight: 700;
+  display: flex; align-items: center; gap: 8px; animation: chipIn 0.2s ease;
+}
+@keyframes chipIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+.target-chip button {
+  background: rgba(255,255,255,0.25); border: none; color: white;
+  border-radius: 50%; width: 20px; height: 20px; cursor: pointer;
+  font-size: 0.8rem; display: flex; align-items: center; justify-content: center; padding: 0;
+}
+
+/* === 進階設定折疊 === */
+.accordion-header {
+  display: flex; justify-content: space-between; align-items: center;
+  cursor: pointer; padding: 14px 0; border-top: 1px solid var(--border); margin-top: 4px;
+  font-weight: 700; color: var(--sub); font-size: 0.95rem;
+}
+.accordion-header .arrow { transition: transform 0.25s; display: inline-block; }
+.accordion-header.open .arrow { transform: rotate(180deg); }
+.accordion-body { display: none; padding-bottom: 4px; }
+
+/* Toggle Switch */
+.toggle-row {
+  display: flex; justify-content: space-between; align-items: center;
+  min-height: 52px; padding: 4px 0;
+}
+.toggle-label { font-size: calc(1rem * var(--font-scale)); color: var(--text); font-weight: 700; }
+.switch { position: relative; display: inline-block; width: 52px; height: 30px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .3s; border-radius: 30px; }
+.slider:before { position: absolute; content: ""; height: 24px; width: 24px; left: 3px; bottom: 3px; background: white; transition: .3s; border-radius: 50%; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
+input:checked + .slider { background-color: var(--primary); }
+input:checked + .slider:before { transform: translateX(22px); }
+
+/* === 按鈕 === */
+.btn-group { display: flex; gap: 10px; margin-top: 4px; flex-shrink: 0; }
+.btn-calc {
+  flex: 4; background: var(--primary); color: white;
+  font-size: calc(1.25rem * var(--font-scale)); font-weight: 900;
+  padding: 18px; border: none; border-radius: 18px; cursor: pointer;
+  box-shadow: 0 5px 20px rgba(45,90,39,0.3); letter-spacing: 0.5px; transition: 0.15s;
+}
+.btn-calc:active { transform: scale(0.97); opacity: 0.9; }
+.btn-action {
+  flex: 1.2; background: var(--card); color: var(--text);
+  font-size: 1.2rem; font-weight: 700; padding: 18px; border: 1.5px solid var(--border);
+  border-radius: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.15s;
+}
+.btn-action:active { transform: scale(0.97); opacity: 0.7; }
+.btn-clear {
+  width: 52px; background: var(--input-bg); border: 1.5px solid var(--border);
+  color: var(--sub); border-radius: 18px; font-size: 1.1rem;
+  display: flex; justify-content: center; align-items: center; cursor: pointer;
+}
+.btn-clear:active { transform: scale(0.97); opacity: 0.7; }
+
+/* === 結果區 === */
+.result-area { display: none; margin-top: 10px; }
+
+/* 目標達成卡片 */
+.goal-cards { display: flex; gap: 12px; margin-bottom: 20px; }
+.goal-card {
+  flex: 1; border-radius: 20px; padding: 18px 12px; text-align: center;
+  position: relative; overflow: hidden;
+}
+.goal-card-gold {
+  background: linear-gradient(135deg, var(--gold-start), var(--gold-end), var(--gold-mid), #fbf5b7, #aa771c);
+  box-shadow: var(--gold-shadow);
+}
+.goal-card-blue {
+  background: linear-gradient(135deg, #e3f2fd 0%, #90caf9 50%, #e3f2fd 100%);
+  box-shadow: 0 4px 20px rgba(33,150,243,0.3);
+}
+.goal-card::after {
+  content: ''; position: absolute; top: -40%; left: -60%; width: 60%; height: 200%;
+  background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,0.35), rgba(255,255,255,0));
+  transform: rotate(20deg); animation: shine 3s infinite;
+}
+@keyframes shine { 0% { left: -60%; } 100% { left: 120%; } }
+.goal-card-label { font-size: 0.85rem; font-weight: 800; letter-spacing: 1.5px; margin-bottom: 4px; position: relative; z-index: 1; }
+.goal-card-gold .goal-card-label { color: var(--gold-text); }
+.goal-card-blue .goal-card-label { color: #0d47a1; }
+.goal-card-value { font-size: calc(2.2rem * var(--font-scale)); font-weight: 900; margin: 4px 0; position: relative; z-index: 1; font-family: 'Noto Serif TC', serif; }
+.goal-card-gold .goal-card-value { color: var(--gold-row-text); }
+.goal-card-blue .goal-card-value { color: #0d47a1; }
+.goal-card-sub { font-size: 0.9rem; font-weight: 700; position: relative; z-index: 1; }
+.goal-card-gold .goal-card-sub { color: var(--gold-text); }
+.goal-card-blue .goal-card-sub { color: #1565c0; }
+
+/* 現金流對比 */
+.cashflow-compare {
+  background: var(--card); border: 1.5px solid var(--border);
+  border-radius: 18px; padding: 18px; margin-bottom: 18px; display: none;
+}
+.cashflow-compare-title { font-size: 0.9rem; color: var(--sub); font-weight: 700; margin-bottom: 12px; text-align: center; letter-spacing: 1px; }
+.cashflow-bars { display: flex; gap: 16px; align-items: flex-end; justify-content: center; }
+.cashflow-bar-wrap { flex: 1; max-width: 160px; text-align: center; }
+.cashflow-bar-label { font-size: 0.85rem; color: var(--sub); font-weight: 700; margin-bottom: 6px; }
+.cashflow-bar-bg { height: 8px; background: var(--input-bg); border-radius: 4px; overflow: hidden; }
+.cashflow-bar-fill { height: 100%; border-radius: 4px; transition: width 1s ease; }
+.bar-goal { background: var(--accent); }
+.bar-actual { background: var(--primary); }
+.cashflow-bar-value { font-size: calc(1.3rem * var(--font-scale)); font-weight: 900; margin-top: 6px; font-family: 'DM Mono', monospace; }
+.cashflow-status { text-align: center; margin-top: 12px; font-size: 0.95rem; font-weight: 700; padding: 8px; border-radius: 10px; }
+.cashflow-ok { background: rgba(45,90,39,0.1); color: var(--primary); }
+.cashflow-ng { background: rgba(192,57,43,0.1); color: var(--danger); }
+
+/* === 資料表格 === */
+.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 16px; border: 1px solid var(--border); background: var(--card); }
+table { width: 100%; border-collapse: collapse; min-width: 420px; }
+th {
+  text-align: right; color: var(--sub); font-size: 0.9rem; padding: 14px 10px;
+  border-bottom: 2px solid var(--border); background: var(--card); z-index: 10;
+  font-weight: 800; position: sticky; top: 0;
+}
+th:first-child { text-align: center; width: 50px; }
+td {
+  text-align: right; font-size: calc(1.2rem * var(--font-scale)); padding: 18px 10px;
+  border-bottom: 1px solid var(--border); color: var(--text);
+  font-family: 'DM Mono', monospace; letter-spacing: -0.5px;
+}
+td:first-child { text-align: center; color: var(--sub); font-weight: 800; font-family: -apple-system, sans-serif; font-size: 1.1rem; }
+.phase-tag { display: inline-block; font-size: 0.75rem; padding: 3px 7px; border-radius: 6px; margin-right: 4px; font-weight: 700; vertical-align: middle; }
+.phase-save { background: #34c759; color: white; }
+.phase-invest { background: var(--primary); color: white; }
+.phase-loan { background: #ff9500; color: white; }
+.entry-marker { font-size: 0.85rem; display: block; margin-top: 3px; color: var(--sub); font-weight: bold; }
+.passive { color: var(--income-color); font-weight: 700; }
+.loan-debt { font-size: 0.85rem; color: var(--danger); display: block; margin-top: 2px; }
+
+tr.highlight td { background-color: var(--highlight-bg) !important; }
+tr.highlight td:first-child { color: var(--danger); font-size: 1.3rem; }
+
+tr.gold-row { background: linear-gradient(135deg, var(--gold-start), var(--gold-end), var(--gold-mid)); }
+tr.gold-row td { background: transparent !important; color: var(--gold-row-text) !important; font-weight: 900; border-bottom: none; }
+tr.gold-row td:first-child { color: var(--gold-row-text) !important; font-size: 1.4rem; }
+tr.gold-row .passive { color: var(--gold-row-text) !important; }
+
+/* 備注說明 */
+.risk-note { margin-top: 18px; padding: 20px; background: var(--card); color: var(--sub); font-size: 0.88rem; line-height: 1.7; border-radius: 16px; border: 1px solid var(--border); }
+
+/* === 圖表 Modal === */
+.chart-modal {
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+  background: var(--bg); z-index: 300; display: none; flex-direction: column;
+  padding: 20px; box-sizing: border-box; padding-top: env(safe-area-inset-top, 20px);
+}
+.chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.chart-header h2 { font-size: 1.4rem; color: var(--text); font-family: 'Noto Serif TC', serif; margin: 0; }
+.close-btn { background: var(--input-bg); color: var(--text); border: 1px solid var(--border); padding: 10px 22px; border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; }
+.chart-container { flex: 1; position: relative; width: 100%; }
+
+/* === Settings Modal === */
+.settings-modal {
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.5); z-index: 300; display: none;
+  justify-content: center; align-items: center; backdrop-filter: blur(8px);
+}
+.settings-content { background: var(--card); padding: 24px; border-radius: 24px; width: 300px; border: 1px solid var(--border); box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+.settings-title { font-size: 1.2rem; font-weight: 900; margin-bottom: 14px; color: var(--text); font-family: 'Noto Serif TC', serif; text-align: center; }
+.theme-btn { width: 100%; padding: 14px; margin-bottom: 8px; border-radius: 14px; border: 1.5px solid var(--border); font-size: 1rem; font-weight: 600; cursor: pointer; transition: 0.15s; }
+.theme-btn:active { transform: scale(0.97); }
+.close-settings { color: var(--primary); cursor: pointer; font-size: 1rem; font-weight: 700; text-align: center; padding: 8px; display: block; margin-top: 4px; }
+
+/* 展示模式 */
+body.presentation-mode .input-grid,
+body.presentation-mode .card:not(.result-area),
+body.presentation-mode .header p,
+body.presentation-mode .top-controls,
+body.presentation-mode .btn-group .btn-calc,
+body.presentation-mode .btn-group .btn-clear,
+body.presentation-mode .btn-group .btn-chart { display: none !important; }
+body.presentation-mode .btn-present { background: var(--danger) !important; color: white !important; border-color: var(--danger) !important; flex: 1 !important; }
+body.presentation-mode .header { border: none; }
 </style>
-<script>tailwind.config={darkMode:'class',theme:{extend:{}}}</script>
 </head>
-<body class="grid-bg">
-<div id="root"></div>
-<script type="text/babel">
-const {useState,useMemo,useCallback,useEffect,useRef}=React;
+<body>
+<div class="container">
 
-/* ─────────────────────────────────────────────
-   HELPERS
-───────────────────────────────────────────── */
-const n=v=>parseFloat(String(v||0).replace(/,/g,''))||0;
-const fmt=v=>{if(v===undefined||v===null||isNaN(v))return'—';return new Intl.NumberFormat('zh-TW').format(Math.round(v))};
-const fmtM=v=>{if(v===undefined||v===null||isNaN(v))return'—';const a=Math.abs(v),s=v<0?'-':'';if(a>=100000000)return s+(a/100000000).toFixed(2)+'億';if(a>=10000000)return s+(a/10000000).toFixed(2)+'千萬';if(a>=10000)return s+(a/10000).toFixed(1)+'萬';return s+fmt(v)};
-const pct=(v,d=1)=>isNaN(v)?'—':`${(v*100).toFixed(d)}%`;
-const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
-const lerp=(a,b,t)=>a+(b-a)*clamp(t,0,1);
-const uid=()=>'id'+Date.now()+Math.random().toString(36).slice(2,7);
+  <!-- HEADER -->
+  <div class="header">
+    <div class="top-controls">
+      <button class="icon-btn" onclick="toggleSettings()" title="主題設定">⚙️</button>
+      <button class="icon-btn" onclick="toggleFontSize()" title="字體大小">🅰️</button>
+    </div>
+    <h2>專屬資產規劃</h2>
+    <p>Premium Financial Planning</p>
+  </div>
 
-/* ─────────────────────────────────────────────
-   STOCK DICTIONARY
-───────────────────────────────────────────── */
-const STOCK_DICT={
-  '2330':'台積電','3231':'緯創','5274':'信驊','6806':'森崴能源',
-  '0050':'元大台灣50','006208':'富邦台50'
+  <!-- === 第一張卡：客戶基本資料 === -->
+  <div class="card">
+    <div class="section-title">客戶基本資料</div>
+    <div class="input-grid">
+      <div>
+        <label>民國出生年</label>
+        <input type="tel" id="birth_y" placeholder="例如 91" maxlength="3" oninput="calcAgeInfo()">
+      </div>
+      <div>
+        <label>出生月 (1-12)</label>
+        <input type="tel" id="birth_m" placeholder="例如 02" maxlength="2" oninput="calcAgeInfo()">
+      </div>
+      <div>
+        <label>出生日</label>
+        <input type="tel" id="birth_d" placeholder="例如 06" maxlength="2" oninput="calcAgeInfo()">
+      </div>
+      <div>
+        <label>客戶姓名</label>
+        <input type="text" id="client_name" placeholder="選填">
+      </div>
+      <div class="age-info-row">
+        <div class="age-badge">
+          <div class="age-badge-label">實際歲數</div>
+          <div class="age-badge-value" id="display_real_age">--</div>
+        </div>
+        <div class="age-badge">
+          <div class="age-badge-label">保險年齡</div>
+          <div class="age-badge-value" id="display_ins_age">--</div>
+        </div>
+        <div class="age-badge">
+          <div class="age-badge-label">下次生日</div>
+          <div class="age-badge-value" id="display_next_bday" style="font-size:1rem;">--</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- === 第二張卡：規劃目標 === -->
+  <div class="card">
+    <div class="section-title">規劃目標設定</div>
+    <div class="input-grid">
+      <div>
+        <label>資產目標 💰</label>
+        <div class="input-wrapper">
+          <input type="text" id="goal" placeholder="10,000,000" oninput="fmtInput(this)">
+          <span class="suffix">元</span>
+        </div>
+      </div>
+      <div>
+        <label>月現金流目標 💸</label>
+        <div class="input-wrapper">
+          <input type="text" id="retire_goal" placeholder="50,000" oninput="fmtInput(this)">
+          <span class="suffix">元</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- === 第三張卡：儲蓄計畫 === -->
+  <div class="card">
+    <div class="section-title">第一階段：儲蓄計畫</div>
+
+    <!-- 年期選擇 -->
+    <div class="period-tabs">
+      <button class="period-tab" onclick="selectPeriod(6, this)">6年期</button>
+      <button class="period-tab" onclick="selectPeriod(10, this)">10年期</button>
+      <button class="period-tab" onclick="selectPeriod(20, this)">20年期</button>
+    </div>
+    <button class="btn-direct" id="btnDirect" onclick="selectDirect(this)">
+      🚀 已有本金，直接投資
+      <span>跳過累積期</span>
+    </button>
+
+    <!-- 儲蓄輸入 -->
+    <div class="save-inputs" id="saveInputs">
+      <div style="margin-top:4px; margin-bottom:4px;">
+        <label>累積年期（鎖定）</label>
+        <input type="tel" id="save_years" readonly>
+      </div>
+      <div class="dual-calc-row">
+        <div>
+          <label>每月存款</label>
+          <div class="input-wrapper">
+            <input type="text" id="save_monthly" placeholder="0" oninput="dualCalcFromMonth()">
+            <span class="suffix">元</span>
+          </div>
+        </div>
+        <div class="dual-arrow">⇆</div>
+        <div>
+          <label>每年存款</label>
+          <div class="input-wrapper">
+            <input type="text" id="save_annual" placeholder="0" oninput="dualCalcFromYear()">
+            <span class="suffix">元</span>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:12px;">
+        <label>滿期預計領回（可手動修改）</label>
+        <input type="text" id="lump_sum" placeholder="自動試算..." oninput="fmtInput(this)">
+      </div>
+    </div>
+
+    <!-- 直接投資輸入 -->
+    <div id="directInput" style="display:none; margin-top:14px;">
+      <label>單筆投入本金</label>
+      <input type="text" id="direct_prin" placeholder="1,000,000" oninput="fmtInput(this)">
+    </div>
+  </div>
+
+  <!-- === 第四張卡：投資型保單 === -->
+  <div class="card">
+    <div class="section-title">第二階段：投資型保單</div>
+    <div class="input-grid">
+      <div>
+        <label>年配息率</label>
+        <div class="input-wrapper">
+          <input type="tel" id="rate" placeholder="6">
+          <span class="suffix">%</span>
+        </div>
+      </div>
+      <div>
+        <label>每月加碼（初始）</label>
+        <div class="input-wrapper">
+          <input type="text" id="mon" placeholder="0" oninput="fmtInput(this)">
+          <span class="suffix">元</span>
+        </div>
+      </div>
+      <div class="full-width">
+        <label>開始領配息歲數（停止滾入）</label>
+        <input type="tel" id="stop_reinvest_age" placeholder="例如 65，空白=持續複利">
+      </div>
+
+      <div class="full-width toggle-row">
+        <span class="toggle-label">配息自動滾入（複利模式）</span>
+        <label class="switch"><input type="checkbox" id="reinvest" checked><span class="slider"></span></label>
+      </div>
+    </div>
+  </div>
+
+  <!-- === 第五張卡：投資標的 === -->
+  <div class="card">
+    <div class="section-title">投資標的配置</div>
+    <div class="target-add-row">
+      <input type="text" id="targetCode" placeholder="代碼（如 2330）" style="flex:1;">
+      <input type="text" id="targetName" placeholder="名稱（如 台積電）" style="flex:1.5;" id="targetName">
+      <button class="btn-add-target" onclick="addTarget()">＋ 新增</button>
+    </div>
+    <p id="targetHint" style="font-size:0.85rem; color:var(--sub); margin:6px 0 0;">輸入代碼後自動帶入名稱，或直接輸入名稱</p>
+    <div class="targets-list" id="targetsList"></div>
+  </div>
+
+  <!-- === 進階設定（折疊） === -->
+  <div class="card">
+    <div class="accordion-header" onclick="toggleAccordion(this)">
+      <span>⚙️ 進階資金調度設定</span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="accordion-body">
+      <div class="input-grid" style="margin-top:8px;">
+        <div>
+          <label>幾歲變更月存?</label>
+          <input type="tel" id="change_mon_age" placeholder="例如 45">
+        </div>
+        <div>
+          <label>變更為多少? (0=停止)</label>
+          <input type="text" id="change_mon_val" placeholder="0" oninput="fmtInput(this)">
+        </div>
+        <div>
+          <label>幾歲單筆加碼?</label>
+          <input type="tel" id="add_lump_age" placeholder="例如 50">
+        </div>
+        <div>
+          <label>加碼金額</label>
+          <input type="text" id="add_lump_val" placeholder="0" oninput="fmtInput(this)">
+        </div>
+        <div>
+          <label>保單貸款歲數</label>
+          <input type="tel" id="loan_age" placeholder="例如 55">
+        </div>
+        <div>
+          <label>貸款金額（4%年息）</label>
+          <input type="text" id="loan_val" placeholder="輸入金額" oninput="fmtInput(this)">
+          <span id="loan_hint" class="hint-text">最高可貸: (需先試算)</span>
+        </div>
+        <div class="full-width toggle-row" style="padding-top:8px; border-top:1px dashed var(--border);">
+          <span class="toggle-label">貸款投入投資（槓桿）?</span>
+          <label class="switch"><input type="checkbox" id="loan_reinvest" checked><span class="slider"></span></label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 按鈕列 -->
+  <div class="btn-group">
+    <button class="btn-clear" onclick="resetForm()">🗑️</button>
+    <button class="btn-calc" onclick="run()">開始規劃 →</button>
+    <button class="btn-action btn-chart" onclick="showChart()">📈</button>
+    <button class="btn-action btn-present" onclick="togglePresentation()">📺</button>
+  </div>
+
+  <!-- === 結果區 === -->
+  <div class="result-area" id="resultArea">
+
+    <!-- 目標達成卡片 -->
+    <div class="goal-cards" id="goalCards" style="display:none;">
+      <div class="goal-card goal-card-gold" id="assetGoalCard" style="display:none;">
+        <div class="goal-card-label">資產目標達成</div>
+        <div class="goal-card-value" id="assetGoalText">--歲</div>
+        <div class="goal-card-sub" id="assetGoalSub"></div>
+      </div>
+      <div class="goal-card goal-card-blue" id="incomeGoalCard" style="display:none;">
+        <div class="goal-card-label">月領目標達成</div>
+        <div class="goal-card-value" id="incomeGoalText">--歲</div>
+        <div class="goal-card-sub" id="incomeGoalSub"></div>
+      </div>
+    </div>
+
+    <!-- 現金流對比 -->
+    <div class="cashflow-compare card" id="cashflowCompare">
+      <div class="cashflow-compare-title">月現金流達成對比</div>
+      <div class="cashflow-bars">
+        <div class="cashflow-bar-wrap">
+          <div class="cashflow-bar-label">目標月現金流</div>
+          <div class="cashflow-bar-bg"><div class="cashflow-bar-fill bar-goal" id="barGoal" style="width:100%"></div></div>
+          <div class="cashflow-bar-value" id="cfGoalVal" style="color:var(--accent);">--</div>
+        </div>
+        <div class="cashflow-bar-wrap">
+          <div class="cashflow-bar-label">推算月現金流</div>
+          <div class="cashflow-bar-bg"><div class="cashflow-bar-fill bar-actual" id="barActual" style="width:0%"></div></div>
+          <div class="cashflow-bar-value" id="cfActualVal" style="color:var(--primary);">--</div>
+        </div>
+      </div>
+      <div class="cashflow-status" id="cashflowStatus"></div>
+    </div>
+
+    <!-- 資料表 -->
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>歲數</th>
+            <th>投入本金</th>
+            <th>帳戶淨值</th>
+            <th>月配息</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="risk-note">
+      <strong>投資風險告知：</strong><br>
+      費用說明：已扣除保費費用 5%（一次扣除，非 10%）及每月 100 元保單管理費。貸款利率固定 4%，利息由帳戶價值中自動扣除。表格「帳戶淨值」已扣除貸款本金。第一階段為累積期，依實際投入或保單條款為準。第二階段投資效益係依據假設報酬率計算，不代表未來績效保證。投資一定有風險，本規劃僅供參考。
+    </div>
+  </div>
+
+</div>
+
+<!-- 圖表 Modal -->
+<div class="chart-modal" id="chartModal">
+  <div class="chart-header">
+    <h2>資產累積趨勢</h2>
+    <button class="close-btn" onclick="closeChart()">關閉 ✕</button>
+  </div>
+  <div class="chart-container"><canvas id="assetChart"></canvas></div>
+</div>
+
+<!-- 設定 Modal -->
+<div class="settings-modal" id="settingsModal" onclick="if(event.target===this)toggleSettings()">
+  <div class="settings-content">
+    <div class="settings-title">介面風格</div>
+    <button class="theme-btn" onclick="setTheme('default')" style="background:#f5f4ef; color:#1a1714;">🌿 自然白（預設）</button>
+    <button class="theme-btn" onclick="setTheme('dark')" style="background:#1a1a1a; color:#f0ede8; border-color:#333;">🌑 尊爵黑</button>
+    <button class="theme-btn" onclick="setTheme('navy')" style="background:#0a0f1e; color:#e8edf5; border-color:#2a3555;">🌊 海軍藍</button>
+    <button class="theme-btn" onclick="setTheme('gold')" style="background:#1c1408; color:#f5e8c0; border-color:#5a400a;">✨ 奢華金</button>
+    <button class="theme-btn" onclick="setTheme('rose')" style="background:#fdf4f0; color:#3d1810; border-color:#e8cfc5;">🌹 優雅玫瑰</button>
+    <div class="close-settings" onclick="toggleSettings()">關閉選單</div>
+  </div>
+</div>
+
+<script>
+// ==============================
+// 防重整
+// ==============================
+document.body.addEventListener('touchmove', function(e) {
+  if (!e.target.closest('.container') && !e.target.closest('.chart-container') && !e.target.closest('.settings-content')) {
+    e.preventDefault();
+  }
+}, { passive: false });
+
+// ==============================
+// 全域狀態
+// ==============================
+let myChart = null;
+let chartLabels = [], chartValues = [], chartCost = [], chartNet = [];
+let currentMode = 'none'; // 'save' | 'direct'
+let currentPeriod = 0;
+let fontScale = 1.0;
+let targets = [];
+
+// 投資標的代碼庫（常見）
+const STOCK_DB = {
+  '0050': '元大台灣50', '0056': '元大高股息', '006208': '富邦台50',
+  '00878': '國泰永續高股息', '00919': '群益台灣精選高息', '00929': '復華台灣科技優息',
+  '00713': '元大台灣高息低波', '00900': '富邦特選高股息30',
+  '2330': '台積電', '2317': '鴻海', '2454': '聯發科', '2308': '台達電',
+  '2412': '中華電', '2882': '國泰金', '2881': '富邦金', '2886': '兆豐金',
+  '3008': '大立光', '2303': '聯電', '2002': '中鋼', '1301': '台塑',
+  'SPY': 'SPDR S&P 500 ETF', 'QQQ': 'Invesco QQQ', 'VOO': 'Vanguard S&P 500',
+  'VTI': 'Vanguard 全市場', 'SCHD': 'Schwab 股息 ETF',
+  'JEPI': 'JPMorgan 增益 ETF', 'JEPQ': 'JPMorgan 納斯達克增益',
+  'VYM': 'Vanguard 高股息', 'HDV': 'iShares 核心高股息',
 };
-const STOCK_DICT_REV=Object.fromEntries(Object.entries(STOCK_DICT).map(([k,v])=>[v,k]));
 
-/* ─────────────────────────────────────────────
-   INITIAL MOCK DATA
-───────────────────────────────────────────── */
-const INIT={
-  income:{salary:150000,bonus:300000,yearEnd:200000,dividend:80000},
-  expenses:{
-    monthly:{housing:38000,food:12000,transport:8000,entertainment:5000,misc:7000},
-    annual:{tax:180000,other:60000}
-  },
-  assets:{
-    cash:1800000,
-    property:18000000,
-    stocks:[
-      {id:uid(),ticker:'2330',name:'台積電',shares:300,cost:650,price:920,priceLoading:false,priceError:false},
-      {id:uid(),ticker:'3231',name:'緯創',shares:2000,cost:55,price:98,priceLoading:false,priceError:false},
-      {id:uid(),ticker:'5274',name:'信驊',shares:150,cost:900,price:1250,priceLoading:false,priceError:false},
-      {id:uid(),ticker:'6806',name:'森崴能源',shares:1000,cost:42,price:65,priceLoading:false,priceError:false},
-      {id:uid(),ticker:'0050',name:'元大台灣50',shares:500,cost:140,price:198,priceLoading:false,priceError:false},
-      {id:uid(),ticker:'006208',name:'富邦台50',shares:800,cost:62,price:85,priceLoading:false,priceError:false},
-    ]
-  },
-  liabilities:{mortgage:8500000,personalLoan:350000},
-  goals:{currentAge:38,retireAge:55,targetAmount:50000000},
-  policies:[
-    {
-      id:uid(),company:'富邦人壽',productName:'鑫旺一生終身壽險',type:'終身壽險',
-      insuredAmount:5000000,annualPremium:120000,startYear:2018,
-      riders:[
-        {id:uid(),type:'medical',name:'實支實付醫療附約',annualPremium:18000,miscLimit:150000,dailyLimit:2000,surgeryLimit:120000},
-        {id:uid(),type:'critical',name:'重大傷病一次金附約',annualPremium:22000,lumpSum:1000000},
-        {id:uid(),type:'accident',name:'意外傷害附約',annualPremium:8000,accidentAmount:3000000,accidentMedical:30000},
+// ==============================
+// 格式化工具
+// ==============================
+function fmt(n) { return Math.round(n).toLocaleString(); }
+function getNum(id) {
+  let el = document.getElementById(id);
+  if (!el) return 0;
+  return Number(el.value.replace(/,/g,'')) || 0;
+}
+function fmtInput(el) {
+  let v = el.value.replace(/[^0-9.]/g, '');
+  if (!v) { el.value = ''; return; }
+  let p = v.split('.');
+  p[0] = p[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  el.value = p.join('.');
+}
+
+// ==============================
+// 年齡計算（台灣保險年齡）
+// ==============================
+function calcAgeInfo() {
+  let by = parseInt(document.getElementById('birth_y').value) || 0;
+  let bm = parseInt(document.getElementById('birth_m').value) || 0;
+  let bd = parseInt(document.getElementById('birth_d').value) || 0;
+  if (!by || !bm || !bd) return;
+
+  let birthYear = by + 1911; // 民國轉西元
+  let today = new Date();
+  let birthDate = new Date(birthYear, bm - 1, bd);
+
+  if (isNaN(birthDate.getTime()) || birthDate > today) return;
+
+  // 實際年齡
+  let realAge = today.getFullYear() - birthYear;
+  if (today.getMonth() < bm - 1 || (today.getMonth() === bm - 1 && today.getDate() < bd)) {
+    realAge--;
+  }
+
+  // 今年生日
+  let thisYearBday = new Date(today.getFullYear(), bm - 1, bd);
+  let nextYearBday = new Date(today.getFullYear() + 1, bm - 1, bd);
+
+  // 保險年齡：足歲，若過生日後超過6個月則加1
+  let insAge = realAge;
+  if (today >= thisYearBday) {
+    let halfYear = 182.5 * 24 * 3600 * 1000;
+    if ((today - thisYearBday) > halfYear) insAge = realAge + 1;
+  } else {
+    let halfYear = 182.5 * 24 * 3600 * 1000;
+    if ((thisYearBday - today) <= halfYear) insAge = realAge + 1;
+  }
+
+  // 下次生日
+  let nextBday = today >= thisYearBday ? nextYearBday : thisYearBday;
+  let daysLeft = Math.ceil((nextBday - today) / (1000 * 60 * 60 * 24));
+
+  document.getElementById('display_real_age').textContent = realAge + ' 歲';
+  document.getElementById('display_ins_age').textContent = insAge + ' 歲';
+  document.getElementById('display_next_bday').textContent = daysLeft + ' 天後';
+}
+
+// ==============================
+// 年期選擇
+// ==============================
+function selectPeriod(years, btn) {
+  currentMode = 'save';
+  currentPeriod = years;
+
+  document.querySelectorAll('.period-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('btnDirect').classList.remove('active');
+
+  document.getElementById('saveInputs').style.display = 'block';
+  document.getElementById('directInput').style.display = 'none';
+  document.getElementById('save_years').value = years;
+
+  // 重算滿期金額
+  dualCalcFromMonth();
+}
+
+function selectDirect(btn) {
+  currentMode = 'direct';
+  document.querySelectorAll('.period-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('saveInputs').style.display = 'none';
+  document.getElementById('directInput').style.display = 'block';
+  if (!document.getElementById('direct_prin').value) {
+    document.getElementById('direct_prin').value = '1,000,000';
+  }
+}
+
+// ==============================
+// 雙向計算（月 ↔ 年）
+// ==============================
+function dualCalcFromMonth() {
+  fmtInput(document.getElementById('save_monthly'));
+  let monthly = getNum('save_monthly');
+  if (monthly > 0) {
+    let annual = monthly * 12;
+    document.getElementById('save_annual').value = fmt(annual);
+    updateLumpSum(annual);
+  }
+}
+
+function dualCalcFromYear() {
+  fmtInput(document.getElementById('save_annual'));
+  let annual = getNum('save_annual');
+  if (annual > 0) {
+    let monthly = Math.round(annual / 12);
+    document.getElementById('save_monthly').value = fmt(monthly);
+    updateLumpSum(annual);
+  }
+}
+
+function updateLumpSum(annual) {
+  let years = parseInt(document.getElementById('save_years').value) || 0;
+  if (years > 0 && annual > 0) {
+    let estimated = annual * years;
+    document.getElementById('lump_sum').value = fmt(estimated);
+  }
+}
+
+// ==============================
+// 投資標的
+// ==============================
+document.getElementById('targetCode').addEventListener('input', function() {
+  let code = this.value.trim().toUpperCase();
+  if (STOCK_DB[code]) {
+    document.getElementById('targetName').value = STOCK_DB[code];
+  }
+});
+
+function addTarget() {
+  let code = document.getElementById('targetCode').value.trim().toUpperCase();
+  let name = document.getElementById('targetName').value.trim();
+  if (!code && !name) { alert('請輸入標的代碼或名稱'); return; }
+  let label = code && name ? `${name} (${code})` : (name || code);
+  targets.push({ code, name, label });
+  renderTargets();
+  document.getElementById('targetCode').value = '';
+  document.getElementById('targetName').value = '';
+}
+
+function removeTarget(idx) {
+  targets.splice(idx, 1);
+  renderTargets();
+}
+
+function renderTargets() {
+  let list = document.getElementById('targetsList');
+  if (targets.length === 0) {
+    list.innerHTML = '<span style="color:var(--sub); font-size:0.9rem;">尚未新增任何標的</span>';
+    return;
+  }
+  list.innerHTML = targets.map((t, i) => `
+    <div class="target-chip">
+      ${t.label}
+      <button onclick="removeTarget(${i})">✕</button>
+    </div>
+  `).join('');
+}
+
+// ==============================
+// 折疊面板
+// ==============================
+function toggleAccordion(header) {
+  header.classList.toggle('open');
+  let body = header.nextElementSibling;
+  body.style.display = body.style.display === 'block' ? 'none' : 'block';
+}
+
+// ==============================
+// 設定
+// ==============================
+function toggleFontSize() {
+  fontScale = (fontScale === 1.0) ? 1.2 : 1.0;
+  document.documentElement.style.setProperty('--font-scale', fontScale);
+}
+function toggleSettings() {
+  let modal = document.getElementById('settingsModal');
+  modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+}
+function setTheme(theme) {
+  if (theme === 'default') document.documentElement.removeAttribute('data-theme');
+  else document.documentElement.setAttribute('data-theme', theme);
+  toggleSettings();
+  if (document.getElementById('chartModal').style.display === 'flex') showChart();
+}
+
+// ==============================
+// 重置
+// ==============================
+function resetForm() {
+  if (!confirm('確定要清空所有輸入嗎？')) return;
+  document.querySelectorAll('input:not([readonly])').forEach(i => {
+    if (i.type !== 'checkbox') i.value = '';
+    else i.checked = true;
+  });
+  document.getElementById('display_real_age').textContent = '--';
+  document.getElementById('display_ins_age').textContent = '--';
+  document.getElementById('display_next_bday').textContent = '--';
+  document.getElementById('resultArea').style.display = 'none';
+  document.getElementById('loan_hint').innerText = '最高可貸: (需先試算)';
+  document.querySelectorAll('.period-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('btnDirect').classList.remove('active');
+  document.getElementById('saveInputs').style.display = 'none';
+  document.getElementById('directInput').style.display = 'none';
+  currentMode = 'none';
+  targets = [];
+  renderTargets();
+}
+
+// ==============================
+// 主計算引擎
+// ==============================
+function run() {
+  try {
+    // 取得保險年齡（若有生日資料用保險年齡，否則用其他）
+    let insAgeEl = document.getElementById('display_ins_age').textContent;
+    let age = parseInt(insAgeEl) || 0;
+
+    // fallback：若無生日資料
+    if (!age) { alert('請輸入出生年月日以取得保險年齡'); return; }
+
+    let rate = getNum('rate');
+    let goal = getNum('goal');
+    let retireGoal = getNum('retire_goal');
+    let investMon = getNum('mon');
+    let isReinvest = document.getElementById('reinvest').checked;
+    let changeMonAge = getNum('change_mon_age');
+    let changeMonVal = getNum('change_mon_val');
+    let addLumpAge = getNum('add_lump_age');
+    let addLumpVal = getNum('add_lump_val');
+    let loanAge = getNum('loan_age');
+    let loanVal = getNum('loan_val');
+    let isLoanReinvest = document.getElementById('loan_reinvest').checked;
+    let stopReinvestAge = getNum('stop_reinvest_age');
+
+    if (currentMode === 'none') { alert('請先選擇儲蓄年期或直接投資'); return; }
+
+    let saveYears = 0, lumpSum = 0, saveAnnual = 0;
+    if (currentMode === 'save') {
+      saveYears = getNum('save_years');
+      saveAnnual = getNum('save_annual');
+      lumpSum = getNum('lump_sum');
+      if (saveYears <= 0 || lumpSum <= 0) { alert('請輸入年存金額並確認滿期金額'); return; }
+    } else {
+      lumpSum = getNum('direct_prin');
+      if (lumpSum <= 0 && investMon <= 0) { alert('請輸入投入本金'); return; }
+    }
+
+    chartLabels = []; chartValues = []; chartCost = []; chartNet = [];
+
+    const FEE = 0.05; // 保費費用率 5%
+    const ADMIN = 100; // 月管理費
+    let mRate = rate / 100 / 12;
+    let tbody = document.getElementById('tbody');
+    tbody.innerHTML = '';
+
+    let assetGoalMet = false, incomeGoalMet = false;
+    let maxY = Math.min(110 - age, 60);
+    let totalCost = 0, av = 0, pass = 0, loanBalance = 0;
+    let firstInvestPass = 0; // 第一個投資期年末月配息（用於現金流比較）
+
+    document.getElementById('assetGoalCard').style.display = 'none';
+    document.getElementById('incomeGoalCard').style.display = 'none';
+    document.getElementById('goalCards').style.display = 'none';
+
+    let curInvestMon = investMon;
+
+    for (let y = 1; y <= maxY; y++) {
+      let curAge = age + y;
+      let isInvestPhase = false;
+      let netValue = 0;
+      let entryMarker = '';
+      let phase = '';
+
+      // 變更月存
+      if (changeMonAge > 0 && curAge >= changeMonAge) {
+        curInvestMon = changeMonVal;
+      }
+
+      if (currentMode === 'save' && y <= saveYears) {
+        // 累積期
+        phase = '<span class="phase-tag phase-save">累積</span>';
+        totalCost += saveAnnual;
+        av = totalCost; pass = 0; netValue = av;
+      } else {
+        // 投資期
+        isInvestPhase = true;
+        phase = '<span class="phase-tag phase-invest">投資</span>';
+
+        // 第一年投入本金（扣5%費用）
+        if ((currentMode === 'save' && y === saveYears + 1) || (currentMode === 'direct' && y === 1)) {
+          av = lumpSum * (1 - FEE); // 扣5%保費費用
+          if (currentMode === 'direct') totalCost += lumpSum;
+          entryMarker = '🏁';
+        }
+
+        // 單筆加碼
+        if (addLumpAge > 0 && curAge === addLumpAge && addLumpVal > 0) {
+          av += addLumpVal * (1 - FEE);
+          totalCost += addLumpVal;
+        }
+
+        // 保單貸款
+        if (loanAge > 0 && curAge === loanAge) {
+          let maxLoan = Math.floor(av * 0.5);
+          document.getElementById('loan_hint').innerText = '最高可貸: ' + fmt(maxLoan);
+          if (loanVal > 0) {
+            if (loanVal > maxLoan) {
+              loanVal = maxLoan;
+              document.getElementById('loan_val').value = fmt(loanVal);
+            }
+            loanBalance += loanVal;
+            if (isLoanReinvest) av += loanVal * (1 - FEE);
+          }
+          phase = '<span class="phase-tag phase-loan">貸出</span>';
+        }
+
+        // 月迴圈
+        for (let m = 1; m <= 12; m++) {
+          if (curInvestMon > 0) {
+            av += curInvestMon * (1 - FEE);
+            totalCost += curInvestMon;
+          }
+
+          let div = av * mRate;
+          let doReinvest = isReinvest;
+          if (stopReinvestAge > 0 && curAge >= stopReinvestAge) doReinvest = false;
+
+          if (doReinvest) av += div * (1 - FEE);
+          av -= ADMIN;
+          if (av < 0) av = 0;
+
+          if (loanBalance > 0) av -= loanBalance * 0.04 / 12;
+
+          let curNet = av - loanBalance;
+          if (goal > 0 && !assetGoalMet && curNet >= goal) {
+            assetGoalMet = true;
+            document.getElementById('assetGoalCard').style.display = 'block';
+            document.getElementById('assetGoalText').textContent = curAge + '歲';
+            document.getElementById('assetGoalSub').textContent = '達成資產 ' + fmt(goal) + ' 元';
+          }
+        }
+
+        pass = av * mRate;
+        netValue = av - loanBalance;
+
+        if (firstInvestPass === 0 && isInvestPhase) firstInvestPass = pass;
+
+        if (retireGoal > 0 && !incomeGoalMet && pass >= retireGoal) {
+          incomeGoalMet = true;
+          document.getElementById('incomeGoalCard').style.display = 'block';
+          document.getElementById('incomeGoalText').textContent = curAge + '歲';
+          document.getElementById('incomeGoalSub').textContent = '達成月領 ' + fmt(retireGoal) + ' 元';
+        }
+      }
+
+      if (assetGoalMet || incomeGoalMet) {
+        document.getElementById('goalCards').style.display = 'flex';
+      }
+
+      let rowClass = '';
+      let assetAge = parseInt(document.getElementById('assetGoalText').textContent);
+      if (assetGoalMet && curAge === assetAge) rowClass = 'gold-row';
+      else if (curAge === 60 || curAge === 65) rowClass = 'highlight';
+
+      let loanDisplay = loanBalance > 0 ? `<span class="loan-debt">欠款: -${fmt(loanBalance)}</span>` : '';
+
+      let row = `<tr class="${rowClass}">
+        <td>${curAge}<span class="entry-marker">${entryMarker}</span></td>
+        <td style="color:var(--sub);">${fmt(totalCost)}</td>
+        <td class="money">${phase}${fmt(netValue)}${loanDisplay}</td>
+        <td class="passive">${isInvestPhase ? fmt(pass) : '-'}</td>
+      </tr>`;
+      tbody.innerHTML += row;
+
+      chartLabels.push(curAge + '歲');
+      chartValues.push(Math.round(av));
+      chartNet.push(Math.round(netValue));
+      chartCost.push(Math.round(totalCost));
+    }
+
+    // 現金流對比
+    if (retireGoal > 0 && firstInvestPass > 0) {
+      let ratio = Math.min(firstInvestPass / retireGoal, 1);
+      document.getElementById('cfGoalVal').textContent = fmt(retireGoal) + ' 元';
+      document.getElementById('cfActualVal').textContent = fmt(firstInvestPass) + ' 元';
+      document.getElementById('barGoal').style.width = '100%';
+      document.getElementById('barActual').style.width = (ratio * 100) + '%';
+      let statusEl = document.getElementById('cashflowStatus');
+      if (firstInvestPass >= retireGoal) {
+        statusEl.textContent = '✅ 投資起始年即達成月現金流目標';
+        statusEl.className = 'cashflow-status cashflow-ok';
+      } else {
+        let diff = retireGoal - firstInvestPass;
+        statusEl.textContent = `⏳ 起始月缺口 ${fmt(diff)} 元，隨複利成長逐年縮小`;
+        statusEl.className = 'cashflow-status cashflow-ng';
+      }
+      document.getElementById('cashflowCompare').style.display = 'block';
+    } else {
+      document.getElementById('cashflowCompare').style.display = 'none';
+    }
+
+    document.getElementById('resultArea').style.display = 'block';
+    setTimeout(() => document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth' }), 100);
+
+  } catch(e) { alert('計算錯誤: ' + e.message); }
+}
+
+// ==============================
+// 圖表
+// ==============================
+function showChart() {
+  if (chartValues.length === 0) { alert('請先點擊「開始規劃」'); return; }
+  document.getElementById('chartModal').style.display = 'flex';
+  const ctx = document.getElementById('assetChart').getContext('2d');
+  if (myChart) myChart.destroy();
+  let isDark = document.documentElement.getAttribute('data-theme');
+  let gridColor = isDark ? '#2a2a2a' : '#e8e5e0';
+  let textColor = isDark ? '#999' : '#888';
+  let lineColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
+
+  myChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: chartLabels,
+      datasets: [
+        { label: '帳戶淨值', data: chartNet, borderColor: lineColor, backgroundColor: lineColor + '25', borderWidth: 2.5, pointRadius: 0, fill: true, tension: 0.2 },
+        { label: '投入本金', data: chartCost, borderColor: '#aaa', borderWidth: 1.5, borderDash: [5, 4], pointRadius: 0, fill: false, tension: 0 }
       ]
     },
-    {
-      id:uid(),company:'南山人壽',productName:'多倍保重大疾病險',type:'重大疾病',
-      insuredAmount:2000000,annualPremium:68000,startYear:2020,
-      riders:[
-        {id:uid(),type:'medical',name:'實支實付醫療(限額型)',annualPremium:12000,miscLimit:100000,dailyLimit:1500,surgeryLimit:80000},
-        {id:uid(),type:'disability',name:'失能扶助月給付',annualPremium:15000,monthlyBenefit:50000},
-      ]
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: true, labels: { color: textColor, font: { size: 13, weight: '700' } } }
+      },
+      scales: {
+        x: { grid: { color: gridColor }, ticks: { color: textColor, maxTicksLimit: 10 } },
+        y: { grid: { color: gridColor }, ticks: { color: textColor, callback: v => (v/10000).toFixed(0)+'萬' } }
+      },
+      interaction: { mode: 'nearest', axis: 'x', intersect: false }
     }
-  ]
-};
-
-/* ─────────────────────────────────────────────
-   SCORE ENGINE
-───────────────────────────────────────────── */
-function calcScores(st){
-  const mInc=n(st.income.salary)+(n(st.income.bonus)+n(st.income.yearEnd))/12+n(st.income.dividend)/12;
-  const mExp=Object.values(st.expenses.monthly).reduce((s,v)=>s+n(v),0)+(Object.values(st.expenses.annual).reduce((s,v)=>s+n(v),0))/12;
-  const cash=n(st.assets.cash);
-  const mDebt=n(st.liabilities.mortgage)*0.004+n(st.liabilities.personalLoan)*0.006;
-  const totalDebt=n(st.liabilities.mortgage)+n(st.liabilities.personalLoan);
-  const emMonths=cash/(mExp||1);
-  const debtRatio=mDebt/(mInc||1);
-  const savRate=(mInc-mExp)/(mInc||1);
-  const s1=clamp(lerp(0,25,(emMonths-3)/3),0,25);
-  const s2=clamp(lerp(25,0,(debtRatio-.30)/.10),0,25);
-  const s3=clamp(lerp(0,25,(savRate-.10)/.10),0,25);
-  const totalIns=st.policies.reduce((s,p)=>{
-    let v=n(p.insuredAmount);
-    (p.riders||[]).forEach(r=>{if(r.type==='accident')v+=n(r.accidentAmount)||0});
-    return s+v;
-  },0);
-  const protTarget=totalDebt+mExp*12*5;
-  const s4=totalIns>=protTarget?25:clamp(lerp(0,25,totalIns/protTarget),0,25);
-  return{s1,s2,s3,s4,total:s1+s2+s3+s4,mInc,mExp,mDebt,totalDebt,emMonths,debtRatio,savRate,totalIns,protTarget,cash};
-}
-
-function calcProtection(policies){
-  let miscLimit=0,lumpSum=0,accident=0,disability=0,lifeTotal=0;
-  policies.forEach(p=>{
-    lifeTotal+=n(p.insuredAmount);
-    (p.riders||[]).forEach(r=>{
-      if(r.type==='medical')miscLimit+=n(r.miscLimit)||0;
-      if(r.type==='critical')lumpSum+=n(r.lumpSum)||0;
-      if(r.type==='accident')accident+=n(r.accidentAmount)||0;
-      if(r.type==='disability')disability+=n(r.monthlyBenefit)||0;
-    });
   });
-  return{miscLimit,lumpSum,accident,disability,lifeTotal};
 }
+function closeChart() { document.getElementById('chartModal').style.display = 'none'; }
 
-/* ─────────────────────────────────────────────
-   COLOR HELPERS
-───────────────────────────────────────────── */
-const sCol=(v,mx=25)=>{const r=v/mx;return r>=.8?'#10b981':r>=.5?'#f59e0b':'#ef4444'};
-const tCol=s=>s>=75?'#10b981':s>=50?'#f59e0b':'#ef4444';
-const tGrade=s=>s>=88?'A+':s>=78?'A':s>=68?'B+':s>=55?'B':'C';
-
-/* ─────────────────────────────────────────────
-   SVG ICONS (inline, no external dep)
-───────────────────────────────────────────── */
-const PATHS={
-  up:'M12 19V5M5 12l7-7 7 7',
-  down:'M12 5v14M5 12l7 7 7-7',
-  plus:'M12 5v14M5 12h14',
-  trash:'M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6',
-  shield:'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z',
-  shieldCheck:'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10zM9 12l2 2 4-4',
-  trending:'M23 6l-9.5 9.5-5-5L1 18',
-  target:'M12 22a10 10 0 100-20 10 10 0 000 20zM12 18a6 6 0 100-12 6 6 0 000 12zM12 14a2 2 0 100-4 2 2 0 000 4z',
-  wallet:'M21 12V7H5a2 2 0 010-4h14v4M21 12v5H5a2 2 0 010-4h16z',
-  landmark:'M3 22V8M21 22V8M12 22V8M3 8l9-6 9 6M1 22h22',
-  credit:'M1 4h22v16H1zM1 10h22',
-  bar:'M18 20V10M12 20V4M6 20v-6',
-  refresh:'M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15',
-  x:'M18 6L6 18M6 6l12 12',
-  check:'M20 6L9 17l-5-5',
-  info:'M12 22a10 10 0 100-20 10 10 0 000 20zM12 8v4M12 16h.01',
-  git:'M6 3v12M18 9a3 3 0 100-6 3 3 0 000 6zM6 21a3 3 0 100-6 3 3 0 000 6zM18 9c0 3.87-3.13 7-7 7H6',
-};
-const Ic=({n:name,size=16,color='currentColor',strokeWidth=2,...rest})=>(
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" {...rest}>
-    <path d={PATHS[name]||'M12 12h.01'}/>
-  </svg>
-);
-
-/* ─────────────────────────────────────────────
-   SCORE RING
-───────────────────────────────────────────── */
-function ScoreRing({score,size=200}){
-  const r=78,cx=size/2,cy=size/2,circ=2*Math.PI*r;
-  const filled=circ*(clamp(score,0,100)/100);
-  const col=tCol(score);
-  return(
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-      <defs>
-        <linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor={col} stopOpacity=".45"/>
-          <stop offset="100%" stopColor={col}/>
-        </linearGradient>
-        <filter id="glow"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-      </defs>
-      <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(20,30,50,.9)" strokeWidth="13"/>
-      <circle cx={cx} cy={cy} r={r} fill="none" stroke="url(#rg)" strokeWidth="13"
-        strokeDasharray={circ} strokeDashoffset={circ-filled} strokeLinecap="round"
-        transform={`rotate(-90 ${cx} ${cy})`} filter="url(#glow)"
-        style={{transition:'stroke-dashoffset 1.4s cubic-bezier(.34,1.56,.64,1)'}}/>
-      <text x={cx} y={cy-15} textAnchor="middle" fill={col} fontSize="44" fontWeight="700" fontFamily="DM Mono">{Math.round(score)}</text>
-      <text x={cx} y={cy+8} textAnchor="middle" fill="#334155" fontSize="13" fontFamily="Sora">/ 100 分</text>
-      <text x={cx} y={cy+30} textAnchor="middle" fill={col} fontSize="18" fontWeight="700" fontFamily="Sora">{tGrade(score)}</text>
-    </svg>
-  );
-}
-
-/* ─────────────────────────────────────────────
-   MINI BAR
-───────────────────────────────────────────── */
-function MiniBar({value,max=25,label,sub}){
-  const p=clamp(value/max,0,1);
-  const col=sCol(value,max);
-  return(
-    <div style={{display:'flex',flexDirection:'column',gap:6}}>
-      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-        <span style={{fontSize:12,color:'#94a3b8'}}>{label}</span>
-        <span className="mono" style={{fontSize:12,fontWeight:500,color:col}}>{value.toFixed(1)}<span style={{color:'#334155'}}>/{max}</span></span>
-      </div>
-      <div className="progress-track" style={{height:8}}>
-        <div className="progress-bar" style={{width:`${p*100}%`,height:8,background:`linear-gradient(90deg,${col}aa,${col})`}}/>
-      </div>
-      {sub&&<div style={{fontSize:11,color:'#334155',lineHeight:1.5}}>{sub}</div>}
-    </div>
-  );
-}
-
-/* ─────────────────────────────────────────────
-   PROT BAR
-───────────────────────────────────────────── */
-function ProtBar({label,value,target,color='#3b82f6',hint=''}){
-  const p=clamp(value/(target||1),0,1);
-  const ok=p>=1;
-  return(
-    <div style={{display:'flex',flexDirection:'column',gap:6}}>
-      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:6}}>
-        <div style={{display:'flex',alignItems:'center',gap:6}}>
-          <span style={{fontSize:12,color:'#94a3b8'}}>{label}</span>
-          {hint&&<span style={{fontSize:10,color:'#334155'}}>({hint})</span>}
-        </div>
-        <div style={{display:'flex',alignItems:'center',gap:8}}>
-          <span className={`chip ${ok?'chip-green':'chip-amber'}`} style={{fontSize:10}}>{ok?'✓ 已覆蓋':'有缺口'}</span>
-          <span className="mono" style={{fontSize:11,color:'#64748b'}}>{fmtM(value)}<span style={{color:'#243040'}}> / {fmtM(target)}</span></span>
-        </div>
-      </div>
-      <div className="progress-track" style={{height:10}}>
-        <div className="progress-bar" style={{width:`${p*100}%`,height:10,background:ok?`linear-gradient(90deg,#059669,#10b981)`:`linear-gradient(90deg,${color}99,${color})`}}/>
-      </div>
-    </div>
-  );
-}
-
-/* ─────────────────────────────────────────────
-   FORM HELPERS
-───────────────────────────────────────────── */
-function NI({label,value,onChange,pre='$',suf='',type='number',placeholder='0',readOnly=false}){
-  return(
-    <div>
-      <label>{label}</label>
-      <div style={{position:'relative'}}>
-        {pre&&<span style={{position:'absolute',left:11,top:'50%',transform:'translateY(-50%)',color:'#334155',fontSize:12,fontFamily:'DM Mono',pointerEvents:'none'}}>{pre}</span>}
-        <input type={type==='text'?'text':'number'} value={value} placeholder={placeholder}
-          readOnly={readOnly} onChange={e=>onChange&&onChange(e.target.value)}
-          style={{paddingLeft:pre?26:12,paddingRight:suf?40:12,cursor:readOnly?'default':'text',opacity:readOnly?.6:1}}/>
-        {suf&&<span style={{position:'absolute',right:11,top:'50%',transform:'translateY(-50%)',color:'#334155',fontSize:11,pointerEvents:'none'}}>{suf}</span>}
-      </div>
-    </div>
-  );
-}
-
-function SH({icon,title,sub,badge,extra}){
-  return(
-    <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:18,flexWrap:'wrap',gap:8}}>
-      <div style={{display:'flex',alignItems:'center',gap:10}}>
-        <div style={{width:34,height:34,borderRadius:9,background:'rgba(59,130,246,.1)',border:'1px solid rgba(59,130,246,.2)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-          <Ic n={icon} size={15} color="#93c5fd"/>
-        </div>
-        <div>
-          <h2 style={{fontSize:14,fontWeight:600,color:'#f1f5f9'}}>{title}</h2>
-          {sub&&<p style={{fontSize:11,color:'#334155',marginTop:2}}>{sub}</p>}
-        </div>
-      </div>
-      <div style={{display:'flex',alignItems:'center',gap:8}}>
-        {badge&&<span className="chip chip-blue">{badge}</span>}
-        {extra}
-      </div>
-    </div>
-  );
-}
-
-/* ─────────────────────────────────────────────
-   RIDER FORM
-───────────────────────────────────────────── */
-const RIDER_TYPES=[
-  {value:'medical',label:'醫療實支實付'},
-  {value:'critical',label:'重大傷病一次金'},
-  {value:'accident',label:'意外傷害防護'},
-  {value:'disability',label:'失能扶助'},
-];
-function RiderForm({rider,onChange,onRemove}){
-  return(
-    <div className="rider-indent" style={{paddingTop:10,paddingBottom:10}}>
-      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
-        <div style={{display:'flex',alignItems:'center',gap:6}}>
-          <Ic n="git" size={11} color="rgba(59,130,246,.5)"/>
-          <span style={{fontSize:10,color:'rgba(59,130,246,.7)',letterSpacing:'.08em',textTransform:'uppercase',fontWeight:700}}>附約</span>
-        </div>
-        <button className="btn-danger" onClick={onRemove}>刪除</button>
-      </div>
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:8}}>
-        <div>
-          <label>附約類別</label>
-          <select value={rider.type} onChange={e=>onChange('type',e.target.value)}>
-            {RIDER_TYPES.map(t=><option key={t.value} value={t.value}>{t.label}</option>)}
-          </select>
-        </div>
-        <NI label="附約名稱" value={rider.name} onChange={v=>onChange('name',v)} pre="" type="text" placeholder="輸入附約名稱"/>
-        <NI label="附約年保費" value={rider.annualPremium} onChange={v=>onChange('annualPremium',v)} suf="元/年"/>
-      </div>
-      {rider.type==='medical'&&(
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8}}>
-          <NI label="雜費限額" value={rider.miscLimit||''} onChange={v=>onChange('miscLimit',v)} placeholder="0"/>
-          <NI label="每日病房費" value={rider.dailyLimit||''} onChange={v=>onChange('dailyLimit',v)} placeholder="0"/>
-          <NI label="手術費限額" value={rider.surgeryLimit||''} onChange={v=>onChange('surgeryLimit',v)} placeholder="0"/>
-        </div>
-      )}
-      {rider.type==='critical'&&(
-        <NI label="重大傷病一次金" value={rider.lumpSum||''} onChange={v=>onChange('lumpSum',v)} placeholder="0"/>
-      )}
-      {rider.type==='accident'&&(
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
-          <NI label="意外身故/失能保額" value={rider.accidentAmount||''} onChange={v=>onChange('accidentAmount',v)} placeholder="0"/>
-          <NI label="意外醫療限額" value={rider.accidentMedical||''} onChange={v=>onChange('accidentMedical',v)} placeholder="0"/>
-        </div>
-      )}
-      {rider.type==='disability'&&(
-        <NI label="失能月給付金" value={rider.monthlyBenefit||''} onChange={v=>onChange('monthlyBenefit',v)} suf="元/月" placeholder="50000"/>
-      )}
-    </div>
-  );
-}
-
-/* ─────────────────────────────────────────────
-   POLICY CARD
-───────────────────────────────────────────── */
-function PolicyCard({policy,onChange,onRemove}){
-  const total=n(policy.annualPremium)+(policy.riders||[]).reduce((s,r)=>s+n(r.annualPremium),0);
-  const updR=(rid,f,v)=>onChange('riders',(policy.riders||[]).map(r=>r.id===rid?{...r,[f]:v}:r));
-  const remR=rid=>onChange('riders',(policy.riders||[]).filter(r=>r.id!==rid));
-  const addR=()=>onChange('riders',[...(policy.riders||[]),{id:uid(),type:'medical',name:'新附約',annualPremium:0,miscLimit:0,dailyLimit:0,surgeryLimit:0}]);
-  return(
-    <div className="card" style={{padding:20,marginBottom:14}}>
-      <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:14}}>
-        <div>
-          <div style={{display:'flex',gap:8,alignItems:'center',marginBottom:5}}>
-            <span className="chip chip-purple">{policy.type||'壽險'}</span>
-            <span style={{fontSize:12,color:'#334155'}}>{policy.company}</span>
-          </div>
-          <div style={{fontSize:15,fontWeight:600,color:'#f1f5f9'}}>{policy.productName}</div>
-        </div>
-        <div style={{textAlign:'right',flexShrink:0,marginLeft:12}}>
-          <div style={{fontSize:10,color:'#334155',marginBottom:2}}>年總保費</div>
-          <div className="mono" style={{fontSize:17,fontWeight:700,color:'#f59e0b'}}>${fmt(total)}</div>
-        </div>
-      </div>
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:12}}>
-        <NI label="保險公司" value={policy.company} onChange={v=>onChange('company',v)} pre="" type="text" placeholder="保險公司名稱"/>
-        <NI label="商品名稱" value={policy.productName} onChange={v=>onChange('productName',v)} pre="" type="text" placeholder="保單商品名稱"/>
-        <NI label="主約保額" value={policy.insuredAmount} onChange={v=>onChange('insuredAmount',v)}/>
-        <NI label="主約年保費" value={policy.annualPremium} onChange={v=>onChange('annualPremium',v)} suf="元/年"/>
-        <div>
-          <label>保單類型</label>
-          <select value={policy.type} onChange={e=>onChange('type',e.target.value)}>
-            {['終身壽險','定期壽險','重大疾病','投資型','醫療險'].map(t=><option key={t}>{t}</option>)}
-          </select>
-        </div>
-        <NI label="投保年份" value={policy.startYear} onChange={v=>onChange('startYear',v)} pre=""/>
-      </div>
-      <hr className="divider" style={{marginBottom:12}}/>
-      <div style={{marginBottom:8}}>
-        <span className="section-label" style={{color:'#3b82f6',fontSize:9}}>附約明細</span>
-      </div>
-      {(policy.riders||[]).map(r=>(
-        <RiderForm key={r.id} rider={r} onChange={(f,v)=>updR(r.id,f,v)} onRemove={()=>remR(r.id)}/>
-      ))}
-      <button className="btn-ghost" style={{width:'100%',marginTop:6}} onClick={addR}>
-        <Ic n="plus" size={13}/> 新增附約
-      </button>
-      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:12,paddingTop:12,borderTop:'1px solid rgba(99,130,190,.08)'}}>
-        <div style={{display:'flex',gap:16,fontSize:12,color:'#334155'}}>
-          <span>主約保額 <span className="mono" style={{color:'#e2e8f0'}}>{fmtM(n(policy.insuredAmount))}</span></span>
-          <span>附約 <span className="mono" style={{color:'#e2e8f0'}}>{(policy.riders||[]).length} 項</span></span>
-        </div>
-        <button className="btn-danger" onClick={onRemove}>刪除保單</button>
-      </div>
-    </div>
-  );
-}
-
-/* ─────────────────────────────────────────────
-   ADD STOCK MODAL
-───────────────────────────────────────────── */
-function AddStockModal({onAdd,onClose}){
-  const [ticker,setTicker]=useState('');
-  const [name,setName]=useState('');
-  const [shares,setShares]=useState('');
-  const [cost,setCost]=useState('');
-
-  const handleTickerChange=v=>{
-    setTicker(v);
-    const matched=STOCK_DICT[v.trim()];
-    if(matched)setName(matched);
-    else if(!STOCK_DICT_REV[name])setName('');
-  };
-  const handleNameChange=v=>{
-    setName(v);
-    const matched=STOCK_DICT_REV[v.trim()];
-    if(matched)setTicker(matched);
-    else if(!STOCK_DICT[ticker])setTicker('');
-  };
-  const handleAdd=()=>{
-    if(!ticker||!shares||!cost)return;
-    onAdd({id:uid(),ticker:ticker.trim(),name:name.trim()||ticker.trim(),shares:n(shares),cost:n(cost),price:n(cost),priceLoading:true,priceError:false});
-    onClose();
-  };
-  return(
-    <div className="modal-overlay" onClick={e=>{if(e.target===e.currentTarget)onClose()}}>
-      <div className="modal-box fade-in">
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
-          <h3 style={{fontSize:16,fontWeight:700,color:'#f1f5f9'}}>新增持倉標的</h3>
-          <button className="btn-ghost" style={{padding:'6px 10px'}} onClick={onClose}><Ic n="x" size={14}/></button>
-        </div>
-        <div style={{display:'flex',flexDirection:'column',gap:12}}>
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
-            <NI label="股票代碼" value={ticker} onChange={handleTickerChange} pre="" type="text" placeholder="如 2330"/>
-            <NI label="股票名稱" value={name} onChange={handleNameChange} pre="" type="text" placeholder="如 台積電"/>
-          </div>
-          <div className="card3" style={{padding:10}}>
-            <div style={{fontSize:10,color:'#334155',marginBottom:6}}>內建字典（輸入代碼或名稱自動帶入）</div>
-            <div style={{display:'flex',flexWrap:'wrap',gap:5}}>
-              {Object.entries(STOCK_DICT).map(([k,v])=>(
-                <button key={k} className="btn-sm" onClick={()=>{setTicker(k);setName(v)}}>
-                  {k} {v}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
-            <NI label="持有股數" value={shares} onChange={setShares} pre="" suf="股" placeholder="0"/>
-            <NI label="平均成本" value={cost} onChange={setCost} suf="元" placeholder="0"/>
-          </div>
-        </div>
-        <div style={{display:'flex',gap:10,marginTop:20}}>
-          <button className="btn-ghost" style={{flex:1}} onClick={onClose}>取消</button>
-          <button className="btn-primary" style={{flex:2}} onClick={handleAdd}
-            disabled={!ticker||!shares||!cost}>
-            <Ic n="plus" size={14}/> 確認新增
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ─────────────────────────────────────────────
-   STOCK ROW
-───────────────────────────────────────────── */
-function StockRow({s,onRemove,onRefresh}){
-  const mv=n(s.shares)*n(s.price);
-  const cost=n(s.shares)*n(s.cost);
-  const gain=(n(s.price)-n(s.cost))/(n(s.cost)||1);
-  const pnl=mv-cost;
-  const isPos=pnl>=0;
-  return(
-    <div className="card2" style={{padding:12,marginBottom:8}}>
-      <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:8}}>
-        <div style={{display:'flex',alignItems:'center',gap:8}}>
-          <span className="chip chip-blue mono" style={{fontSize:12}}>{s.ticker}</span>
-          <span style={{fontSize:13,color:'#cbd5e1',fontWeight:500}}>{s.name}</span>
-          {s.priceLoading&&<span style={{fontSize:10,color:'#334155'}}>載入中…</span>}
-          {!s.priceLoading&&!s.priceError&&(
-            <span style={{display:'flex',alignItems:'center',gap:3,fontSize:10,color:'#10b981'}}>
-              <span className="live-dot" style={{width:5,height:5,borderRadius:'50%',background:'#10b981',display:'inline-block'}}/>即時
-            </span>
-          )}
-          {s.priceError&&<span style={{fontSize:10,color:'#f59e0b'}}>預設值</span>}
-        </div>
-        <div style={{display:'flex',alignItems:'center',gap:8}}>
-          <button className="btn-sm" style={{padding:'4px 8px'}} onClick={onRefresh} title="重新抓取">
-            <Ic n="refresh" size={11}/>
-          </button>
-          <button className="btn-danger" onClick={onRemove}>移除</button>
-        </div>
-      </div>
-      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:8,fontSize:12}}>
-        <div className="card3" style={{padding:'8px 10px'}}>
-          <div style={{fontSize:9,color:'#334155',marginBottom:3}}>持股數</div>
-          <div className="mono" style={{color:'#94a3b8'}}>{fmt(s.shares)}</div>
-        </div>
-        <div className="card3" style={{padding:'8px 10px'}}>
-          <div style={{fontSize:9,color:'#334155',marginBottom:3}}>現價</div>
-          <div className="mono" style={{color:'#e2e8f0',fontWeight:600}}>{fmt(s.price)}</div>
-        </div>
-        <div className="card3" style={{padding:'8px 10px'}}>
-          <div style={{fontSize:9,color:'#334155',marginBottom:3}}>成本</div>
-          <div className="mono" style={{color:'#64748b'}}>{fmt(s.cost)}</div>
-        </div>
-        <div className="card3" style={{padding:'8px 10px'}}>
-          <div style={{fontSize:9,color:'#334155',marginBottom:3}}>損益%</div>
-          <div className="mono" style={{color:isPos?'#34d399':'#f87171',fontWeight:700}}>{isPos?'+':''}{(gain*100).toFixed(1)}%</div>
-        </div>
-      </div>
-      <div style={{display:'flex',justifyContent:'space-between',marginTop:8,fontSize:12,color:'#334155',padding:'6px 2px 0',borderTop:'1px solid rgba(99,130,190,.07)'}}>
-        <span>市值 <span className="mono" style={{color:'#94a3b8',fontWeight:500}}>{fmtM(mv)}</span></span>
-        <span>損益 <span className="mono" style={{color:isPos?'#34d399':'#f87171',fontWeight:600}}>{isPos?'+':''}{fmtM(pnl)}</span></span>
-        <span>成本 <span className="mono" style={{color:'#64748b'}}>{fmtM(cost)}</span></span>
-      </div>
-    </div>
-  );
-}
-
-/* ─────────────────────────────────────────────
-   RETIRE CHART (SVG)
-───────────────────────────────────────────── */
-function RetireChart({currentAge,retireAge,target,currentAssets,monthlySav}){
-  const years=Array.from({length:Math.max(retireAge-currentAge+5,5)},(_,i)=>currentAge+i);
-  const r=0.065;
-  const data=years.map(age=>{
-    const y=age-currentAge;
-    const proj=currentAssets*Math.pow(1+r,y)+monthlySav*12*((Math.pow(1+r,y)-1)/r);
-    return{age,proj,target};
-  });
-  const maxV=Math.max(...data.map(d=>Math.max(d.proj,d.target)),1);
-  const W=500,H=150,pl=52,pr=12,pt=10,pb=28;
-  const iW=W-pl-pr,iH=H-pt-pb;
-  const xS=i=>(i/(data.length-1||1))*iW;
-  const yS=v=>(1-v/maxV)*iH;
-  const projPts=data.map((d,i)=>`${pl+xS(i)},${pt+yS(d.proj)}`).join(' ');
-  const targPts=data.map((d,i)=>`${pl+xS(i)},${pt+yS(d.target)}`).join(' ');
-  const area=`M${pl},${pt+iH} ${data.map((d,i)=>`${pl+xS(i)},${pt+yS(d.proj)}`).join(' ')} ${pl+iW},${pt+iH}Z`;
-  const ticks=[0,maxV/3,maxV*2/3,maxV];
-  const labelEvery=Math.ceil(data.length/6);
-  return(
-    <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{overflow:'visible'}}>
-      <defs>
-        <linearGradient id="retG" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#10b981" stopOpacity=".28"/>
-          <stop offset="100%" stopColor="#10b981" stopOpacity="0"/>
-        </linearGradient>
-      </defs>
-      {ticks.map((t,i)=>{
-        const y=pt+yS(t);
-        return<g key={i}>
-          <line x1={pl} y1={y} x2={pl+iW} y2={y} stroke="rgba(99,130,190,.07)" strokeWidth="1"/>
-          <text x={pl-5} y={y+4} textAnchor="end" fill="#243040" fontSize="9" fontFamily="DM Mono">{fmtM(t)}</text>
-        </g>;
-      })}
-      {data.filter((_,i)=>i%labelEvery===0||i===data.length-1).map((d,_,arr)=>{
-        const idx=data.findIndex(x=>x.age===d.age);
-        const x=pl+xS(idx);
-        return<text key={d.age} x={x} y={H-6} textAnchor="middle" fill="#243040" fontSize="9" fontFamily="DM Mono">{d.age}歲</text>;
-      })}
-      <path d={area} fill="url(#retG)"/>
-      <polyline points={projPts} fill="none" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-      <polyline points={targPts} fill="none" stroke="#f59e0b" strokeWidth="1.5" strokeDasharray="5 4" strokeLinecap="round"/>
-    </svg>
-  );
-}
-
-/* ─────────────────────────────────────────────
-   CASHFLOW BAR (SVG)
-───────────────────────────────────────────── */
-function CashflowBar({mInc,mExp,bonusM,yearEndM}){
-  const months=Array.from({length:12},(_,i)=>i+1);
-  const data=months.map(m=>{
-    const extra=(m===6||m===12)?bonusM/2:0;
-    const ye=(m===12)?yearEndM:0;
-    const inc=mInc+extra+ye;
-    const exp=mExp*(0.93+Math.random()*0.14);
-    return{m,inc,exp};
-  });
-  const maxV=Math.max(...data.map(d=>d.inc),1);
-  const W=580,H=130,pl=44,pr=8,pt=8,pb=24;
-  const iW=W-pl-pr,iH=H-pt-pb;
-  const bW=(iW/12-3);
-  const ticks=[0,maxV/2,maxV];
-  return(
-    <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{overflow:'visible'}}>
-      {ticks.map((t,i)=>{
-        const y=pt+iH-(t/maxV)*iH;
-        return<g key={i}>
-          <line x1={pl} y1={y} x2={pl+iW} y2={y} stroke="rgba(99,130,190,.06)" strokeWidth="1"/>
-          <text x={pl-5} y={y+4} textAnchor="end" fill="#243040" fontSize="9" fontFamily="DM Mono">{fmtM(t)}</text>
-        </g>;
-      })}
-      {data.map((d,i)=>{
-        const x=pl+i*(iW/12)+2;
-        const yInc=pt+iH-(d.inc/maxV)*iH;
-        const yExp=pt+iH-(d.exp/maxV)*iH;
-        const surplus=d.inc>d.exp;
-        return<g key={i}>
-          <rect x={x} y={yInc} width={bW/2-1} height={pt+iH-yInc} fill="rgba(59,130,246,.65)" rx="2"/>
-          <rect x={x+bW/2} y={yExp} width={bW/2-1} height={pt+iH-yExp} fill={surplus?'rgba(16,185,129,.55)':'rgba(239,68,68,.55)'} rx="2"/>
-          <text x={x+bW/2} y={H-5} textAnchor="middle" fill="#243040" fontSize="8" fontFamily="DM Mono">{d.m}月</text>
-        </g>;
-      })}
-    </svg>
-  );
-}
-
-/* ─────────────────────────────────────────────
-   LIVE PRICE FETCHER
-───────────────────────────────────────────── */
-async function fetchPrice(ticker){
-  const proxies=[
-    `https://corsproxy.io/?${encodeURIComponent(`https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch=tse_${ticker}.tw`)}`,
-    `https://api.allorigins.win/get?url=${encodeURIComponent(`https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch=tse_${ticker}.tw`)}`
-  ];
-  for(const url of proxies){
-    try{
-      const res=await fetch(url,{signal:AbortSignal.timeout(5000)});
-      const raw=await res.json();
-      const text=typeof raw==='string'?raw:(raw.contents||JSON.stringify(raw));
-      const parsed=typeof text==='string'?JSON.parse(text):text;
-      const item=parsed?.msgArray?.[0];
-      if(item&&item.z&&item.z!=='-'){
-        const price=parseFloat(item.z);
-        if(!isNaN(price)&&price>0)return price;
-      }
-    }catch(e){}
+// ==============================
+// 展示模式
+// ==============================
+function togglePresentation() {
+  document.body.classList.toggle('presentation-mode');
+  if (document.body.classList.contains('presentation-mode')) {
+    document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth' });
   }
-  return null;
 }
 
-/* ─────────────────────────────────────────────
-   MAIN APP
-───────────────────────────────────────────── */
-function App(){
-  const [st,setSt]=useState(INIT);
-  const [tab,setTab]=useState('cashflow');
-  const [showAddStock,setShowAddStock]=useState(false);
-
-  /* stock price fetcher */
-  const fetchStockPrices=useCallback(async(stocks)=>{
-    for(const s of stocks){
-      setSt(prev=>({...prev,assets:{...prev.assets,stocks:prev.assets.stocks.map(x=>x.id===s.id?{...x,priceLoading:true,priceError:false}:x)}}));
-      const price=await fetchPrice(s.ticker);
-      setSt(prev=>({...prev,assets:{...prev.assets,stocks:prev.assets.stocks.map(x=>x.id===s.id?{...x,price:price??x.price,priceLoading:false,priceError:!price}:x)}}));
-      await new Promise(r=>setTimeout(r,500));
-    }
-  },[]);
-
-  useEffect(()=>{
-    fetchStockPrices(st.assets.stocks);
-  },[]);
-
-  const refreshStock=useCallback((id)=>{
-    const s=st.assets.stocks.find(x=>x.id===id);
-    if(s)fetchStockPrices([s]);
-  },[st.assets.stocks]);
-
-  /* updaters */
-  const upd=useCallback((path,val)=>{
-    setSt(prev=>{
-      const next=JSON.parse(JSON.stringify(prev));
-      const keys=path.split('.');
-      let obj=next;
-      for(let i=0;i<keys.length-1;i++)obj=obj[keys[i]];
-      obj[keys[keys.length-1]]=typeof val==='function'?val(obj[keys[keys.length-1]]):val;
-      return next;
-    });
-  },[]);
-  const updPolicy=useCallback((pid,f,v)=>setSt(prev=>({...prev,policies:prev.policies.map(p=>p.id===pid?{...p,[f]:v}:p)})),[]);
-  const remPolicy=useCallback(pid=>setSt(prev=>({...prev,policies:prev.policies.filter(p=>p.id!==pid)})),[]);
-  const addPolicy=useCallback(()=>setSt(prev=>({...prev,policies:[...prev.policies,{id:uid(),company:'保險公司',productName:'新保單',type:'終身壽險',insuredAmount:1000000,annualPremium:30000,startYear:2024,riders:[]}]})),[]);
-  const addStock=useCallback(s=>{
-    setSt(prev=>({...prev,assets:{...prev.assets,stocks:[...prev.assets.stocks,s]}}));
-    setTimeout(()=>fetchStockPrices([s]),100);
-  },[fetchStockPrices]);
-  const remStock=useCallback(id=>setSt(prev=>({...prev,assets:{...prev.assets,stocks:prev.assets.stocks.filter(x=>x.id!==id)}})),[]);
-
-  /* derived */
-  const sc=useMemo(()=>calcScores(st),[st]);
-  const prot=useMemo(()=>calcProtection(st.policies),[st.policies]);
-  const stockVal=useMemo(()=>st.assets.stocks.reduce((s,k)=>s+n(k.shares)*n(k.price),0),[st.assets.stocks]);
-  const stockCost=useMemo(()=>st.assets.stocks.reduce((s,k)=>s+n(k.shares)*n(k.cost),0),[st.assets.stocks]);
-  const totalAssets=useMemo(()=>n(st.assets.cash)+n(st.assets.property)+stockVal,[st.assets.cash,st.assets.property,stockVal]);
-  const totalLiab=useMemo(()=>n(st.liabilities.mortgage)+n(st.liabilities.personalLoan),[st.liabilities.mortgage,st.liabilities.personalLoan]);
-  const netWorth=useMemo(()=>totalAssets-totalLiab,[totalAssets,totalLiab]);
-  const totalPrem=useMemo(()=>st.policies.reduce((s,p)=>s+n(p.annualPremium)+(p.riders||[]).reduce((r2,r)=>r2+n(r.annualPremium),0),0),[st.policies]);
-
-  const TABS=[
-    {id:'cashflow',label:'收支現金流'},
-    {id:'assets',label:'資產負債'},
-    {id:'stocks',label:'持倉管理'},
-    {id:'goals',label:'財務目標'},
-    {id:'insurance',label:'保單防護網'},
-  ];
-
-  return(
-    <div style={{maxWidth:1180,margin:'0 auto',padding:'22px 14px 60px'}}>
-
-      {/* HEADER */}
-      <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:28,flexWrap:'wrap',gap:14}}>
-        <div>
-          <div className="section-label" style={{marginBottom:6,color:'#1e3a5f'}}>FinAdvisor Pro · 私人財務健檢系統</div>
-          <h1 style={{fontSize:22,fontWeight:700,color:'#f1f5f9',letterSpacing:'-.02em'}}>高階財務健檢儀表板</h1>
-        </div>
-        <div style={{display:'flex',alignItems:'center',gap:20,flexWrap:'wrap'}}>
-          {[
-            {label:'淨資產',val:fmtM(netWorth),color:'#10b981'},
-            {label:'年度保費',val:fmtM(totalPrem),color:'#f59e0b'},
-            {label:'健康評分',val:Math.round(sc.total)+'分',color:tCol(sc.total)},
-          ].map(m=>(
-            <div key={m.label} style={{textAlign:'right'}}>
-              <div style={{fontSize:10,color:'#334155',marginBottom:3}}>{m.label}</div>
-              <div className="mono" style={{fontSize:18,fontWeight:700,color:m.color}}>{m.val}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* SCORE ENGINE */}
-      <div className="card fade-in" style={{padding:26,marginBottom:22,boxShadow:'0 0 80px rgba(59,130,246,.05)'}}>
-        <div className="section-label" style={{marginBottom:18,color:'#1e3a5f'}}>綜合財務健康評分引擎</div>
-        <div style={{display:'flex',flexWrap:'wrap',gap:28,alignItems:'center'}}>
-          <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:10}}>
-            <ScoreRing score={sc.total}/>
-            <span className={`chip ${sc.total>=75?'chip-green':sc.total>=50?'chip-amber':'chip-red'}`} style={{fontSize:12,padding:'5px 14px'}}>
-              {sc.total>=75?'財務健全':sc.total>=50?'需要優化':'急需改善'}
-            </span>
-          </div>
-          <div style={{flex:1,minWidth:260,display:'flex',flexDirection:'column',gap:18}}>
-            <MiniBar value={sc.s1} max={25} label="① 預備金安全度 (活存 ÷ 月支出)" sub={`現金 ${fmtM(sc.cash)} ÷ 月支出 ${fmt(sc.mExp)} = ${sc.emMonths.toFixed(1)} 個月（>6個月滿分）`}/>
-            <MiniBar value={sc.s2} max={25} label="② 債務負擔比 (月還款 ÷ 月收入)" sub={`月還款 ${fmt(sc.mDebt)} ÷ 月收入 ${fmt(sc.mInc)} = ${pct(sc.debtRatio)}（<30%滿分）`}/>
-            <MiniBar value={sc.s3} max={25} label="③ 財富蓄水力 (淨現金流 ÷ 月收入)" sub={`月結餘 ${fmtM(sc.mInc-sc.mExp)} ÷ 月收入 ${fmtM(sc.mInc)} = ${pct(sc.savRate)}（>20%滿分）`}/>
-            <MiniBar value={sc.s4} max={25} label="④ 保障責任缺口 (壽險總額 vs 風險缺口)" sub={`總保障 ${fmtM(sc.totalIns)} vs 缺口 ${fmtM(sc.protTarget)}（負債+5年開銷）`}/>
-          </div>
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,minWidth:210}}>
-            {[
-              {label:'月均收入',val:fmtM(sc.mInc),color:'#3b82f6'},
-              {label:'月均支出',val:fmtM(sc.mExp),color:'#ef4444'},
-              {label:'月均結餘',val:fmtM(sc.mInc-sc.mExp),color:'#10b981'},
-              {label:'壽險總保額',val:fmtM(sc.totalIns),color:'#8b5cf6'},
-            ].map(m=>(
-              <div key={m.label} className="card2" style={{padding:12}}>
-                <div style={{fontSize:9,color:'#334155',marginBottom:4}}>{m.label}</div>
-                <div className="mono" style={{fontSize:13,fontWeight:600,color:m.color}}>{m.val}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* TABS */}
-      <div style={{display:'flex',gap:6,marginBottom:18,overflowX:'auto',paddingBottom:4}}>
-        {TABS.map(t=>(
-          <button key={t.id} className={`tab-btn ${tab===t.id?'active':''}`} onClick={()=>setTab(t.id)}>{t.label}</button>
-        ))}
-      </div>
-
-      {/* ── TAB: CASHFLOW ── */}
-      {tab==='cashflow'&&(
-        <div className="fade-in">
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:18,marginBottom:18}}>
-            <div className="card" style={{padding:20}}>
-              <SH icon="trending" title="收入結構" sub="固定 + 績效 + 非經常性"/>
-              <div style={{display:'flex',flexDirection:'column',gap:10}}>
-                <NI label="固定月薪" value={st.income.salary} onChange={v=>upd('income.salary',v)} suf="元/月"/>
-                <NI label="科技業/業務分紅" value={st.income.bonus} onChange={v=>upd('income.bonus',v)} suf="元/年"/>
-                <NI label="年終獎金" value={st.income.yearEnd} onChange={v=>upd('income.yearEnd',v)} suf="元/年"/>
-                <NI label="股息/非經常性收入" value={st.income.dividend} onChange={v=>upd('income.dividend',v)} suf="元/年"/>
-                <hr className="divider" style={{marginTop:4}}/>
-                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-                  <span style={{fontSize:12,color:'#64748b'}}>月均總收入</span>
-                  <span className="mono" style={{fontSize:17,fontWeight:700,color:'#3b82f6'}}>{fmtM(sc.mInc)}</span>
-                </div>
-              </div>
-            </div>
-            <div className="card" style={{padding:20}}>
-              <SH icon="down" title="支出結構" sub="月固定 + 年度隱形支出"/>
-              <div style={{display:'flex',flexDirection:'column',gap:8}}>
-                <div className="section-label" style={{marginBottom:2}}>月固定支出</div>
-                {[
-                  {k:'housing',label:'住房(房貸/租金)'},
-                  {k:'food',label:'餐飲伙食'},
-                  {k:'transport',label:'交通費'},
-                  {k:'entertainment',label:'娛樂休閒'},
-                  {k:'misc',label:'其他日常'},
-                ].map(({k,label})=>(
-                  <NI key={k} label={label} value={st.expenses.monthly[k]} onChange={v=>upd(`expenses.monthly.${k}`,v)} suf="元/月"/>
-                ))}
-                <div className="section-label" style={{marginTop:6,marginBottom:2}}>年度隱形支出</div>
-                <NI label="所得稅金" value={st.expenses.annual.tax} onChange={v=>upd('expenses.annual.tax',v)} suf="元/年"/>
-                <NI label="其他年度支出" value={st.expenses.annual.other} onChange={v=>upd('expenses.annual.other',v)} suf="元/年"/>
-                <hr className="divider" style={{marginTop:4}}/>
-                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-                  <span style={{fontSize:12,color:'#64748b'}}>月均總支出</span>
-                  <span className="mono" style={{fontSize:17,fontWeight:700,color:'#ef4444'}}>{fmtM(sc.mExp)}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="card" style={{padding:20}}>
-            <SH icon="bar" title="全年收支概覽" sub="含分紅/年終月份波動（藍=收入，綠/紅=支出）"/>
-            <CashflowBar mInc={sc.mInc} mExp={sc.mExp} bonusM={n(st.income.bonus)} yearEndM={n(st.income.yearEnd)}/>
-          </div>
-        </div>
-      )}
-
-      {/* ── TAB: ASSETS ── */}
-      {tab==='assets'&&(
-        <div className="fade-in">
-          <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12,marginBottom:18}}>
-            {[
-              {label:'總資產',val:fmtM(totalAssets),color:'#3b82f6'},
-              {label:'總負債',val:fmtM(totalLiab),color:'#ef4444'},
-              {label:'淨資產',val:fmtM(netWorth),color:'#10b981'},
-            ].map(m=>(
-              <div key={m.label} className="card" style={{padding:16}}>
-                <div style={{fontSize:10,color:'#334155',marginBottom:6}}>{m.label}</div>
-                <div className="mono" style={{fontSize:22,fontWeight:700,color:m.color}}>{m.val}</div>
-              </div>
-            ))}
-          </div>
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:18}}>
-            <div className="card" style={{padding:20}}>
-              <SH icon="wallet" title="現金與不動產" sub="核心資產項目"/>
-              <div style={{display:'flex',flexDirection:'column',gap:10}}>
-                <NI label="緊急預備金 / 活存現金" value={st.assets.cash} onChange={v=>upd('assets.cash',v)}/>
-                <NI label="不動產現值" value={st.assets.property} onChange={v=>upd('assets.property',v)}/>
-                <div className="card2" style={{padding:10}}>
-                  <div style={{fontSize:10,color:'#334155',marginBottom:8}}>資產配置比例</div>
-                  <div style={{display:'flex',height:14,borderRadius:99,overflow:'hidden',gap:2}}>
-                    {totalAssets>0&&[
-                      {val:n(st.assets.cash),color:'#3b82f6'},
-                      {val:n(st.assets.property),color:'#8b5cf6'},
-                      {val:stockVal,color:'#06b6d4'},
-                    ].map((m,i)=>(
-                      m.val>0&&<div key={i} style={{flex:m.val/totalAssets,background:m.color,opacity:.8}}/>
-                    ))}
-                  </div>
-                  <div style={{display:'flex',gap:14,marginTop:8,fontSize:11,color:'#334155',flexWrap:'wrap'}}>
-                    {[
-                      {label:'現金',val:n(st.assets.cash),color:'#3b82f6'},
-                      {label:'不動產',val:n(st.assets.property),color:'#8b5cf6'},
-                      {label:'股票ETF',val:stockVal,color:'#06b6d4'},
-                    ].map(m=>(
-                      <span key={m.label} style={{display:'flex',alignItems:'center',gap:4}}>
-                        <span style={{width:8,height:8,borderRadius:2,background:m.color,display:'inline-block'}}/>
-                        {m.label} <span className="mono" style={{color:'#64748b'}}>{pct(totalAssets?m.val/totalAssets:0)}</span>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="card" style={{padding:20}}>
-              <SH icon="credit" title="負債明細" sub="長期 / 短期負債"/>
-              <div style={{display:'flex',flexDirection:'column',gap:10}}>
-                <NI label="房貸餘額" value={st.liabilities.mortgage} onChange={v=>upd('liabilities.mortgage',v)}/>
-                <NI label="信貸餘額" value={st.liabilities.personalLoan} onChange={v=>upd('liabilities.personalLoan',v)}/>
-                <hr className="divider" style={{marginTop:4}}/>
-                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
-                  {[
-                    {label:'月均還款估計',val:fmtM(sc.mDebt),color:'#f87171'},
-                    {label:'債務/資產比',val:pct(totalAssets?totalLiab/totalAssets:0),color:'#fcd34d'},
-                    {label:'負債/月收入',val:`${(totalLiab/((sc.mInc*12)||1)).toFixed(1)}年`,color:'#94a3b8'},
-                    {label:'房貸/信貸比',val:pct(totalLiab?n(st.liabilities.mortgage)/totalLiab:0),color:'#94a3b8'},
-                  ].map(m=>(
-                    <div key={m.label} className="card2" style={{padding:10}}>
-                      <div style={{fontSize:9,color:'#334155',marginBottom:3}}>{m.label}</div>
-                      <div className="mono" style={{fontSize:13,fontWeight:600,color:m.color}}>{m.val}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── TAB: STOCKS ── */}
-      {tab==='stocks'&&(
-        <div className="fade-in">
-          <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:18}}>
-            {[
-              {label:'總市值',val:fmtM(stockVal),color:'#06b6d4'},
-              {label:'總成本',val:fmtM(stockCost),color:'#64748b'},
-              {label:'未實現損益',val:fmtM(stockVal-stockCost),color:stockVal>=stockCost?'#10b981':'#ef4444'},
-              {label:'報酬率',val:pct(stockCost?(stockVal-stockCost)/stockCost:0),color:stockVal>=stockCost?'#10b981':'#ef4444'},
-            ].map(m=>(
-              <div key={m.label} className="card" style={{padding:14}}>
-                <div style={{fontSize:9,color:'#334155',marginBottom:5}}>{m.label}</div>
-                <div className="mono" style={{fontSize:16,fontWeight:700,color:m.color}}>{m.val}</div>
-              </div>
-            ))}
-          </div>
-          <div className="card" style={{padding:20}}>
-            <SH icon="bar" title="股票 / ETF 持倉" sub="即時報價 · 智慧字典輸入"
-              badge={`${st.assets.stocks.length} 檔`}
-              extra={<button className="btn-primary" style={{padding:'8px 14px',fontSize:12}} onClick={()=>setShowAddStock(true)}><Ic n="plus" size={13}/>新增標的</button>}/>
-            {st.assets.stocks.length===0&&(
-              <div style={{textAlign:'center',padding:'30px 0',color:'#334155',fontSize:13}}>尚無持倉，點擊「新增標的」加入</div>
-            )}
-            {st.assets.stocks.map(s=>(
-              <StockRow key={s.id} s={s} onRemove={()=>remStock(s.id)} onRefresh={()=>refreshStock(s.id)}/>
-            ))}
-            {st.assets.stocks.length>0&&(
-              <div style={{display:'flex',gap:16,marginTop:12,fontSize:11,color:'#334155'}}>
-                <span style={{display:'flex',alignItems:'center',gap:4}}>
-                  <span className="live-dot" style={{width:5,height:5,borderRadius:'50%',background:'#10b981',display:'inline-block'}}/>即時報價（透過 TWSE API）
-                </span>
-                <span style={{color:'#243040'}}>若取得失敗則顯示「預設值」</span>
-              </div>
-            )}
-          </div>
-          {showAddStock&&<AddStockModal onAdd={addStock} onClose={()=>setShowAddStock(false)}/>}
-        </div>
-      )}
-
-      {/* ── TAB: GOALS ── */}
-      {tab==='goals'&&(
-        <div className="fade-in">
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:18}}>
-            <div className="card" style={{padding:20}}>
-              <SH icon="target" title="退休財務目標" sub="複利試算模型"/>
-              <div style={{display:'flex',flexDirection:'column',gap:10}}>
-                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
-                  <NI label="現在年齡" value={st.goals.currentAge} onChange={v=>upd('goals.currentAge',v)} pre="" suf="歲"/>
-                  <NI label="預計退休年齡" value={st.goals.retireAge} onChange={v=>upd('goals.retireAge',v)} pre="" suf="歲"/>
-                </div>
-                <NI label="退休目標金額" value={st.goals.targetAmount} onChange={v=>upd('goals.targetAmount',v)}/>
-                <div className="card2" style={{padding:12}}>
-                  <div className="section-label" style={{marginBottom:8}}>試算假設</div>
-                  {[
-                    {k:'年化報酬率',v:'6.5%',c:'#10b981'},
-                    {k:'距退休',v:`${Math.max(0,n(st.goals.retireAge)-n(st.goals.currentAge))} 年`,c:'#3b82f6'},
-                    {k:'月均結餘',v:fmtM(sc.mInc-sc.mExp),c:'#3b82f6'},
-                    {k:'現有總資產',v:fmtM(totalAssets),c:'#8b5cf6'},
-                  ].map(m=>(
-                    <div key={m.k} style={{display:'flex',justifyContent:'space-between',fontSize:12,color:'#64748b',padding:'4px 0',borderBottom:'1px solid rgba(99,130,190,.06)'}}>
-                      <span>{m.k}</span><span className="mono" style={{color:m.c}}>{m.v}</span>
-                    </div>
-                  ))}
-                </div>
-                {(()=>{
-                  const yrs=Math.max(0,n(st.goals.retireAge)-n(st.goals.currentAge));
-                  const r=.065,sav=sc.mInc-sc.mExp;
-                  const proj=totalAssets*Math.pow(1+r,yrs)+sav*12*((Math.pow(1+r,yrs)-1)/r);
-                  const ok=proj>=n(st.goals.targetAmount);
-                  const progress=clamp(proj/n(st.goals.targetAmount),0,1);
-                  return(
-                    <div className="card2" style={{padding:14,border:`1px solid ${ok?'rgba(16,185,129,.2)':'rgba(245,158,11,.2)'}`}}>
-                      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
-                        <span style={{fontSize:12,color:'#94a3b8'}}>退休時預估資產</span>
-                        <span className={`chip ${ok?'chip-green':'chip-amber'}`}>{ok?'✓ 達標':'需加速'}</span>
-                      </div>
-                      <div className="mono" style={{fontSize:26,fontWeight:700,color:ok?'#10b981':'#f59e0b'}}>{fmtM(proj)}</div>
-                      <div style={{fontSize:11,color:'#334155',marginTop:4,marginBottom:10}}>vs 目標 {fmtM(n(st.goals.targetAmount))}</div>
-                      <div className="progress-track" style={{height:8}}>
-                        <div className="progress-bar" style={{width:`${progress*100}%`,height:8,background:ok?'#10b981':'#f59e0b'}}/>
-                      </div>
-                      <div style={{fontSize:10,color:'#334155',marginTop:4,textAlign:'right'}}>達成率 {pct(progress)}</div>
-                    </div>
-                  );
-                })()}
-              </div>
-            </div>
-            <div className="card" style={{padding:20}}>
-              <SH icon="trending" title="資產成長軌跡" sub="月均儲蓄 × 6.5% 複利推算"/>
-              <RetireChart
-                currentAge={n(st.goals.currentAge)}
-                retireAge={n(st.goals.retireAge)}
-                target={n(st.goals.targetAmount)}
-                currentAssets={totalAssets}
-                monthlySav={sc.mInc-sc.mExp}
-              />
-              <div style={{display:'flex',gap:18,marginTop:10,fontSize:11,color:'#334155'}}>
-                <span style={{display:'flex',alignItems:'center',gap:5}}>
-                  <span style={{width:14,height:2,background:'#10b981',display:'inline-block',borderRadius:99}}/>資產預估
-                </span>
-                <span style={{display:'flex',alignItems:'center',gap:5}}>
-                  <span style={{width:14,height:0,border:'1.5px dashed #f59e0b',display:'inline-block'}}/>退休目標
-                </span>
-              </div>
-              <div style={{marginTop:16,display:'flex',flexDirection:'column',gap:6}}>
-                <div className="section-label" style={{marginBottom:6}}>財務里程碑</div>
-                {[
-                  {label:'突破 1000 萬',age:n(st.goals.currentAge)+2,color:'#3b82f6'},
-                  {label:'退休加速期啟動',age:n(st.goals.retireAge)-5,color:'#f59e0b'},
-                  {label:'達成退休目標',age:n(st.goals.retireAge),color:'#10b981'},
-                ].map(m=>(
-                  <div key={m.label} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'8px 12px',borderRadius:8,background:'rgba(12,19,34,.8)',border:'1px solid rgba(99,130,190,.09)'}}>
-                    <span style={{fontSize:12,color:'#64748b'}}>{m.label}</span>
-                    <span className="mono" style={{fontSize:12,fontWeight:600,color:m.color}}>{m.age}歲</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── TAB: INSURANCE ── */}
-      {tab==='insurance'&&(
-        <div className="fade-in">
-          <div className="card" style={{padding:20,marginBottom:16}}>
-            <SH icon="shieldCheck" title="五大防護網進度條" sub="同質性保障彙整" badge={`${st.policies.length} 張保單`}/>
-            <div style={{display:'flex',flexDirection:'column',gap:14,marginBottom:18}}>
-              <ProtBar label="壽險保障 vs 責任缺口" value={sc.totalIns} target={sc.protTarget} hint="負債+5年開銷"/>
-              <ProtBar label="醫療實支實付雜費限額" value={prot.miscLimit} target={300000} color="#06b6d4" hint="建議≥30萬"/>
-              <ProtBar label="重大傷病一次金" value={prot.lumpSum} target={2000000} color="#8b5cf6" hint="建議≥200萬"/>
-              <ProtBar label="意外傷害身故/失能" value={prot.accident} target={5000000} color="#f59e0b" hint="建議≥500萬"/>
-              <ProtBar label="失能月給付" value={prot.disability} target={50000} color="#10b981" hint="建議≥5萬/月"/>
-            </div>
-            <div style={{display:'grid',gridTemplateColumns:'repeat(5,1fr)',gap:8}}>
-              {[
-                {label:'壽險總保額',val:fmtM(sc.totalIns),color:'#3b82f6'},
-                {label:'實支雜費限額',val:fmtM(prot.miscLimit),color:'#06b6d4'},
-                {label:'重疾一次金',val:fmtM(prot.lumpSum),color:'#8b5cf6'},
-                {label:'意外保障',val:fmtM(prot.accident),color:'#f59e0b'},
-                {label:'失能月給付',val:`${fmt(prot.disability)}/月`,color:'#10b981'},
-              ].map(m=>(
-                <div key={m.label} className="card2" style={{padding:10,textAlign:'center'}}>
-                  <div style={{fontSize:9,color:'#334155',marginBottom:4}}>{m.label}</div>
-                  <div className="mono" style={{fontSize:12,fontWeight:600,color:m.color}}>{m.val}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-          {st.policies.map(p=>(
-            <PolicyCard key={p.id} policy={p}
-              onChange={(f,v)=>updPolicy(p.id,f,v)}
-              onRemove={()=>remPolicy(p.id)}/>
-          ))}
-          <button className="btn-primary" style={{width:'100%',padding:'13px 0',fontSize:14}} onClick={addPolicy}>
-            <Ic n="plus" size={15}/> 新增保單
-          </button>
-        </div>
-      )}
-
-      {/* FOOTER */}
-      <div style={{marginTop:44,paddingTop:18,borderTop:'1px solid rgba(99,130,190,.08)',display:'flex',justifyContent:'space-between',flexWrap:'wrap',gap:6}}>
-        <div style={{fontSize:11,color:'#111d2e'}}>FinAdvisor Pro · 財務數據僅供顧問分析參考，不構成投資建議</div>
-        <div className="mono" style={{fontSize:11,color:'#111d2e'}}>v3.0.0 · All data local</div>
-      </div>
-    </div>
-  );
-}
-
-ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+// 初始化
+renderTargets();
 </script>
 </body>
 </html>
