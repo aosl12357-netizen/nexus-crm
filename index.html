@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>富邦人壽｜財務自由藍圖規劃工具</title>
+<title>財務自由藍圖｜複利試算規劃工具</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700;900&family=Noto+Sans+TC:wght@300;400;500;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
@@ -208,12 +208,16 @@
   .screen {
     width: 33.333%;
     height: 100%;
-    padding: 32px 40px 24px;
+    padding: 24px 36px 24px;
     overflow-y: auto;
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 16px;
+  }
+  /* 畫面一：不滾動，表格佔滿剩餘空間 */
+  #screen1 {
+    overflow: hidden;
   }
   .screen::-webkit-scrollbar { width: 4px; }
   .screen::-webkit-scrollbar-track { background: transparent; }
@@ -829,17 +833,58 @@
     transition: width 0.65s cubic-bezier(0.77,0,0.175,1);
   }
 
-  /* 浮動返回頂部 */
-  .two-row {
+  .two-row { display: flex; flex-direction: column; gap: 16px; }
+  .two-col  { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  /* ===== 畫面一 - 三欄控制區 ===== */
+  .vision-controls {
+    display: grid;
+    grid-template-columns: 0.8fr 1.1fr 1.1fr;
+    gap: 14px;
+  }
+  .ctrl-card {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 18px 16px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 10px;
+    transition: var(--transition);
   }
-  .two-col {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
+  .ctrl-card:hover { background: rgba(255,255,255,0.09); border-color: rgba(0,169,157,0.3); }
+  .ctrl-card.card-teal { background: linear-gradient(135deg, rgba(0,169,157,0.2), rgba(0,91,142,0.15)); border-color: rgba(0,169,157,0.35); }
+  .ctrl-label { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.6); letter-spacing: 0.8px; text-transform: uppercase; }
+  .ctrl-value-row { display: flex; align-items: baseline; }
+  .ctrl-big-num { font-size: 26px; font-weight: 800; color: var(--fubon-teal-light); font-variant-numeric: tabular-nums; }
+  .ctrl-big-num span { font-size: 13px; font-weight: 400; color: rgba(255,255,255,0.45); margin-left: 4px; }
+  .monthly-rate-badge { background: rgba(0,169,157,0.12); border: 1px solid rgba(0,169,157,0.2); border-radius: 8px; padding: 6px 10px; font-size: 12px; color: rgba(255,255,255,0.55); text-align: center; }
+  .monthly-rate-badge strong { color: var(--fubon-teal-light); font-size: 13px; }
+
+  /* ===== 畫面一 - 完整年齡對照表（主視覺升級版）===== */
+  .age-table-wrap { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; overflow: hidden; flex: 1; display: flex; flex-direction: column; }
+  .age-table-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 22px; background: linear-gradient(90deg, rgba(0,169,157,0.2), rgba(0,91,142,0.15)); border-bottom: 1px solid rgba(0,169,157,0.2); font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.85); flex-shrink: 0; }
+  .age-table-tip { font-size: 12px; font-weight: 400; color: var(--fubon-teal-light); letter-spacing: 0.5px; }
+  .age-table-scroll { overflow-x: auto; overflow-y: auto; flex: 1; min-height: 0; }
+  .age-table-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
+  .age-table-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); }
+  .age-table-scroll::-webkit-scrollbar-thumb { background: rgba(0,169,157,0.35); border-radius: 3px; }
+  .age-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .age-table thead tr { background: rgba(13,46,77,0.8); position: sticky; top: 0; z-index: 2; }
+  .age-table th { padding: 12px 18px; text-align: left; font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.5); letter-spacing: 1.2px; text-transform: uppercase; white-space: nowrap; }
+  .age-table td { padding: 11px 18px; color: rgba(255,255,255,0.72); border-bottom: 1px solid rgba(255,255,255,0.04); white-space: nowrap; font-variant-numeric: tabular-nums; transition: background 0.15s; }
+  .age-table tbody tr:hover td { background: rgba(0,169,157,0.12); color: white; }
+  /* 當前年齡 */
+  .age-table tbody tr.current-age td { background: rgba(0,169,157,0.22); color: var(--fubon-white); border-bottom: 1px solid rgba(0,169,157,0.3); }
+  .age-table tbody tr.current-age td:first-child { font-weight: 900; color: var(--fubon-teal-light); font-size: 15px; }
+  /* 月配息欄 */
+  .age-table td.col-monthly { color: var(--fubon-gold-light); font-weight: 800; font-size: 15px; }
+  /* 里程碑行（每10歲）*/
+  .age-table tbody tr.decade-age td { background: rgba(0,91,142,0.2); border-top: 1px solid rgba(0,169,157,0.2); border-bottom: 1px solid rgba(0,169,157,0.1); }
+  .age-table tbody tr.decade-age td:first-child { font-weight: 800; color: #4DD9D2; font-size: 15px; }
+  .age-table tbody tr.decade-age td.col-monthly { color: #FFE0A0; font-size: 16px; }
+  /* 月配息說明欄 */
+  .age-table td.col-note { font-size: 12px; color: rgba(255,255,255,0.38); font-style: italic; }
 </style>
 </head>
 <body>
@@ -848,10 +893,10 @@
   <!-- 頂部導覽列 -->
   <div id="topbar">
     <div class="brand">
-      <div class="brand-logo">富</div>
+      <div class="brand-logo">💡</div>
       <div class="brand-text">
-        <div class="brand-name">富邦人壽</div>
-        <div class="brand-sub">財務自由藍圖規劃</div>
+        <div class="brand-name">財務自由藍圖</div>
+        <div class="brand-sub">複利試算規劃工具</div>
       </div>
     </div>
     <div class="step-indicator">
@@ -890,40 +935,77 @@
           <div class="screen-tag">✦ STEP 01</div>
           <div style="height:10px"></div>
           <div class="screen-title">讓<span>複利的魔法</span><br>為你工作</div>
-          <div class="screen-desc">輸入您的現在年齡，看看 200 萬元在時間的力量下，能為您創造多少財富。</div>
+          <div class="screen-desc">輸入客戶年齡、起始本金與年報酬率，下方立即顯示每一歲的本金成長與月配息。</div>
         </div>
       </div>
 
-      <!-- 輸入區 + 假設條件 -->
-      <div class="two-col animate-in delay-2">
-        <div class="card card-teal">
-          <div class="input-group">
-            <div class="input-label">📋 客戶現在年齡</div>
-            <input class="input-field" type="number" id="currentAge"
-              placeholder="例：35" min="18" max="55"
-              value="35" inputmode="numeric"
-              oninput="calcVision()">
+      <!-- 三欄輸入控制區 -->
+      <div class="vision-controls animate-in delay-2">
+
+        <!-- 控制卡1：客戶年齡 -->
+        <div class="ctrl-card card-teal">
+          <div class="ctrl-label">📋 客戶現在年齡</div>
+          <input class="input-field" type="number" id="currentAge"
+            placeholder="例：35" min="18" max="70"
+            value="35" inputmode="numeric"
+            oninput="calcVision()">
+        </div>
+
+        <!-- 控制卡2：起始本金 -->
+        <div class="ctrl-card">
+          <div class="ctrl-label">💰 起始本金</div>
+          <div class="ctrl-value-row">
+            <div class="ctrl-big-num" id="principalDisplay">200<span>萬元</span></div>
+          </div>
+          <input type="range" id="principalSlider"
+            min="50" max="1000" step="50" value="200"
+            oninput="onPrincipalSlide()">
+          <div class="quick-btns" style="margin-top:8px;" id="principalBtns">
+            <button class="quick-btn" data-val="100" onclick="setPrincipal(100)">100萬</button>
+            <button class="quick-btn active" data-val="200" onclick="setPrincipal(200)">200萬</button>
+            <button class="quick-btn" data-val="500" onclick="setPrincipal(500)">500萬</button>
+            <button class="quick-btn" data-val="1000" onclick="setPrincipal(1000)">1000萬</button>
           </div>
         </div>
-        <div class="assumption-bar" style="flex-direction:column; align-items:flex-start; gap:10px;">
-          <div class="assumption-item">
-            <div class="assumption-dot"></div>
-            <span>起始本金 <strong>200 萬</strong></span>
+
+        <!-- 控制卡3：年報酬率 -->
+        <div class="ctrl-card">
+          <div class="ctrl-label">📈 年報酬率</div>
+          <div class="ctrl-value-row">
+            <div class="ctrl-big-num" id="rateDisplay">10.0<span>%／年</span></div>
           </div>
-          <div class="assumption-item">
-            <div class="assumption-dot"></div>
-            <span>年報酬率 <strong>10%</strong></span>
-          </div>
-          <div class="assumption-item">
-            <div class="assumption-dot"></div>
-            <span>月報酬率 <strong>0.83%</strong></span>
+          <input type="range" id="rateSlider"
+            min="1" max="20" step="0.5" value="10"
+            oninput="onRateSlide()">
+          <div class="monthly-rate-badge">
+            月報酬率：<strong id="monthlyRateDisplay">0.83%</strong>
           </div>
         </div>
+
       </div>
 
-      <!-- 三個願景卡片 -->
-      <div class="vision-cards animate-in delay-3" id="visionCards">
-        <!-- 由 JS 動態渲染 -->
+      <!-- 完整年齡試算表（主視覺） -->
+      <div class="age-table-wrap animate-in delay-3">
+        <div class="age-table-header">
+          <span>📊 各年齡複利成長對照表</span>
+          <span class="age-table-tip" id="tableCaption">從現在到 80 歲，每歲一行</span>
+        </div>
+        <div class="age-table-scroll" id="ageTableScroll">
+          <table class="age-table" id="ageTable">
+            <thead>
+              <tr>
+                <th>年齡</th>
+                <th>距今</th>
+                <th>複利本金</th>
+                <th>預估月配息</th>
+                <th>月配息說明</th>
+              </tr>
+            </thead>
+            <tbody id="ageTableBody">
+              <!-- 由 JS 動態渲染 -->
+            </tbody>
+          </table>
+        </div>
       </div>
 
     </div><!-- /screen1 -->
@@ -1032,7 +1114,7 @@
         <div class="blueprint-intro-text">
           您在第二步驟所累積的 <strong id="blueprintPrincipal">—</strong>
           將作為投資型保單的起始本金，
-          以年報酬率 <strong>10%</strong> 進行複利成長，見證財富加速累積的威力。
+          以年報酬率 <strong id="blueprintRate">10%</strong> 進行複利成長，見證財富加速累積的威力。
         </div>
       </div>
 
@@ -1083,44 +1165,45 @@
 let currentScreen = 0; // 0, 1, 2
 const TOTAL_SCREENS = 3;
 
-// 參數設定（可自行調整）
+// ============================================================
+// 參數設定（可自行調整預設值）
+// ============================================================
 const PARAMS = {
   // 畫面一：願景計算
-  visionPrincipal:    2000000,   // 起始本金（元）
-  visionAnnualRate:   0.10,      // 年報酬率（10%）
-  visionAges:         [30, 40, 50], // 展示的三個年齡
+  visionPrincipalWan: 200,       // 起始本金（萬元，預設 200 萬）
+  visionAnnualRate:   0.10,      // 年報酬率（預設 10%）
+  visionHighlightAges: [30, 40, 50], // 上方三張大卡片顯示的年齡
 
   // 畫面二：儲蓄險
   savingsAnnualRate:  0.025,     // 儲蓄險年利率（2.5%）
-  savingsMonthlyRate: 0.025 / 12, // 月利率
+  savingsMonthlyRate: 0.025 / 12,
 
   // 畫面三：投資型保單
   investAnnualRate:   0.10,      // 投資型保單年報酬率（10%）
-  investMonthlyRate:  0.10 / 12, // 月報酬率（0.83%）
+  investMonthlyRate:  0.10 / 12,
 };
 
-// 畫面二的使用者選擇
-let budgetPerMonth = 10000;  // 每月預算
-let selectedPeriod = 10;     // 期別（年）
-let s2Principal = 0;         // 畫面二算出的本金，帶入畫面三
+// 使用者目前設定值（即時修改用）
+let visionPrincipalWan = PARAMS.visionPrincipalWan;  // 萬元
+let visionAnnualRate   = PARAMS.visionAnnualRate;    // 小數（0.10 = 10%）
 
-let growthChart = null; // Chart.js 實例
+// 畫面二的使用者選擇
+let budgetPerMonth = 10000;
+let selectedPeriod = 10;
+let s2Principal    = 0;
+
+let growthChart = null;
 
 /* ==============================================
    工具函式：數字格式化
    ============================================== */
-// 格式化為「萬元」（四捨五入至整數萬）
 function formatWan(amount) {
   const wan = Math.round(amount / 10000);
   return wan.toLocaleString('zh-TW') + ' 萬';
 }
-
-// 格式化為「元」（千分位）
 function formatYuan(amount) {
   return Math.round(amount).toLocaleString('zh-TW') + ' 元';
 }
-
-// 格式化為「萬元」純數字（不含「萬」）
 function formatWanNum(amount) {
   return (amount / 10000).toFixed(1);
 }
@@ -1128,72 +1211,128 @@ function formatWanNum(amount) {
 /* ==============================================
    複利公式
    終值 FV = PV × (1 + r)^n
-   ==============================================
    PV = 現值（本金）
-   r  = 每期利率（年利率 / 12 = 月利率）
-   n  = 期數（年 × 12 = 月數）
-   ==============================================
-*/
+   r  = 年利率（用年複利計算）
+   n  = 年數
+   月配息 = 本金 × (年利率 / 12)
+   ============================================== */
 function futureValue(pv, annualRate, years) {
-  // 使用年複利計算（亦可改為月複利）
   return pv * Math.pow(1 + annualRate, years);
 }
-
-// 月配息 = 本金 × 月報酬率
 function monthlyIncome(principal, annualRate) {
-  const monthlyRate = annualRate / 12;
-  return principal * monthlyRate;
+  return principal * (annualRate / 12);
 }
 
 /* ==============================================
-   畫面一：願景計算
+   畫面一：起始本金滑桿
+   ============================================== */
+function onPrincipalSlide() {
+  const val = parseInt(document.getElementById('principalSlider').value);
+  visionPrincipalWan = val;
+  document.getElementById('principalDisplay').innerHTML =
+    val.toLocaleString('zh-TW') + '<span>萬元</span>';
+  // 同步快捷鍵高亮
+  document.querySelectorAll('#principalBtns .quick-btn').forEach(btn => {
+    const bVal = parseInt(btn.dataset.val);
+    btn.classList.toggle('active', bVal === val);
+  });
+  calcVision();
+}
+
+function setPrincipal(wan) {
+  visionPrincipalWan = wan;
+  document.getElementById('principalSlider').value = wan;
+  document.getElementById('principalDisplay').innerHTML =
+    wan.toLocaleString('zh-TW') + '<span>萬元</span>';
+  document.querySelectorAll('#principalBtns .quick-btn').forEach(btn => {
+    btn.classList.toggle('active', parseInt(btn.dataset.val) === wan);
+  });
+  calcVision();
+}
+
+/* ==============================================
+   畫面一：年報酬率滑桿
+   月報酬率 = 年報酬率 ÷ 12（自動連動）
+   ============================================== */
+function onRateSlide() {
+  const val = parseFloat(document.getElementById('rateSlider').value);
+  visionAnnualRate = val / 100;  // 轉為小數
+  document.getElementById('rateDisplay').innerHTML =
+    val.toFixed(1) + '<span>%／年</span>';
+  // 月報酬率連動更新
+  const monthlyRatePct = (visionAnnualRate / 12 * 100).toFixed(2);
+  document.getElementById('monthlyRateDisplay').textContent = monthlyRatePct + '%';
+  calcVision();
+}
+
+/* ==============================================
+   畫面一：願景計算（核心）
    ============================================== */
 function calcVision() {
   const age = parseInt(document.getElementById('currentAge').value) || 35;
-  const pv  = PARAMS.visionPrincipal;
-  const r   = PARAMS.visionAnnualRate;
+  const pv  = visionPrincipalWan * 10000;  // 萬 → 元
+  const r   = visionAnnualRate;
 
-  // 計算三個年齡的資料
-  const cards = PARAMS.visionAges.map(targetAge => {
-    // 若目前年齡大於目標年齡，顯示「已達成」
-    const years = Math.max(0, targetAge - age);
-    const fv    = futureValue(pv, r, years);
-    const monthly = monthlyIncome(fv, r);
-    return { targetAge, years, fv, monthly };
-  });
+  // 更新表格說明文字
+  document.getElementById('tableCaption').textContent =
+    `${age} 歲 → 80 歲，共 ${80 - age + 1} 行`;
 
-  renderVisionCards(cards);
+  // 渲染完整年齡對照表
+  renderAgeTable(age, pv, r);
 }
 
-function renderVisionCards(cards) {
-  const prompts = [
-    '有了這筆月配息，你會拿去做什麼？',
-    '每個月這樣的收入，能讓你過上什麼樣的生活？',
-    '有了財務自由的底氣，你最想實現什麼夢想？',
-  ];
+/* 渲染完整年齡對照表（從目前年齡到 80 歲，每歲一行）*/
+function renderAgeTable(currentAge, pv, r) {
+  const tbody = document.getElementById('ageTableBody');
+  let rows = '';
+  const maxAge = 80;
 
-  const container = document.getElementById('visionCards');
-  container.innerHTML = cards.map((c, i) => {
-    const fvWan     = formatWanNum(c.fv);
-    const monthlyFmt = Math.round(c.monthly).toLocaleString('zh-TW');
-    const fvFmt     = Math.round(c.fv).toLocaleString('zh-TW');
-    const yearsText = c.years > 0 ? `${c.years} 年後` : '現在';
-    return `
-      <div class="vision-card">
-        <div class="vision-age">目標年齡</div>
-        <div class="vision-age-num">${c.targetAge}<span class="vision-age-unit">歲</span></div>
-        <div style="font-size:12px;color:rgba(255,255,255,0.4);">${yearsText}</div>
-        <div class="vision-divider"></div>
-        <div class="vision-label">複利後本金</div>
-        <div class="vision-amount">${fvWan} 萬元</div>
-        <div class="vision-monthly">
-          <span class="vision-monthly-num">$${monthlyFmt}</span>
-          <div class="vision-monthly-label">預估每月配息（被動收入）</div>
-        </div>
-        <div class="vision-prompt">💭 ${prompts[i]}</div>
-      </div>
+  // 月配息的生活說明對應（以月配息金額區間給說明）
+  function lifeNote(monthly) {
+    if (monthly < 5000)   return '茶水費';
+    if (monthly < 15000)  return '家用補貼';
+    if (monthly < 30000)  return '房租無憂';
+    if (monthly < 60000)  return '輕鬆生活';
+    if (monthly < 100000) return '財務自由初階';
+    if (monthly < 200000) return '財務自由進階';
+    return '富足人生 🏆';
+  }
+
+  for (let age = currentAge; age <= maxAge; age++) {
+    const years   = age - currentAge;
+    const fv      = futureValue(pv, r, years);
+    const monthly = monthlyIncome(fv, r);
+
+    // 本金格式：小於1億顯示萬，大於1億顯示億
+    let fvStr;
+    if (fv >= 100000000) {
+      fvStr = (fv / 100000000).toFixed(2) + ' 億';
+    } else {
+      fvStr = (fv / 10000).toFixed(1) + ' 萬';
+    }
+
+    const moStr  = '$' + Math.round(monthly).toLocaleString('zh-TW');
+    const note   = lifeNote(Math.round(monthly));
+
+    // 樣式：當前年齡 / 每10歲整數
+    let rowClass = '';
+    if (age === currentAge) rowClass = 'current-age';
+    else if (age % 10 === 0) rowClass = 'decade-age';
+
+    const yearText = years === 0 ? '起點' : `+${years} 年`;
+    const ageBadge = age === currentAge ? `${age} 歲 ★` : `${age} 歲`;
+
+    rows += `
+      <tr class="${rowClass}">
+        <td>${ageBadge}</td>
+        <td>${yearText}</td>
+        <td>${fvStr}</td>
+        <td class="col-monthly">${moStr}</td>
+        <td class="col-note">${note}</td>
+      </tr>
     `;
-  }).join('');
+  }
+  tbody.innerHTML = rows;
 }
 
 /* ==============================================
@@ -1269,13 +1408,11 @@ function setBudget(amount) {
   document.getElementById('budgetDisplay').innerHTML =
     amount.toLocaleString('zh-TW') + '<span>元／月</span>';
   document.querySelectorAll('.quick-btn').forEach(btn => {
-    btn.classList.toggle('active', parseInt(btn.textContent.replace(/[^0-9]/g,'')) === amount ||
-      btn.textContent.includes((amount/1000).toString()));
-  });
-  // 簡單判斷高亮
-  document.querySelectorAll('.quick-btn').forEach(btn => {
-    const num = parseInt(btn.textContent.replace(/[$,]/g, ''));
-    btn.classList.toggle('active', num === amount);
+    const num = parseInt(btn.textContent.replace(/[$,萬]/g, ''));
+    // 只對預算快捷鍵做高亮（排除本金快捷鍵）
+    if ([5000,10000,20000,30000].includes(parseInt(btn.textContent.replace(/[$,]/g,'')))) {
+      btn.classList.toggle('active', parseInt(btn.textContent.replace(/[$,]/g,'')) === amount);
+    }
   });
   calcSavings();
 }
