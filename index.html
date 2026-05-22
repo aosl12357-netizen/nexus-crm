@@ -104,14 +104,10 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Noto San
   display:flex; flex-direction:column; gap:14px;
   overflow:hidden;
 }
-/* 年齡對照表頁（screen1）：允許垂直滾動 */
+/* 年齡對照表頁（screen1）：本身不滾動，讓表格內部滾動 */
 #screen1 {
-  overflow-y:auto;
-  overflow-x:hidden;
+  overflow: hidden;
 }
-#screen1::-webkit-scrollbar { width:5px; }
-#screen1::-webkit-scrollbar-track { background:transparent; }
-#screen1::-webkit-scrollbar-thumb { background:rgba(0,169,157,.4); border-radius:3px; }
 /* 儲蓄險 & 投資藍圖：允許垂直滾動 */
 #screen2, #screen3 { overflow-y:auto; overflow-x:hidden; }
 #screen2::-webkit-scrollbar, #screen3::-webkit-scrollbar { width:4px; }
@@ -257,11 +253,22 @@ input[type="range"]::-webkit-slider-thumb:active { transform:scale(1.15); }
 }
 .table-header-bar span { font-size:12px; font-weight:400; color:var(--teal-light); }
 
-.age-table-wrap { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:var(--rxl); overflow:hidden; }
+.age-table-wrap {
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:var(--rxl);
+  overflow:hidden;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.age-table-wrap::-webkit-scrollbar { width:5px; }
+.age-table-wrap::-webkit-scrollbar-thumb { background:rgba(0,169,157,.4); border-radius:3px; }
 .age-table { width:100%; border-collapse:collapse; font-size:14px; }
 .age-table thead th {
   position:sticky; top:0; z-index:2;
-  background:rgba(13,46,77,.88); padding:11px 18px;
+  background:rgba(13,46,77,.95); padding:11px 18px;
   text-align:left; font-size:11px; font-weight:700;
   color:rgba(255,255,255,.45); letter-spacing:1.2px; text-transform:uppercase; white-space:nowrap;
 }
@@ -577,7 +584,9 @@ input[type="range"]::-webkit-slider-thumb:active { transform:scale(1.15); }
 <!-- ===== 底部導覽 ===== -->
 <div id="bottom-nav">
   <button class="nav-btn nav-prev" id="prevBtn" onclick="prev()" style="visibility:hidden">← 上一步</button>
-  <div class="nav-hint" id="navHint">← 在底部左右滑動切換頁面 →</div>
+  <div class="nav-hint" id="navHint">
+    ◁ 左右兩側邊緣滑動切換頁面 ▷
+  </div>
   <button class="nav-btn nav-next" id="nextBtn" onclick="next()">查看對照表 →</button>
 </div>
 
@@ -889,26 +898,55 @@ function updateUI() {
 }
 
 /* =====================================================
-   觸控滑動（偵測底部列 & 頂部列，不干擾表格滾動）
+   觸控滑動
+   做法：在畫面左右各放一條透明感應帶（寬60px，全高）
+   不與任何可滾動元素衝突，100% 有效
    ===================================================== */
 let tx = 0, ty = 0;
 
-function bindSwipe(el) {
-  el.addEventListener('touchstart', e => {
+function makeSwipeZone(side) {
+  const z = document.createElement('div');
+  z.style.cssText = `
+    position:fixed;
+    top:71px; bottom:88px;
+    ${side}:0;
+    width:64px;
+    z-index:200;
+    background:transparent;
+    touch-action:pan-x;
+  `;
+  document.getElementById('app').appendChild(z);
+
+  z.addEventListener('touchstart', e => {
     tx = e.touches[0].clientX;
     ty = e.touches[0].clientY;
+    e.stopPropagation();
   }, { passive: true });
-  el.addEventListener('touchend', e => {
+
+  z.addEventListener('touchend', e => {
     const dx = e.changedTouches[0].clientX - tx;
     const dy = e.changedTouches[0].clientY - ty;
-    if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+    if (Math.abs(dx) > 30 && Math.abs(dx) > Math.abs(dy)) {
       dx < 0 ? next() : prev();
     }
+    e.stopPropagation();
   }, { passive: true });
 }
 
-bindSwipe(document.getElementById('bottom-nav'));
-bindSwipe(document.getElementById('topbar'));
+makeSwipeZone('left');
+makeSwipeZone('right');
+
+// 底部列也綁（雙重保險）
+document.getElementById('bottom-nav').addEventListener('touchstart', e => {
+  tx = e.touches[0].clientX; ty = e.touches[0].clientY;
+}, { passive: true });
+document.getElementById('bottom-nav').addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - tx;
+  const dy = e.changedTouches[0].clientY - ty;
+  if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+    dx < 0 ? next() : prev();
+  }
+}, { passive: true });
 
 /* =====================================================
    初始化
