@@ -93,6 +93,7 @@
     -webkit-backdrop-filter: blur(16px);
     border-bottom: 1px solid rgba(0,169,157,0.25);
     z-index: 100;
+    touch-action: pan-x;
   }
 
   .brand {
@@ -724,17 +725,19 @@
   .bottom-nav {
     position: fixed;
     bottom: 0; left: 0; right: 0;
-    height: 80px;
+    height: 88px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0 40px;
-    background: rgba(13,46,77,0.9);
+    background: rgba(13,46,77,0.92);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border-top: 1px solid rgba(255,255,255,0.08);
     z-index: 100;
     gap: 20px;
+    /* 讓使用者知道這裡可以滑 */
+    touch-action: pan-x;
   }
 
   .nav-btn {
@@ -1718,42 +1721,35 @@ function goToScreen(idx) {
 }
 
 /* ==============================================
-   觸控滑動支援（解決與垂直滾動的衝突）
+   觸控滑動支援
+   偵測區域：底部導覽列（不會與表格垂直滾動衝突）
+   以及頂部導覽列
    ============================================== */
 let touchStartX = 0;
 let touchStartY = 0;
-let touchDirLocked = null; // 'h' = 水平, 'v' = 垂直, null = 未確定
 
-document.getElementById('app').addEventListener('touchstart', e => {
-  touchStartX    = e.touches[0].clientX;
-  touchStartY    = e.touches[0].clientY;
-  touchDirLocked = null;
-}, { passive: true });
+function attachSwipe(el) {
+  el.addEventListener('touchstart', e => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  }, { passive: true });
 
-document.getElementById('app').addEventListener('touchmove', e => {
-  if (touchDirLocked) return; // 方向已鎖定，不重複判斷
-  const dx = e.touches[0].clientX - touchStartX;
-  const dy = e.touches[0].clientY - touchStartY;
-  if (Math.abs(dx) > 8 || Math.abs(dy) > 8) {
-    touchDirLocked = Math.abs(dx) > Math.abs(dy) ? 'h' : 'v';
-  }
-  // 若是水平滑動，阻止頁面上下滾動
-  if (touchDirLocked === 'h') {
-    e.preventDefault();
-  }
-}, { passive: false }); // passive: false 才能 preventDefault
+  el.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      if (dx < 0) nextScreen();
+      else prevScreen();
+    }
+  }, { passive: true });
+}
 
-document.getElementById('app').addEventListener('touchend', e => {
-  if (touchDirLocked !== 'h') return; // 非水平滑動，忽略
-  const dx = e.changedTouches[0].clientX - touchStartX;
-  const dy = e.changedTouches[0].clientY - touchStartY;
-  // 水平滑動超過 55px 且確認是橫向才切換
-  if (Math.abs(dx) > 55) {
-    if (dx < 0) nextScreen();
-    else prevScreen();
-  }
-  touchDirLocked = null;
-}, { passive: true });
+// 底部導覽列 & 頂部導覽列都可以左右滑切換
+attachSwipe(document.querySelector('.bottom-nav'));
+attachSwipe(document.getElementById('topbar'));
+
+// 步驟指示器也綁上（畫面中間上方區域）
+attachSwipe(document.getElementById('screens-wrapper'));
 
 /* ==============================================
    初始化
