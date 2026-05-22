@@ -4,1758 +4,912 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>財務自由藍圖｜複利試算規劃工具</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700;900&family=Noto+Sans+TC:wght@300;400;500;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700;900&family=Noto+Sans+TC:wght@300;400;500;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-  /* ===========================
-     CSS 變數 - 富邦人壽品牌色系
-     =========================== */
-  :root {
-    --fubon-teal:       #00A99D;
-    --fubon-teal-dark:  #007F78;
-    --fubon-teal-light: #33C4BA;
-    --fubon-blue:       #005B8E;
-    --fubon-blue-light: #1A7FB5;
-    --fubon-sky:        #E0F5F4;
-    --fubon-sky-mid:    #B2E8E5;
-    --fubon-navy:       #0D2E4D;
-    --fubon-gold:       #F5A623;
-    --fubon-gold-light: #FFD080;
-    --fubon-white:      #FFFFFF;
-    --fubon-off-white:  #F7FAFA;
-    --fubon-gray:       #6B7280;
-    --fubon-gray-light: #E5EAEA;
-    --text-primary:     #0D2E4D;
-    --text-secondary:   #3D5A6E;
-    --radius-lg:        20px;
-    --radius-xl:        32px;
-    --shadow-card:      0 8px 32px rgba(0,90,80,0.12);
-    --shadow-hover:     0 16px 48px rgba(0,90,80,0.2);
-    --transition:       all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  }
+/* ===================== CSS 變數 ===================== */
+:root {
+  --teal:        #00A99D;
+  --teal-dark:   #007F78;
+  --teal-light:  #33C4BA;
+  --blue:        #005B8E;
+  --blue-light:  #1A7FB5;
+  --navy:        #0D2E4D;
+  --gold:        #F5A623;
+  --gold-light:  #FFD080;
+  --white:       #FFFFFF;
+  --rx:          20px;
+  --rxl:         28px;
+  --tr:          all 0.35s cubic-bezier(0.25,0.46,0.45,0.94);
+}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Noto Sans TC', sans-serif; -webkit-font-smoothing: antialiased; }
 
-  html, body {
-    width: 100%; height: 100%;
-    overflow: hidden;
-    font-family: 'Noto Sans TC', sans-serif;
-    background: var(--fubon-navy);
-    color: var(--text-primary);
-    -webkit-font-smoothing: antialiased;
-  }
+#app {
+  width: 100%; height: 100%;
+  position: relative; overflow: hidden;
+  background: linear-gradient(135deg, #0D2E4D 0%, #0A4A5C 50%, #005B4F 100%);
+}
+#app::before {
+  content:''; position:absolute; top:-200px; right:-200px;
+  width:600px; height:600px; border-radius:50%;
+  background:radial-gradient(circle,rgba(0,169,157,.15) 0%,transparent 70%);
+  pointer-events:none; z-index:0;
+}
 
-  /* ===========================
-     外層容器
-     =========================== */
-  #app {
-    width: 100%; height: 100%;
-    position: relative;
-    overflow: hidden;
-    background: linear-gradient(135deg, #0D2E4D 0%, #0A4A5C 50%, #005B4F 100%);
-  }
+/* ===================== 頂部導覽列 ===================== */
+#topbar {
+  position:absolute; top:0; left:0; right:0; height:68px;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 32px;
+  background:rgba(13,46,77,.88);
+  backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(0,169,157,.25);
+  z-index:100; touch-action:pan-x;
+}
+.brand { display:flex; align-items:center; gap:12px; }
+.brand-logo {
+  width:40px; height:40px;
+  background:linear-gradient(135deg,var(--teal),var(--blue-light));
+  border-radius:11px; display:flex; align-items:center; justify-content:center;
+  font-size:18px; box-shadow:0 4px 14px rgba(0,169,157,.4);
+}
+.brand-name { font-size:15px; font-weight:700; color:#fff; letter-spacing:1.5px; }
+.brand-sub  { font-size:11px; color:var(--teal-light); letter-spacing:.8px; }
 
-  /* 裝飾性背景幾何圖案 */
-  #app::before {
-    content: '';
-    position: absolute;
-    top: -200px; right: -200px;
-    width: 600px; height: 600px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(0,169,157,0.15) 0%, transparent 70%);
-    pointer-events: none;
-    z-index: 0;
-  }
-  #app::after {
-    content: '';
-    position: absolute;
-    bottom: -150px; left: -150px;
-    width: 500px; height: 500px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(0,91,142,0.2) 0%, transparent 70%);
-    pointer-events: none;
-    z-index: 0;
-  }
+/* 步驟指示器 */
+.steps { display:flex; align-items:center; gap:0; }
+.step-item { display:flex; align-items:center; gap:7px; cursor:pointer; }
+.step-circle {
+  width:32px; height:32px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; font-weight:700;
+  border:2px solid rgba(255,255,255,.2); color:rgba(255,255,255,.4);
+  transition:var(--tr);
+}
+.step-circle.active { background:linear-gradient(135deg,var(--teal),var(--blue-light)); border-color:transparent; color:#fff; box-shadow:0 3px 12px rgba(0,169,157,.5); }
+.step-circle.done   { background:rgba(0,169,157,.3); border-color:var(--teal); color:var(--teal-light); }
+.step-label { font-size:12px; color:rgba(255,255,255,.45); white-space:nowrap; transition:var(--tr); }
+.step-item.active .step-label { color:var(--teal-light); }
+.step-line  { width:36px; height:1px; background:rgba(255,255,255,.15); margin:0 3px; position:relative; overflow:hidden; }
+.step-line-fill { position:absolute; top:0; left:0; height:100%; width:0%; background:var(--teal); transition:width .6s ease; }
 
-  /* ===========================
-     頂部導覽列
-     =========================== */
-  #topbar {
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 72px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 40px;
-    background: rgba(13,46,77,0.85);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-bottom: 1px solid rgba(0,169,157,0.25);
-    z-index: 100;
-    touch-action: pan-x;
-  }
+/* 進度條 */
+#progressBar {
+  position:absolute; top:68px; left:0; right:0; height:3px;
+  background:rgba(255,255,255,.06); z-index:99;
+}
+#progressFill {
+  height:100%;
+  background:linear-gradient(90deg,var(--teal),var(--blue-light));
+  transition:width .6s cubic-bezier(.77,0,.175,1);
+}
 
-  .brand {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-  .brand-logo {
-    width: 44px; height: 44px;
-    background: linear-gradient(135deg, var(--fubon-teal), var(--fubon-blue-light));
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    color: white;
-    font-weight: 900;
-    font-family: 'DM Serif Display', serif;
-    letter-spacing: -1px;
-    box-shadow: 0 4px 16px rgba(0,169,157,0.4);
-  }
-  .brand-text {
-    display: flex;
-    flex-direction: column;
-  }
-  .brand-name {
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--fubon-white);
-    letter-spacing: 2px;
-  }
-  .brand-sub {
-    font-size: 11px;
-    color: var(--fubon-teal-light);
-    letter-spacing: 1px;
-  }
+/* ===================== 畫面容器 ===================== */
+#screens-wrapper {
+  position:absolute; top:71px; left:0;
+  width:400%;   /* 4 個畫面 */
+  height:calc(100% - 71px - 88px); /* 扣掉頂部+底部 */
+  display:flex;
+  transition:transform .6s cubic-bezier(.77,0,.175,1);
+  will-change:transform; z-index:1;
+}
 
-  /* 步驟指示器 */
-  .step-indicator {
-    display: flex;
-    align-items: center;
-    gap: 0;
-  }
-  .step-dot {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-  }
-  .step-circle {
-    width: 36px; height: 36px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    font-weight: 700;
-    border: 2px solid rgba(255,255,255,0.2);
-    color: rgba(255,255,255,0.4);
-    transition: var(--transition);
-    position: relative;
-  }
-  .step-circle.active {
-    background: linear-gradient(135deg, var(--fubon-teal), var(--fubon-blue-light));
-    border-color: transparent;
-    color: white;
-    box-shadow: 0 4px 16px rgba(0,169,157,0.5);
-  }
-  .step-circle.done {
-    background: rgba(0,169,157,0.3);
-    border-color: var(--fubon-teal);
-    color: var(--fubon-teal-light);
-  }
-  .step-label {
-    font-size: 12px;
-    color: rgba(255,255,255,0.5);
-    font-weight: 500;
-    letter-spacing: 0.5px;
-    white-space: nowrap;
-    transition: var(--transition);
-  }
-  .step-dot.active .step-label { color: var(--fubon-teal-light); }
-  .step-line {
-    width: 48px;
-    height: 1px;
-    background: rgba(255,255,255,0.15);
-    margin: 0 4px;
-    position: relative;
-    overflow: hidden;
-  }
-  .step-line-fill {
-    position: absolute;
-    top: 0; left: 0; height: 100%;
-    width: 0%;
-    background: var(--fubon-teal);
-    transition: width 0.6s ease;
-  }
+/* 每個畫面：固定寬度，不滾動（除了表格那頁） */
+.screen {
+  width:25%;
+  height:100%;
+  padding:22px 36px 16px;
+  display:flex; flex-direction:column; gap:14px;
+  overflow:hidden;   /* 預設不滾動 */
+}
+/* 只有 Step1b（年齡表格）那頁允許垂直滾動 */
+#screen1b { overflow-y:auto; overflow-x:hidden; }
+#screen1b::-webkit-scrollbar { width:4px; }
+#screen1b::-webkit-scrollbar-thumb { background:rgba(0,169,157,.35); border-radius:2px; }
+/* 其他畫面也允許垂直滾動（內容較多時） */
+#screen2, #screen3 { overflow-y:auto; overflow-x:hidden; }
+#screen2::-webkit-scrollbar, #screen3::-webkit-scrollbar { width:4px; }
+#screen2::-webkit-scrollbar-thumb, #screen3::-webkit-scrollbar-thumb { background:rgba(0,169,157,.35); border-radius:2px; }
 
-  /* ===========================
-     畫面容器 - 滑動切換
-     =========================== */
-  #screens-wrapper {
-    position: absolute;
-    top: 72px; left: 0;
-    width: 300%;  /* 三個畫面並排 */
-    height: calc(100% - 72px);
-    display: flex;
-    transition: transform 0.65s cubic-bezier(0.77, 0, 0.175, 1);
-    will-change: transform;
-    z-index: 1;
-  }
+/* ===================== 共用元件 ===================== */
+.card {
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:var(--rxl); padding:22px 26px;
+  transition:var(--tr);
+}
+.card:hover { background:rgba(255,255,255,.09); border-color:rgba(0,169,157,.3); }
+.card-teal { background:linear-gradient(135deg,rgba(0,169,157,.2),rgba(0,91,142,.15)); border-color:rgba(0,169,157,.35); }
+.card-gold { background:linear-gradient(135deg,rgba(245,166,35,.15),rgba(255,208,128,.08)); border-color:rgba(245,166,35,.3); }
 
-  .screen {
-    width: 33.333%;
-    height: 100%;
-    padding: 20px 36px 90px;   /* 底部留空給底部導覽列 */
-    overflow-y: auto;
-    overflow-x: hidden;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-  /* 畫面一：允許正常滾動，表格不限高度，全部行都顯示 */
-  #screen1 {
-    overflow-y: auto;
-  }
-  .screen::-webkit-scrollbar { width: 4px; }
-  .screen::-webkit-scrollbar-track { background: transparent; }
-  .screen::-webkit-scrollbar-thumb { background: rgba(0,169,157,0.3); border-radius: 2px; }
+.screen-tag {
+  display:inline-flex; align-items:center;
+  background:linear-gradient(135deg,var(--teal),var(--blue-light));
+  color:#fff; padding:5px 14px; border-radius:100px;
+  font-size:11px; font-weight:700; letter-spacing:1px; margin-bottom:8px;
+}
+.screen-title {
+  font-family:'Noto Serif TC',serif; font-size:24px; font-weight:700;
+  color:#fff; line-height:1.3;
+}
+.screen-title span { color:var(--teal-light); }
+.screen-desc { font-size:13px; color:rgba(255,255,255,.5); line-height:1.7; margin-top:4px; }
 
-  /* ===========================
-     通用卡片樣式
-     =========================== */
-  .card {
-    background: rgba(255,255,255,0.06);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: var(--radius-xl);
-    padding: 28px 32px;
-    transition: var(--transition);
-  }
-  .card:hover {
-    background: rgba(255,255,255,0.09);
-    border-color: rgba(0,169,157,0.3);
-  }
-  .card-teal {
-    background: linear-gradient(135deg, rgba(0,169,157,0.2), rgba(0,91,142,0.15));
-    border-color: rgba(0,169,157,0.35);
-  }
-  .card-gold {
-    background: linear-gradient(135deg, rgba(245,166,35,0.15), rgba(255,208,128,0.08));
-    border-color: rgba(245,166,35,0.3);
-  }
-  .card-navy {
-    background: rgba(13,46,77,0.6);
-    border-color: rgba(255,255,255,0.08);
-  }
+.input-label { font-size:12px; font-weight:700; color:rgba(255,255,255,.6); letter-spacing:.8px; text-transform:uppercase; margin-bottom:8px; }
+.input-field {
+  background:rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.12);
+  border-radius:13px; padding:14px 18px;
+  font-size:24px; font-weight:700; color:#fff;
+  font-family:'Noto Sans TC',sans-serif; outline:none; width:100%;
+  -webkit-appearance:none; transition:var(--tr);
+}
+.input-field:focus { border-color:var(--teal); background:rgba(0,169,157,.1); box-shadow:0 0 0 3px rgba(0,169,157,.15); }
+.input-field::placeholder { color:rgba(255,255,255,.22); font-size:16px; font-weight:400; }
 
-  /* ===========================
-     畫面標題區
-     =========================== */
-  .screen-header {
-    display: flex;
-    align-items: flex-start;
-    gap: 16px;
-  }
-  .screen-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: linear-gradient(135deg, var(--fubon-teal), var(--fubon-blue-light));
-    color: white;
-    padding: 6px 16px;
-    border-radius: 100px;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    white-space: nowrap;
-  }
-  .screen-title {
-    font-family: 'Noto Serif TC', serif;
-    font-size: 26px;
-    font-weight: 700;
-    color: var(--fubon-white);
-    line-height: 1.3;
-    text-shadow: 0 2px 12px rgba(0,0,0,0.3);
-  }
-  .screen-title span { color: var(--fubon-teal-light); }
-  .screen-desc {
-    font-size: 14px;
-    color: rgba(255,255,255,0.55);
-    line-height: 1.7;
-    margin-top: 4px;
-  }
+/* 快捷鍵 */
+.quick-btns { display:flex; gap:8px; flex-wrap:wrap; }
+.quick-btn {
+  flex:1; min-width:60px; padding:10px 8px;
+  background:rgba(255,255,255,.06); border:1.5px solid rgba(255,255,255,.14);
+  border-radius:11px; color:rgba(255,255,255,.65);
+  font-size:13px; font-weight:600; font-family:'Noto Sans TC',sans-serif;
+  cursor:pointer; transition:var(--tr); text-align:center;
+}
+.quick-btn:hover,.quick-btn.active {
+  background:linear-gradient(135deg,var(--teal),var(--blue-light));
+  border-color:transparent; color:#fff;
+  box-shadow:0 3px 12px rgba(0,169,157,.4); transform:translateY(-1px);
+}
 
-  /* ===========================
-     輸入控制元件
-     =========================== */
-  .input-group {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  .input-label {
-    font-size: 13px;
-    font-weight: 600;
-    color: rgba(255,255,255,0.7);
-    letter-spacing: 0.8px;
-    text-transform: uppercase;
-  }
-  .input-field {
-    background: rgba(255,255,255,0.08);
-    border: 2px solid rgba(255,255,255,0.12);
-    border-radius: 14px;
-    padding: 16px 20px;
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--fubon-white);
-    font-family: 'Noto Sans TC', sans-serif;
-    outline: none;
-    transition: var(--transition);
-    width: 100%;
-    -webkit-appearance: none;
-  }
-  .input-field:focus {
-    border-color: var(--fubon-teal);
-    background: rgba(0,169,157,0.1);
-    box-shadow: 0 0 0 4px rgba(0,169,157,0.15);
-  }
-  .input-field::placeholder { color: rgba(255,255,255,0.25); font-weight: 400; font-size: 16px; }
+/* 滑桿 */
+input[type="range"] {
+  -webkit-appearance:none; width:100%; height:28px;
+  background:transparent; outline:none; cursor:pointer; padding:0; margin:0;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  height:7px; border-radius:4px; background:rgba(255,255,255,.12);
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance:none; width:24px; height:24px; border-radius:50%;
+  background:linear-gradient(135deg,var(--teal),var(--blue-light));
+  box-shadow:0 3px 10px rgba(0,169,157,.55);
+  cursor:pointer; margin-top:-8px; transition:transform .2s;
+}
+input[type="range"]::-webkit-slider-thumb:active { transform:scale(1.15); }
 
-  /* 快捷按鈕 */
-  .quick-btns {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-  .quick-btn {
-    flex: 1;
-    min-width: 80px;
-    padding: 12px 10px;
-    background: rgba(255,255,255,0.06);
-    border: 1.5px solid rgba(255,255,255,0.15);
-    border-radius: 12px;
-    color: rgba(255,255,255,0.7);
-    font-size: 15px;
-    font-weight: 600;
-    font-family: 'Noto Sans TC', sans-serif;
-    cursor: pointer;
-    transition: var(--transition);
-    text-align: center;
-  }
-  .quick-btn:hover, .quick-btn.active {
-    background: linear-gradient(135deg, var(--fubon-teal), var(--fubon-blue-light));
-    border-color: transparent;
-    color: white;
-    box-shadow: 0 4px 16px rgba(0,169,157,0.4);
-    transform: translateY(-2px);
-  }
+/* 期別按鈕 */
+.period-btns { display:flex; gap:12px; }
+.period-btn {
+  flex:1; padding:16px 8px;
+  background:rgba(255,255,255,.06); border:2px solid rgba(255,255,255,.14);
+  border-radius:14px; color:rgba(255,255,255,.6);
+  font-size:17px; font-weight:700; font-family:'Noto Sans TC',sans-serif;
+  cursor:pointer; transition:var(--tr); text-align:center;
+  display:flex; flex-direction:column; gap:3px; align-items:center;
+}
+.period-btn small { font-size:11px; font-weight:400; opacity:.7; }
+.period-btn.active,.period-btn:hover {
+  background:linear-gradient(135deg,rgba(0,169,157,.3),rgba(0,91,142,.3));
+  border-color:var(--teal); color:var(--teal-light);
+  box-shadow:0 5px 18px rgba(0,169,157,.22); transform:translateY(-2px);
+}
 
-  /* 期別大按鈕 */
-  .period-btns {
-    display: flex;
-    gap: 14px;
-  }
-  .period-btn {
-    flex: 1;
-    padding: 18px 10px;
-    background: rgba(255,255,255,0.06);
-    border: 2px solid rgba(255,255,255,0.15);
-    border-radius: 16px;
-    color: rgba(255,255,255,0.6);
-    font-size: 18px;
-    font-weight: 700;
-    font-family: 'Noto Sans TC', sans-serif;
-    cursor: pointer;
-    transition: var(--transition);
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    align-items: center;
-  }
-  .period-btn small {
-    font-size: 11px;
-    font-weight: 400;
-    opacity: 0.7;
-    letter-spacing: 0.5px;
-  }
-  .period-btn:hover, .period-btn.active {
-    background: linear-gradient(135deg, rgba(0,169,157,0.3), rgba(0,91,142,0.3));
-    border-color: var(--fubon-teal);
-    color: var(--fubon-teal-light);
-    box-shadow: 0 6px 20px rgba(0,169,157,0.25);
-    transform: translateY(-3px);
-  }
+/* ===================== 畫面 1a：條件輸入 ===================== */
+.ctrl-grid { display:grid; grid-template-columns:.85fr 1.1fr 1.1fr; gap:12px; }
+.ctrl-card {
+  background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1);
+  border-radius:var(--rxl); padding:16px 16px; display:flex; flex-direction:column; gap:8px;
+}
+.ctrl-card.card-teal { background:linear-gradient(135deg,rgba(0,169,157,.2),rgba(0,91,142,.15)); border-color:rgba(0,169,157,.35); }
+.ctrl-label { font-size:11px; font-weight:700; color:rgba(255,255,255,.55); letter-spacing:.8px; text-transform:uppercase; }
+.ctrl-big { font-size:28px; font-weight:800; color:var(--teal-light); font-variant-numeric:tabular-nums; }
+.ctrl-big span { font-size:13px; font-weight:400; color:rgba(255,255,255,.4); margin-left:4px; }
 
-  /* 滑動桿 */
-  .slider-wrap {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  .slider-value-display {
-    font-size: 28px;
-    font-weight: 800;
-    color: var(--fubon-teal-light);
-    text-align: center;
-    font-variant-numeric: tabular-nums;
-  }
-  .slider-value-display span { font-size: 15px; font-weight: 400; color: rgba(255,255,255,0.5); margin-left: 6px; }
-  input[type="range"] {
-    -webkit-appearance: none;
-    width: 100%;
-    height: 28px;          /* 與 thumb 同高，避免垂直偏移 */
-    background: transparent;
-    outline: none;
-    cursor: pointer;
-    padding: 0;
-    margin: 0;
-  }
-  input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 26px; height: 26px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--fubon-teal), var(--fubon-blue-light));
-    box-shadow: 0 3px 10px rgba(0,169,157,0.55);
-    cursor: pointer;
-    transition: transform 0.2s;
-    margin-top: -9px;      /* (26 - 8) / 2 = 9，讓 thumb 垂直置中於 track */
-  }
-  input[type="range"]::-webkit-slider-thumb:active { transform: scale(1.18); }
-  input[type="range"]::-webkit-slider-runnable-track {
-    height: 8px;
-    border-radius: 4px;
-    background: rgba(255,255,255,0.12);
-  }
+/* 本金輸入框 */
+.principal-row {
+  display:flex; align-items:center; gap:8px;
+  background:rgba(255,255,255,.07); border:2px solid rgba(0,169,157,.35);
+  border-radius:12px; padding:6px 14px;
+}
+.principal-row:focus-within { border-color:var(--teal); box-shadow:0 0 0 3px rgba(0,169,157,.15); }
+#principalInput {
+  background:transparent; border:none; outline:none;
+  font-size:26px; font-weight:800; color:var(--teal-light);
+  font-family:'Noto Sans TC',sans-serif; font-variant-numeric:tabular-nums;
+  width:100%; min-width:0; -webkit-appearance:none;
+}
+#principalInput::-webkit-inner-spin-button,
+#principalInput::-webkit-outer-spin-button { -webkit-appearance:none; }
+.principal-unit { font-size:13px; color:rgba(255,255,255,.4); white-space:nowrap; flex-shrink:0; }
 
-  /* ===========================
-     畫面一 - 願景卡片
-     =========================== */
-  .vision-cards {
-    display: flex;
-    gap: 16px;
-  }
-  .vision-card {
-    flex: 1;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: var(--radius-xl);
-    padding: 24px 20px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    transition: var(--transition);
-    cursor: default;
-    position: relative;
-    overflow: hidden;
-  }
-  .vision-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--fubon-teal), var(--fubon-blue-light));
-    border-radius: 3px 3px 0 0;
-    opacity: 0;
-    transition: opacity 0.4s;
-  }
-  .vision-card:hover::before { opacity: 1; }
-  .vision-card:hover {
-    background: rgba(255,255,255,0.09);
-    border-color: rgba(0,169,157,0.3);
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-hover);
-  }
-  .vision-age {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--fubon-teal-light);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
-  .vision-age-num {
-    font-family: 'DM Serif Display', serif;
-    font-size: 52px;
-    color: var(--fubon-white);
-    line-height: 1;
-    text-shadow: 0 4px 16px rgba(0,169,157,0.3);
-  }
-  .vision-age-unit { font-size: 16px; font-weight: 400; color: rgba(255,255,255,0.5); }
-  .vision-divider {
-    width: 40px;
-    height: 1px;
-    background: rgba(0,169,157,0.3);
-    margin: 0 auto;
-  }
-  .vision-label {
-    font-size: 11px;
-    color: rgba(255,255,255,0.45);
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
-  .vision-amount {
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--fubon-white);
-    font-variant-numeric: tabular-nums;
-  }
-  .vision-monthly {
-    background: linear-gradient(135deg, rgba(0,169,157,0.2), rgba(0,91,142,0.2));
-    border: 1px solid rgba(0,169,157,0.25);
-    border-radius: 12px;
-    padding: 12px 10px;
-  }
-  .vision-monthly-num {
-    font-size: 22px;
-    font-weight: 800;
-    color: var(--fubon-teal-light);
-    display: block;
-    font-variant-numeric: tabular-nums;
-  }
-  .vision-monthly-label { font-size: 11px; color: rgba(255,255,255,0.5); }
-  .vision-prompt {
-    font-size: 11.5px;
-    color: var(--fubon-gold-light);
-    line-height: 1.6;
-    font-style: italic;
-    padding: 8px 6px;
-    border-top: 1px solid rgba(245,166,35,0.15);
-  }
+/* 月報酬率徽章 */
+.monthly-badge {
+  background:rgba(0,169,157,.1); border:1px solid rgba(0,169,157,.2);
+  border-radius:8px; padding:5px 10px; font-size:12px; color:rgba(255,255,255,.5); text-align:center;
+}
+.monthly-badge strong { color:var(--teal-light); }
 
-  /* 假設條件說明 */
-  .assumption-bar {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    background: rgba(0,169,157,0.08);
-    border: 1px solid rgba(0,169,157,0.15);
-    border-radius: 14px;
-    padding: 14px 20px;
-  }
-  .assumption-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    color: rgba(255,255,255,0.6);
-  }
-  .assumption-item strong { color: var(--fubon-teal-light); font-size: 14px; }
-  .assumption-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.2); }
+/* Step1a：下方提示卡 */
+.goto-table-hint {
+  background:linear-gradient(135deg,rgba(0,169,157,.15),rgba(0,91,142,.12));
+  border:1.5px solid rgba(0,169,157,.3); border-radius:var(--rxl);
+  padding:18px 24px; display:flex; align-items:center; gap:14px;
+  flex:1;
+}
+.hint-icon { font-size:32px; flex-shrink:0; }
+.hint-text { font-size:14px; color:rgba(255,255,255,.7); line-height:1.8; }
+.hint-text strong { color:var(--teal-light); font-size:15px; }
 
-  /* ===========================
-     畫面二 - 儲蓄險
-     =========================== */
-  .gold-quote {
-    background: linear-gradient(135deg, rgba(245,166,35,0.18), rgba(255,208,128,0.08));
-    border: 1.5px solid rgba(245,166,35,0.35);
-    border-radius: var(--radius-xl);
-    padding: 24px 30px;
-    display: flex;
-    align-items: center;
-    gap: 18px;
-  }
-  .quote-icon {
-    font-size: 32px;
-    line-height: 1;
-    opacity: 0.9;
-    flex-shrink: 0;
-  }
-  .quote-text {
-    font-family: 'Noto Serif TC', serif;
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--fubon-gold-light);
-    line-height: 1.5;
-    letter-spacing: 0.5px;
-  }
+/* ===================== 畫面 1b：年齡對照表 ===================== */
+.table-header-bar {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:14px 20px;
+  background:linear-gradient(90deg,rgba(0,169,157,.2),rgba(0,91,142,.12));
+  border:1px solid rgba(0,169,157,.2); border-radius:var(--rxl);
+  font-size:14px; font-weight:700; color:rgba(255,255,255,.85);
+  flex-shrink:0;
+}
+.table-header-bar span { font-size:12px; font-weight:400; color:var(--teal-light); }
 
-  .result-highlight {
-    background: linear-gradient(135deg, rgba(0,169,157,0.15), rgba(0,91,142,0.15));
-    border: 1.5px solid rgba(0,169,157,0.3);
-    border-radius: var(--radius-xl);
-    padding: 30px 36px;
-    text-align: center;
-  }
-  .result-label {
-    font-size: 14px;
-    color: rgba(255,255,255,0.55);
-    letter-spacing: 1px;
-    margin-bottom: 10px;
-  }
-  .result-main {
-    font-family: 'DM Serif Display', serif;
-    font-size: 52px;
-    color: var(--fubon-teal-light);
-    line-height: 1.1;
-    text-shadow: 0 4px 24px rgba(0,169,157,0.4);
-    font-variant-numeric: tabular-nums;
-  }
-  .result-main span { font-size: 20px; font-family: 'Noto Sans TC', sans-serif; font-weight: 400; opacity: 0.6; margin-left: 6px; }
-  .result-sub {
-    font-size: 13px;
-    color: rgba(255,255,255,0.45);
-    margin-top: 10px;
-    line-height: 1.8;
-  }
-  .result-sub strong { color: var(--fubon-gold-light); }
+.age-table-wrap { flex:1; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:var(--rxl); overflow:hidden; display:flex; flex-direction:column; }
+.age-table { width:100%; border-collapse:collapse; font-size:14px; }
+.age-table thead th {
+  position:sticky; top:0; z-index:2;
+  background:rgba(13,46,77,.88); padding:11px 18px;
+  text-align:left; font-size:11px; font-weight:700;
+  color:rgba(255,255,255,.45); letter-spacing:1.2px; text-transform:uppercase; white-space:nowrap;
+}
+.age-table td { padding:11px 18px; border-bottom:1px solid rgba(255,255,255,.04); color:rgba(255,255,255,.72); font-variant-numeric:tabular-nums; white-space:nowrap; }
+.age-table tbody tr:hover td { background:rgba(0,169,157,.12); color:#fff; }
+.age-table tbody tr.row-current td { background:rgba(0,169,157,.22); color:#fff; border-bottom:1px solid rgba(0,169,157,.3); }
+.age-table tbody tr.row-current td:first-child { font-weight:900; color:var(--teal-light); font-size:15px; }
+.age-table td.col-monthly { color:var(--gold-light); font-weight:800; font-size:15px; }
+.age-table tbody tr.row-decade td { background:rgba(0,91,142,.2); border-top:1px solid rgba(0,169,157,.2); }
+.age-table tbody tr.row-decade td:first-child { font-weight:800; color:#4DD9D2; }
+.age-table tbody tr.row-decade td.col-monthly { color:#FFE0A0; font-size:16px; }
+.age-table td.col-note { font-size:12px; color:rgba(255,255,255,.35); font-style:italic; }
 
-  /* 試算明細 */
-  .calc-breakdown {
-    display: flex;
-    gap: 12px;
-  }
-  .breakdown-item {
-    flex: 1;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 16px;
-    padding: 18px 14px;
-    text-align: center;
-  }
-  .breakdown-num {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--fubon-white);
-    display: block;
-    font-variant-numeric: tabular-nums;
-  }
-  .breakdown-desc { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 6px; letter-spacing: 0.5px; }
+/* ===================== 畫面 2：儲蓄險 ===================== */
+.gold-quote {
+  background:linear-gradient(135deg,rgba(245,166,35,.18),rgba(255,208,128,.06));
+  border:1.5px solid rgba(245,166,35,.35); border-radius:var(--rxl);
+  padding:18px 24px; display:flex; align-items:center; gap:14px; flex-shrink:0;
+}
+.quote-text { font-family:'Noto Serif TC',serif; font-size:17px; font-weight:700; color:var(--gold-light); line-height:1.5; }
 
-  /* ===========================
-     畫面三 - 投資型保單
-     =========================== */
-  .blueprint-intro {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    background: rgba(13,46,77,0.6);
-    border: 1px solid rgba(0,169,157,0.2);
-    border-radius: var(--radius-xl);
-    padding: 22px 28px;
-  }
-  .blueprint-intro-icon { font-size: 36px; flex-shrink: 0; }
-  .blueprint-intro-text { font-size: 14px; color: rgba(255,255,255,0.65); line-height: 1.8; }
-  .blueprint-intro-text strong { color: var(--fubon-teal-light); font-size: 16px; }
+.two-col { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
 
-  .chart-container {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: var(--radius-xl);
-    padding: 24px;
-    position: relative;
-    min-height: 280px;
-  }
-  .chart-title {
-    font-size: 14px;
-    font-weight: 700;
-    color: rgba(255,255,255,0.7);
-    margin-bottom: 16px;
-    letter-spacing: 0.5px;
-  }
+.slider-val { font-size:26px; font-weight:800; color:var(--teal-light); text-align:center; font-variant-numeric:tabular-nums; }
+.slider-val span { font-size:13px; font-weight:400; color:rgba(255,255,255,.45); margin-left:4px; }
 
-  .milestone-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
-  }
-  .milestone-card {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 18px;
-    padding: 20px 16px;
-    text-align: center;
-    transition: var(--transition);
-  }
-  .milestone-card:hover {
-    background: rgba(0,169,157,0.1);
-    border-color: rgba(0,169,157,0.3);
-    transform: translateY(-3px);
-  }
-  .milestone-year { font-size: 12px; color: var(--fubon-teal-light); font-weight: 700; letter-spacing: 1.5px; margin-bottom: 8px; }
-  .milestone-principal {
-    font-size: 18px; font-weight: 800; color: var(--fubon-white);
-    font-variant-numeric: tabular-nums;
-  }
-  .milestone-monthly {
-    font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 6px;
-    font-variant-numeric: tabular-nums;
-  }
-  .milestone-monthly span { color: var(--fubon-gold-light); font-weight: 700; }
+.result-box {
+  background:linear-gradient(135deg,rgba(0,169,157,.15),rgba(0,91,142,.15));
+  border:1.5px solid rgba(0,169,157,.3); border-radius:var(--rxl);
+  padding:22px 28px; text-align:center; flex-shrink:0;
+}
+.result-label { font-size:13px; color:rgba(255,255,255,.5); letter-spacing:1px; margin-bottom:8px; }
+.result-num { font-family:'DM Serif Display',serif; font-size:48px; color:var(--teal-light); line-height:1.1; font-variant-numeric:tabular-nums; }
+.result-num span { font-size:18px; font-family:'Noto Sans TC',sans-serif; font-weight:400; opacity:.55; margin-left:4px; }
+.result-sub { font-size:13px; color:rgba(255,255,255,.4); margin-top:8px; line-height:1.8; }
+.result-sub strong { color:var(--gold-light); }
 
-  .closing-banner {
-    background: linear-gradient(135deg, var(--fubon-teal-dark), var(--fubon-blue));
-    border-radius: var(--radius-xl);
-    padding: 28px 32px;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    position: relative;
-    overflow: hidden;
-  }
-  .closing-banner::before {
-    content: '∞';
-    position: absolute;
-    right: 24px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 80px;
-    color: rgba(255,255,255,0.06);
-    font-family: 'DM Serif Display', serif;
-  }
-  .closing-text h3 {
-    font-family: 'Noto Serif TC', serif;
-    font-size: 18px;
-    font-weight: 700;
-    color: white;
-    margin-bottom: 8px;
-    line-height: 1.4;
-  }
-  .closing-text p { font-size: 13px; color: rgba(255,255,255,0.7); line-height: 1.8; }
-  .closing-icon { font-size: 36px; flex-shrink: 0; }
+.breakdown { display:flex; gap:10px; flex-shrink:0; }
+.bd-item { flex:1; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.07); border-radius:14px; padding:14px 10px; text-align:center; }
+.bd-num { font-size:18px; font-weight:700; color:#fff; display:block; font-variant-numeric:tabular-nums; }
+.bd-desc { font-size:11px; color:rgba(255,255,255,.38); margin-top:5px; letter-spacing:.5px; }
 
-  /* ===========================
-     底部導航按鈕
-     =========================== */
-  .bottom-nav {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    height: 88px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 40px;
-    background: rgba(13,46,77,0.92);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-top: 1px solid rgba(255,255,255,0.08);
-    z-index: 100;
-    gap: 20px;
-    /* 讓使用者知道這裡可以滑 */
-    touch-action: pan-x;
-  }
+/* ===================== 畫面 3：投資型保單 ===================== */
+.blueprint-intro {
+  background:rgba(13,46,77,.6); border:1px solid rgba(0,169,157,.2);
+  border-radius:var(--rxl); padding:18px 22px;
+  display:flex; align-items:center; gap:16px; flex-shrink:0;
+}
+.blueprint-intro-text { font-size:13px; color:rgba(255,255,255,.65); line-height:1.8; }
+.blueprint-intro-text strong { color:var(--teal-light); font-size:15px; }
 
-  .nav-btn {
-    padding: 14px 32px;
-    border-radius: 100px;
-    font-size: 15px;
-    font-weight: 700;
-    font-family: 'Noto Sans TC', sans-serif;
-    cursor: pointer;
-    transition: var(--transition);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    letter-spacing: 0.5px;
-  }
-  .nav-btn-prev {
-    background: transparent;
-    border: 2px solid rgba(255,255,255,0.15);
-    color: rgba(255,255,255,0.5);
-  }
-  .nav-btn-prev:hover {
-    border-color: rgba(255,255,255,0.4);
-    color: rgba(255,255,255,0.9);
-  }
-  .nav-btn-next {
-    background: linear-gradient(135deg, var(--fubon-teal), var(--fubon-blue-light));
-    border: none;
-    color: white;
-    box-shadow: 0 6px 24px rgba(0,169,157,0.45);
-    min-width: 180px;
-    justify-content: center;
-  }
-  .nav-btn-next:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 32px rgba(0,169,157,0.6);
-  }
-  .nav-btn-next:active { transform: translateY(0); }
+.chart-wrap {
+  background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);
+  border-radius:var(--rxl); padding:20px;
+  flex-shrink:0;
+}
+.chart-title { font-size:13px; font-weight:700; color:rgba(255,255,255,.65); margin-bottom:12px; }
 
-  .nav-hint {
-    font-size: 12px;
-    color: rgba(255,255,255,0.3);
-    text-align: center;
-    flex: 1;
-    letter-spacing: 0.5px;
-  }
+.milestone-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; flex-shrink:0; }
+.ms-card {
+  background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.08);
+  border-radius:16px; padding:16px 12px; text-align:center; transition:var(--tr);
+}
+.ms-card:hover { background:rgba(0,169,157,.1); border-color:rgba(0,169,157,.3); transform:translateY(-2px); }
+.ms-year { font-size:11px; color:var(--teal-light); font-weight:700; letter-spacing:1.5px; margin-bottom:6px; }
+.ms-principal { font-size:16px; font-weight:800; color:#fff; font-variant-numeric:tabular-nums; }
+.ms-monthly { font-size:12px; color:rgba(255,255,255,.45); margin-top:5px; font-variant-numeric:tabular-nums; }
+.ms-monthly span { color:var(--gold-light); font-weight:700; }
 
-  /* ===========================
-     入場動畫
-     =========================== */
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  .animate-in {
-    animation: fadeUp 0.5s ease forwards;
-  }
-  .delay-1 { animation-delay: 0.1s; opacity: 0; }
-  .delay-2 { animation-delay: 0.2s; opacity: 0; }
-  .delay-3 { animation-delay: 0.3s; opacity: 0; }
-  .delay-4 { animation-delay: 0.4s; opacity: 0; }
-  .delay-5 { animation-delay: 0.5s; opacity: 0; }
+.closing {
+  background:linear-gradient(135deg,var(--teal-dark),var(--blue));
+  border-radius:var(--rxl); padding:22px 28px;
+  display:flex; align-items:center; gap:16px; flex-shrink:0;
+  position:relative; overflow:hidden;
+}
+.closing::before { content:'∞'; position:absolute; right:20px; top:50%; transform:translateY(-50%); font-size:72px; color:rgba(255,255,255,.06); font-family:'DM Serif Display',serif; }
+.closing-text h3 { font-family:'Noto Serif TC',serif; font-size:16px; font-weight:700; color:#fff; margin-bottom:6px; line-height:1.5; }
+.closing-text p { font-size:12px; color:rgba(255,255,255,.65); line-height:1.8; }
 
-  /* ===========================
-     響應式調整
-     =========================== */
-  @media (max-height: 768px) {
-    .vision-age-num { font-size: 40px; }
-    .result-main { font-size: 40px; }
-    .screen { padding: 20px 32px 80px; gap: 14px; }
-    .vision-card { padding: 18px 14px; }
-    .gold-quote { padding: 18px 22px; }
-    .quick-btn { padding: 10px 8px; font-size: 14px; }
-    .period-btn { padding: 14px 8px; font-size: 16px; }
-  }
+/* ===================== 底部導覽 ===================== */
+#bottom-nav {
+  position:absolute; bottom:0; left:0; right:0; height:88px;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 36px; gap:16px;
+  background:rgba(13,46,77,.92);
+  backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+  border-top:1px solid rgba(255,255,255,.08); z-index:100;
+  touch-action:pan-x;
+}
+.nav-btn {
+  padding:13px 28px; border-radius:100px;
+  font-size:15px; font-weight:700; font-family:'Noto Sans TC',sans-serif;
+  cursor:pointer; transition:var(--tr); display:flex; align-items:center; gap:7px; letter-spacing:.4px;
+}
+.nav-prev { background:transparent; border:2px solid rgba(255,255,255,.14); color:rgba(255,255,255,.45); }
+.nav-prev:hover { border-color:rgba(255,255,255,.4); color:rgba(255,255,255,.9); }
+.nav-next {
+  background:linear-gradient(135deg,var(--teal),var(--blue-light));
+  border:none; color:#fff; min-width:160px; justify-content:center;
+  box-shadow:0 5px 20px rgba(0,169,157,.45);
+}
+.nav-next:hover { transform:translateY(-2px); box-shadow:0 9px 28px rgba(0,169,157,.6); }
+.nav-next:active { transform:translateY(0); }
+.nav-hint { font-size:12px; color:rgba(255,255,255,.28); text-align:center; flex:1; }
 
-  /* 確保底部按鈕不被遮蓋（padding 已在 .screen 中設定） */
-
-  /* 數字閃爍動畫 */
-  @keyframes numPop {
-    0%   { transform: scale(1); }
-    50%  { transform: scale(1.05); }
-    100% { transform: scale(1); }
-  }
-  .num-updated { animation: numPop 0.3s ease; }
-
-  /* 進度條 */
-  .progress-bar-wrap {
-    position: fixed;
-    top: 72px;
-    left: 0; right: 0;
-    height: 3px;
-    background: rgba(255,255,255,0.06);
-    z-index: 99;
-  }
-  .progress-bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--fubon-teal), var(--fubon-blue-light));
-    transition: width 0.65s cubic-bezier(0.77,0,0.175,1);
-  }
-
-  .two-row { display: flex; flex-direction: column; gap: 16px; }
-  .two-col  { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-
-  /* ===== 畫面一 - 三欄控制區 ===== */
-  .vision-controls {
-    display: grid;
-    grid-template-columns: 0.8fr 1.1fr 1.1fr;
-    gap: 14px;
-  }
-  .ctrl-card {
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 20px;
-    padding: 18px 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    transition: var(--transition);
-  }
-  .ctrl-card:hover { background: rgba(255,255,255,0.09); border-color: rgba(0,169,157,0.3); }
-  .ctrl-card.card-teal { background: linear-gradient(135deg, rgba(0,169,157,0.2), rgba(0,91,142,0.15)); border-color: rgba(0,169,157,0.35); }
-  .ctrl-label { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.6); letter-spacing: 0.8px; text-transform: uppercase; }
-  .ctrl-value-row { display: flex; align-items: baseline; }
-  .ctrl-big-num { font-size: 26px; font-weight: 800; color: var(--fubon-teal-light); font-variant-numeric: tabular-nums; }
-  .ctrl-big-num span { font-size: 13px; font-weight: 400; color: rgba(255,255,255,0.45); margin-left: 4px; }
-
-  /* 本金直接輸入框 */
-  .principal-input-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(255,255,255,0.07);
-    border: 2px solid rgba(0,169,157,0.35);
-    border-radius: 12px;
-    padding: 6px 14px;
-  }
-  .principal-input {
-    background: transparent;
-    border: none;
-    outline: none;
-    font-size: 26px;
-    font-weight: 800;
-    color: var(--fubon-teal-light);
-    font-family: 'Noto Sans TC', sans-serif;
-    font-variant-numeric: tabular-nums;
-    width: 100%;
-    min-width: 0;
-    -webkit-appearance: none;
-  }
-  .principal-input::placeholder { color: rgba(255,255,255,0.2); font-weight: 400; font-size: 18px; }
-  .principal-input::-webkit-inner-spin-button,
-  .principal-input::-webkit-outer-spin-button { -webkit-appearance: none; }
-  .principal-unit {
-    font-size: 14px;
-    color: rgba(255,255,255,0.45);
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-  .monthly-rate-badge { background: rgba(0,169,157,0.12); border: 1px solid rgba(0,169,157,0.2); border-radius: 8px; padding: 6px 10px; font-size: 12px; color: rgba(255,255,255,0.55); text-align: center; }
-  .monthly-rate-badge strong { color: var(--fubon-teal-light); font-size: 13px; }
-
-  /* ===== 畫面一 - 完整年齡對照表（主視覺升級版）===== */
-  .age-table-wrap { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; overflow: hidden; }
-  .age-table-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 22px; background: linear-gradient(90deg, rgba(0,169,157,0.2), rgba(0,91,142,0.15)); border-bottom: 1px solid rgba(0,169,157,0.2); font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.85); }
-  .age-table-tip { font-size: 12px; font-weight: 400; color: var(--fubon-teal-light); letter-spacing: 0.5px; }
-  /* 不限高度，全部行顯示，由外層 screen 滾動 */
-  .age-table-scroll { overflow-x: auto; overflow-y: visible; }
-  .age-table-scroll::-webkit-scrollbar { width: 0; height: 4px; }
-  .age-table-scroll::-webkit-scrollbar-thumb { background: rgba(0,169,157,0.3); border-radius: 2px; }
-  .age-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-  .age-table thead tr { background: rgba(13,46,77,0.85); }
-  .age-table th { padding: 12px 18px; text-align: left; font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.5); letter-spacing: 1.2px; text-transform: uppercase; white-space: nowrap; }
-  .age-table td { padding: 11px 18px; color: rgba(255,255,255,0.72); border-bottom: 1px solid rgba(255,255,255,0.04); white-space: nowrap; font-variant-numeric: tabular-nums; transition: background 0.15s; }
-  .age-table tbody tr:hover td { background: rgba(0,169,157,0.12); color: white; }
-  /* 當前年齡 */
-  .age-table tbody tr.current-age td { background: rgba(0,169,157,0.22); color: var(--fubon-white); border-bottom: 1px solid rgba(0,169,157,0.3); }
-  .age-table tbody tr.current-age td:first-child { font-weight: 900; color: var(--fubon-teal-light); font-size: 15px; }
-  /* 月配息欄 */
-  .age-table td.col-monthly { color: var(--fubon-gold-light); font-weight: 800; font-size: 15px; }
-  /* 里程碑行（每10歲）*/
-  .age-table tbody tr.decade-age td { background: rgba(0,91,142,0.2); border-top: 1px solid rgba(0,169,157,0.2); border-bottom: 1px solid rgba(0,169,157,0.1); }
-  .age-table tbody tr.decade-age td:first-child { font-weight: 800; color: #4DD9D2; font-size: 15px; }
-  .age-table tbody tr.decade-age td.col-monthly { color: #FFE0A0; font-size: 16px; }
-  /* 月配息說明欄 */
-  .age-table td.col-note { font-size: 12px; color: rgba(255,255,255,0.38); font-style: italic; }
+/* ===================== 動畫 ===================== */
+@keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+.ai { animation:fadeUp .45s ease forwards; }
+.d1{animation-delay:.05s;opacity:0} .d2{animation-delay:.12s;opacity:0}
+.d3{animation-delay:.2s;opacity:0}  .d4{animation-delay:.28s;opacity:0}
+.d5{animation-delay:.36s;opacity:0}
 </style>
 </head>
 <body>
 <div id="app">
 
-  <!-- 頂部導覽列 -->
-  <div id="topbar">
-    <div class="brand">
-      <div class="brand-logo">💡</div>
-      <div class="brand-text">
-        <div class="brand-name">財務自由藍圖</div>
-        <div class="brand-sub">複利試算規劃工具</div>
-      </div>
-    </div>
-    <div class="step-indicator">
-      <div class="step-dot active" id="step1" onclick="goToScreen(0)">
-        <div class="step-circle active" id="sc1">1</div>
-        <div class="step-label">願景引導</div>
-      </div>
-      <div class="step-line"><div class="step-line-fill" id="line1"></div></div>
-      <div class="step-dot" id="step2" onclick="goToScreen(1)">
-        <div class="step-circle" id="sc2">2</div>
-        <div class="step-label">築夢橋樑</div>
-      </div>
-      <div class="step-line"><div class="step-line-fill" id="line2"></div></div>
-      <div class="step-dot" id="step3" onclick="goToScreen(2)">
-        <div class="step-circle" id="sc3">3</div>
-        <div class="step-label">客製藍圖</div>
-      </div>
+<!-- ===== 頂部 ===== -->
+<div id="topbar">
+  <div class="brand">
+    <div class="brand-logo">💡</div>
+    <div>
+      <div class="brand-name">財務自由藍圖</div>
+      <div class="brand-sub">複利試算規劃工具</div>
     </div>
   </div>
+  <div class="steps">
+    <div class="step-item" id="si0" onclick="goTo(0)">
+      <div class="step-circle active" id="sc0">1</div>
+      <div class="step-label">條件設定</div>
+    </div>
+    <div class="step-line"><div class="step-line-fill" id="sl01"></div></div>
+    <div class="step-item" id="si1" onclick="goTo(1)">
+      <div class="step-circle" id="sc1">2</div>
+      <div class="step-label">年齡對照</div>
+    </div>
+    <div class="step-line"><div class="step-line-fill" id="sl12"></div></div>
+    <div class="step-item" id="si2" onclick="goTo(2)">
+      <div class="step-circle" id="sc2">3</div>
+      <div class="step-label">儲蓄規劃</div>
+    </div>
+    <div class="step-line"><div class="step-line-fill" id="sl23"></div></div>
+    <div class="step-item" id="si3" onclick="goTo(3)">
+      <div class="step-circle" id="sc3">4</div>
+      <div class="step-label">投資藍圖</div>
+    </div>
+  </div>
+</div>
+<div id="progressBar"><div id="progressFill" style="width:25%"></div></div>
 
-  <!-- 進度條 -->
-  <div class="progress-bar-wrap">
-    <div class="progress-bar-fill" id="progressBar" style="width:33%"></div>
+<!-- ===== 畫面容器 ===== -->
+<div id="screens-wrapper">
+
+  <!-- ===== 畫面 1a：條件設定 ===== -->
+  <div class="screen" id="screen0">
+    <div class="ai d1">
+      <div class="screen-tag">✦ STEP 01</div>
+      <div class="screen-title">讓<span>複利的魔法</span>為你工作</div>
+      <div class="screen-desc">設定好三個條件，點「查看對照表」即可看到每一歲的本金與月配息。</div>
+    </div>
+
+    <div class="ctrl-grid ai d2">
+      <!-- 年齡 -->
+      <div class="ctrl-card card-teal">
+        <div class="ctrl-label">📋 客戶現在年齡</div>
+        <input class="input-field" type="number" id="currentAge"
+          value="35" min="18" max="70" inputmode="numeric"
+          placeholder="例：35" oninput="onAgeInput()">
+      </div>
+
+      <!-- 本金 -->
+      <div class="ctrl-card">
+        <div class="ctrl-label">💰 起始本金</div>
+        <div class="principal-row">
+          <input id="principalInput" type="number" inputmode="numeric"
+            value="200" min="10" max="99999" placeholder="200"
+            oninput="onPrincipalInput()">
+          <span class="principal-unit">萬元</span>
+        </div>
+        <input type="range" id="principalSlider" min="50" max="2000" step="50" value="200" oninput="onPrincipalSlide()">
+        <div class="quick-btns" id="principalBtns">
+          <button class="quick-btn" data-val="100" onclick="setPrincipal(100)">100萬</button>
+          <button class="quick-btn active" data-val="200" onclick="setPrincipal(200)">200萬</button>
+          <button class="quick-btn" data-val="500" onclick="setPrincipal(500)">500萬</button>
+          <button class="quick-btn" data-val="1000" onclick="setPrincipal(1000)">1000萬</button>
+        </div>
+      </div>
+
+      <!-- 年報酬率 -->
+      <div class="ctrl-card">
+        <div class="ctrl-label">📈 年報酬率</div>
+        <div class="ctrl-big" id="rateDisplay">10.0<span>%／年</span></div>
+        <input type="range" id="rateSlider" min="1" max="20" step="0.5" value="10" oninput="onRateSlide()">
+        <div class="monthly-badge">月報酬率：<strong id="monthlyRateDisplay">0.83%</strong></div>
+      </div>
+    </div>
+
+    <!-- 提示卡：點下一步看表格 -->
+    <div class="goto-table-hint ai d3">
+      <div class="hint-icon">📊</div>
+      <div class="hint-text">
+        條件設定完成後，點右下角 <strong>「查看對照表 →」</strong><br>
+        即可看到從現在年齡到 80 歲，每一歲的<strong>複利本金</strong>與<strong>月配息</strong>。
+      </div>
+    </div>
   </div>
 
-  <!-- 三個畫面容器 -->
-  <div id="screens-wrapper">
+  <!-- ===== 畫面 1b：年齡對照表 ===== -->
+  <div class="screen" id="screen1">
+    <div class="table-header-bar ai d1" id="tableHeaderBar">
+      <b>📊 各年齡複利成長對照表</b>
+      <span id="tableCaption">35 歲 → 80 歲，共 46 行</span>
+    </div>
 
-    <!-- ======================================
-         畫面一：願景畫面感
-         ====================================== -->
-    <div class="screen" id="screen1">
-
-      <div class="screen-header animate-in delay-1">
-        <div>
-          <div class="screen-tag">✦ STEP 01</div>
-          <div style="height:10px"></div>
-          <div class="screen-title">讓<span>複利的魔法</span><br>為你工作</div>
-          <div class="screen-desc">輸入客戶年齡、起始本金與年報酬率，下方立即顯示每一歲的本金成長與月配息。</div>
-        </div>
-      </div>
-
-      <!-- 三欄輸入控制區 -->
-      <div class="vision-controls animate-in delay-2">
-
-        <!-- 控制卡1：客戶年齡 -->
-        <div class="ctrl-card card-teal">
-          <div class="ctrl-label">📋 客戶現在年齡</div>
-          <input class="input-field" type="number" id="currentAge"
-            placeholder="例：35" min="18" max="70"
-            value="35" inputmode="numeric"
-            oninput="calcVision()">
-        </div>
-
-        <!-- 控制卡2：起始本金 -->
-        <div class="ctrl-card">
-          <div class="ctrl-label">💰 起始本金</div>
-          <div class="principal-input-row">
-            <input class="principal-input" type="number" id="principalInput"
-              placeholder="200" min="10" max="10000"
-              value="200" inputmode="numeric"
-              oninput="onPrincipalInput()">
-            <span class="principal-unit">萬元</span>
-          </div>
-          <input type="range" id="principalSlider"
-            min="50" max="2000" step="50" value="200"
-            oninput="onPrincipalSlide()">
-          <div class="quick-btns" style="margin-top:4px;" id="principalBtns">
-            <button class="quick-btn" data-val="100" onclick="setPrincipal(100)">100萬</button>
-            <button class="quick-btn active" data-val="200" onclick="setPrincipal(200)">200萬</button>
-            <button class="quick-btn" data-val="500" onclick="setPrincipal(500)">500萬</button>
-            <button class="quick-btn" data-val="1000" onclick="setPrincipal(1000)">1000萬</button>
-          </div>
-        </div>
-
-        <!-- 控制卡3：年報酬率 -->
-        <div class="ctrl-card">
-          <div class="ctrl-label">📈 年報酬率</div>
-          <div class="ctrl-value-row">
-            <div class="ctrl-big-num" id="rateDisplay">10.0<span>%／年</span></div>
-          </div>
-          <input type="range" id="rateSlider"
-            min="1" max="20" step="0.5" value="10"
-            oninput="onRateSlide()">
-          <div class="monthly-rate-badge">
-            月報酬率：<strong id="monthlyRateDisplay">0.83%</strong>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- 完整年齡試算表（主視覺） -->
-      <div class="age-table-wrap animate-in delay-3">
-        <div class="age-table-header">
-          <span>📊 各年齡複利成長對照表</span>
-          <span class="age-table-tip" id="tableCaption">從現在到 80 歲，每歲一行</span>
-        </div>
-        <div class="age-table-scroll" id="ageTableScroll">
-          <table class="age-table" id="ageTable">
-            <thead>
-              <tr>
-                <th>年齡</th>
-                <th>距今</th>
-                <th>複利本金</th>
-                <th>預估月配息</th>
-                <th>月配息說明</th>
-              </tr>
-            </thead>
-            <tbody id="ageTableBody">
-              <!-- 由 JS 動態渲染 -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-    </div><!-- /screen1 -->
-
-    <!-- ======================================
-         畫面二：拉回現實與築夢橋樑
-         ====================================== -->
-    <div class="screen" id="screen2">
-
-      <!-- 金句 -->
-      <div class="gold-quote animate-in delay-1">
-        <div class="quote-icon">💎</div>
-        <div class="quote-text">「確定要完成的事情，要用確定的工具準備。」</div>
-      </div>
-
-      <div class="screen-header animate-in delay-2">
-        <div>
-          <div class="screen-tag">✦ STEP 02</div>
-          <div style="height:10px"></div>
-          <div class="screen-title"><span>儲蓄險</span>專款專戶<br>打造穩固的財富底蘊</div>
-          <div class="screen-desc">設定每月可提撥預算與繳費期別，用確定的工具準備確定的未來本金。</div>
-        </div>
-      </div>
-
-      <div class="two-col animate-in delay-3">
-        <!-- 每月預算 -->
-        <div class="card">
-          <div class="input-group">
-            <div class="input-label">💰 每月提撥預算</div>
-            <div class="slider-wrap">
-              <div class="slider-value-display" id="budgetDisplay">10,000<span>元／月</span></div>
-              <input type="range" id="budgetSlider"
-                min="3000" max="50000" step="1000" value="10000"
-                oninput="onBudgetSlide()">
-              <div class="quick-btns">
-                <button class="quick-btn" onclick="setBudget(5000)">$5,000</button>
-                <button class="quick-btn active" onclick="setBudget(10000)">$10,000</button>
-                <button class="quick-btn" onclick="setBudget(20000)">$20,000</button>
-                <button class="quick-btn" onclick="setBudget(30000)">$30,000</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 期別選擇 -->
-        <div class="card">
-          <div class="input-group">
-            <div class="input-label">📅 繳費期別</div>
-            <div class="period-btns">
-              <button class="period-btn" id="p6" onclick="setPeriod(6)">
-                6<small>年期</small>
-              </button>
-              <button class="period-btn active" id="p10" onclick="setPeriod(10)">
-                10<small>年期</small>
-              </button>
-              <button class="period-btn" id="p20" onclick="setPeriod(20)">
-                20<small>年期</small>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 期滿本金結果 -->
-      <div class="result-highlight animate-in delay-4" id="savingsResult">
-        <div class="result-label">▸ 期滿後預估確定本金</div>
-        <div class="result-main" id="savingsTotal">-- <span>萬元</span></div>
-        <div class="result-sub" id="savingsSub">—</div>
-      </div>
-
-      <!-- 明細 -->
-      <div class="calc-breakdown animate-in delay-5" id="calcBreakdown">
-        <div class="breakdown-item">
-          <span class="breakdown-num" id="bdTotal">—</span>
-          <div class="breakdown-desc">累積繳費總額</div>
-        </div>
-        <div class="breakdown-item">
-          <span class="breakdown-num" id="bdReturn">—</span>
-          <div class="breakdown-desc">利息收益(預估)</div>
-        </div>
-        <div class="breakdown-item">
-          <span class="breakdown-num" id="bdROI">—</span>
-          <div class="breakdown-desc">本利比</div>
-        </div>
-      </div>
-
-    </div><!-- /screen2 -->
-
-    <!-- ======================================
-         畫面三：專屬客製化藍圖
-         ====================================== -->
-    <div class="screen" id="screen3">
-
-      <div class="screen-header animate-in delay-1">
-        <div>
-          <div class="screen-tag">✦ STEP 03</div>
-          <div style="height:10px"></div>
-          <div class="screen-title">您的<span>專屬財富藍圖</span><br>投資型保單啟動</div>
-          <div class="screen-desc">以您的專屬本金為起點，透過投資型保單的複利成長，逐步實現財務自由。</div>
-        </div>
-      </div>
-
-      <!-- 帶入本金說明 -->
-      <div class="blueprint-intro animate-in delay-2" id="blueprintIntro">
-        <div class="blueprint-intro-icon">🚀</div>
-        <div class="blueprint-intro-text">
-          您在第二步驟所累積的 <strong id="blueprintPrincipal">—</strong>
-          將作為投資型保單的起始本金，
-          以年報酬率 <strong id="blueprintRate">10%</strong> 進行複利成長，見證財富加速累積的威力。
-        </div>
-      </div>
-
-      <!-- 折線圖 -->
-      <div class="chart-container animate-in delay-3">
-        <div class="chart-title">📈 投資型保單 20 年成長曲線（本金 vs 月配息）</div>
-        <canvas id="growthChart" height="220"></canvas>
-      </div>
-
-      <!-- 里程碑卡片 -->
-      <div class="milestone-grid animate-in delay-4" id="milestoneGrid">
-        <!-- 由 JS 動態渲染 -->
-      </div>
-
-      <!-- 結語橫幅 -->
-      <div class="closing-banner animate-in delay-5">
-        <div class="closing-icon">🏆</div>
-        <div class="closing-text">
-          <h3>透過被動收入的累積＋自己額外提撥<br>您將提早實現財務自由</h3>
-          <p>
-            每一分錢都在為您工作。複利的力量加上紀律的執行，<br>
-            讓時間成為您最強大的財富夥伴。
-          </p>
-        </div>
-      </div>
-
-    </div><!-- /screen3 -->
-
-  </div><!-- /screens-wrapper -->
-
-  <!-- 底部導航 -->
-  <div class="bottom-nav">
-    <button class="nav-btn nav-btn-prev" id="prevBtn" onclick="prevScreen()" style="visibility:hidden">
-      ← 上一步
-    </button>
-    <div class="nav-hint" id="navHint">向右滑動或點擊「下一步」繼續</div>
-    <button class="nav-btn nav-btn-next" id="nextBtn" onclick="nextScreen()">
-      開始規劃 →
-    </button>
+    <div class="age-table-wrap ai d2">
+      <table class="age-table">
+        <thead>
+          <tr>
+            <th>年齡</th>
+            <th>距今</th>
+            <th>複利本金</th>
+            <th>預估月配息</th>
+            <th>月配息說明</th>
+          </tr>
+        </thead>
+        <tbody id="ageTableBody"></tbody>
+      </table>
+    </div>
   </div>
+
+  <!-- ===== 畫面 2：儲蓄險規劃 ===== -->
+  <div class="screen" id="screen2">
+    <div class="gold-quote ai d1">
+      <div style="font-size:28px;flex-shrink:0;">💎</div>
+      <div class="quote-text">「確定要完成的事情，要用確定的工具準備。」</div>
+    </div>
+
+    <div class="ai d2">
+      <div class="screen-tag">✦ STEP 03</div>
+      <div class="screen-title"><span>儲蓄險</span>專款專戶</div>
+      <div class="screen-desc">設定每月提撥預算與繳費期別，看看期滿能累積多少確定本金。</div>
+    </div>
+
+    <div class="two-col ai d3">
+      <div class="card">
+        <div class="input-label">💰 每月提撥預算</div>
+        <div class="slider-val" id="budgetDisplay">10,000<span>元／月</span></div>
+        <input type="range" id="budgetSlider" min="3000" max="50000" step="1000" value="10000" oninput="onBudgetSlide()">
+        <div class="quick-btns" style="margin-top:6px;">
+          <button class="quick-btn" onclick="setBudget(5000)">$5K</button>
+          <button class="quick-btn active" onclick="setBudget(10000)">$10K</button>
+          <button class="quick-btn" onclick="setBudget(20000)">$20K</button>
+          <button class="quick-btn" onclick="setBudget(30000)">$30K</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="input-label">📅 繳費期別</div>
+        <div class="period-btns">
+          <button class="period-btn" id="p6"  onclick="setPeriod(6)">6<small>年期</small></button>
+          <button class="period-btn active" id="p10" onclick="setPeriod(10)">10<small>年期</small></button>
+          <button class="period-btn" id="p20" onclick="setPeriod(20)">20<small>年期</small></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="result-box ai d4">
+      <div class="result-label">▸ 期滿後預估確定本金</div>
+      <div class="result-num" id="savingsTotal">—<span>萬元</span></div>
+      <div class="result-sub" id="savingsSub">—</div>
+    </div>
+
+    <div class="breakdown ai d5">
+      <div class="bd-item"><span class="bd-num" id="bdTotal">—</span><div class="bd-desc">累積繳費總額</div></div>
+      <div class="bd-item"><span class="bd-num" id="bdReturn">—</span><div class="bd-desc">利息收益(預估)</div></div>
+      <div class="bd-item"><span class="bd-num" id="bdROI">—</span><div class="bd-desc">本利比</div></div>
+    </div>
+  </div>
+
+  <!-- ===== 畫面 3：投資型保單 ===== -->
+  <div class="screen" id="screen3">
+    <div class="ai d1">
+      <div class="screen-tag">✦ STEP 04</div>
+      <div class="screen-title">您的<span>專屬財富藍圖</span></div>
+      <div class="screen-desc">以儲蓄險期滿本金為起點，投資型保單複利成長 20 年的展望。</div>
+    </div>
+
+    <div class="blueprint-intro ai d2">
+      <div style="font-size:32px;flex-shrink:0;">🚀</div>
+      <div class="blueprint-intro-text">
+        起始本金 <strong id="blueprintPrincipal">—</strong>，
+        以年報酬率 <strong id="blueprintRate">10%</strong> 複利成長，
+        見證財富加速累積的威力。
+      </div>
+    </div>
+
+    <div class="chart-wrap ai d3">
+      <div class="chart-title">📈 20 年本金成長 vs 月配息走勢</div>
+      <canvas id="growthChart" height="200"></canvas>
+    </div>
+
+    <div class="milestone-grid ai d4" id="milestoneGrid"></div>
+
+    <div class="closing ai d5">
+      <div style="font-size:32px;flex-shrink:0;">🏆</div>
+      <div class="closing-text">
+        <h3>被動收入累積＋紀律提撥<br>提早實現財務自由</h3>
+        <p>每一分錢都在為您工作，讓時間成為您最強大的財富夥伴。</p>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /screens-wrapper -->
+
+<!-- ===== 底部導覽 ===== -->
+<div id="bottom-nav">
+  <button class="nav-btn nav-prev" id="prevBtn" onclick="prev()" style="visibility:hidden">← 上一步</button>
+  <div class="nav-hint" id="navHint">← 在底部左右滑動切換頁面 →</div>
+  <button class="nav-btn nav-next" id="nextBtn" onclick="next()">查看對照表 →</button>
+</div>
 
 </div><!-- /app -->
 
 <script>
-/* ==============================================
+/* =====================================================
    全域狀態
-   ============================================== */
-let currentScreen = 0; // 0, 1, 2
-const TOTAL_SCREENS = 3;
+   ===================================================== */
+const TOTAL = 4;
+let cur = 0;
 
-// ============================================================
-// 參數設定（可自行調整預設值）
-// ============================================================
-const PARAMS = {
-  // 畫面一：願景計算
-  visionPrincipalWan: 200,       // 起始本金（萬元，預設 200 萬）
-  visionAnnualRate:   0.10,      // 年報酬率（預設 10%）
-  visionHighlightAges: [30, 40, 50], // 上方三張大卡片顯示的年齡
+// ── 畫面1a 參數（可調整）──
+let agePrincipalWan = 200;   // 起始本金（萬元）
+let ageAnnualRate   = 0.10;  // 年報酬率（小數）
 
-  // 畫面二：儲蓄險
-  savingsAnnualRate:  0.025,     // 儲蓄險年利率（2.5%）
-  savingsMonthlyRate: 0.025 / 12,
-
-  // 畫面三：投資型保單
-  investAnnualRate:   0.10,      // 投資型保單年報酬率（10%）
-  investMonthlyRate:  0.10 / 12,
-};
-
-// 使用者目前設定值（即時修改用）
-let visionPrincipalWan = PARAMS.visionPrincipalWan;  // 萬元
-let visionAnnualRate   = PARAMS.visionAnnualRate;    // 小數（0.10 = 10%）
-
-// 畫面二的使用者選擇
+// ── 畫面2 參數 ──
 let budgetPerMonth = 10000;
 let selectedPeriod = 10;
-let s2Principal    = 0;
+let s2Principal    = 0;      // 畫面2期滿本金，帶入畫面3
 
 let growthChart = null;
 
-/* ==============================================
-   工具函式：數字格式化
-   ============================================== */
-function formatWan(amount) {
-  const wan = Math.round(amount / 10000);
-  return wan.toLocaleString('zh-TW') + ' 萬';
-}
-function formatYuan(amount) {
-  return Math.round(amount).toLocaleString('zh-TW') + ' 元';
-}
-function formatWanNum(amount) {
-  return (amount / 10000).toFixed(1);
-}
-
-/* ==============================================
-   複利公式
-   終值 FV = PV × (1 + r)^n
-   PV = 現值（本金）
-   r  = 年利率（用年複利計算）
-   n  = 年數
+/* =====================================================
+   複利公式（中文註解方便調整）
+   FV = PV × (1 + r)^n
+   PV = 現值；r = 年利率；n = 年數
    月配息 = 本金 × (年利率 / 12)
-   ============================================== */
-function futureValue(pv, annualRate, years) {
-  return pv * Math.pow(1 + annualRate, years);
-}
-function monthlyIncome(principal, annualRate) {
-  return principal * (annualRate / 12);
-}
+   ===================================================== */
+function fv(pv, r, years) { return pv * Math.pow(1 + r, years); }
+function monthly(pv, r)   { return pv * (r / 12); }
 
-/* ==============================================
-   畫面一：起始本金 - 直接輸入框
-   ============================================== */
+/* =====================================================
+   畫面1a：年齡輸入
+   ===================================================== */
+function onAgeInput() { calcVision(); }
+
+/* =====================================================
+   畫面1a：本金直接輸入
+   ===================================================== */
 function onPrincipalInput() {
   const val = parseInt(document.getElementById('principalInput').value) || 0;
-  if (val < 1) return; // 數值未完整輸入時不計算
-  visionPrincipalWan = val;
-  // 同步滑桿（滑桿上限2000萬，超過就停在最右邊）
+  if (val < 1) return;
+  agePrincipalWan = val;
   document.getElementById('principalSlider').value = Math.min(val, 2000);
-  // 同步快捷鍵高亮
-  document.querySelectorAll('#principalBtns .quick-btn').forEach(btn => {
-    btn.classList.toggle('active', parseInt(btn.dataset.val) === val);
-  });
+  syncPrincipalBtns(val);
   calcVision();
 }
-
-/* ==============================================
-   畫面一：起始本金滑桿
-   ============================================== */
 function onPrincipalSlide() {
   const val = parseInt(document.getElementById('principalSlider').value);
-  visionPrincipalWan = val;
-  // 同步輸入框
+  agePrincipalWan = val;
   document.getElementById('principalInput').value = val;
-  // 同步快捷鍵高亮
-  document.querySelectorAll('#principalBtns .quick-btn').forEach(btn => {
-    btn.classList.toggle('active', parseInt(btn.dataset.val) === val);
-  });
+  syncPrincipalBtns(val);
   calcVision();
 }
-
 function setPrincipal(wan) {
-  visionPrincipalWan = wan;
+  agePrincipalWan = wan;
   document.getElementById('principalSlider').value = Math.min(wan, 2000);
   document.getElementById('principalInput').value  = wan;
-  document.querySelectorAll('#principalBtns .quick-btn').forEach(btn => {
-    btn.classList.toggle('active', parseInt(btn.dataset.val) === wan);
-  });
+  syncPrincipalBtns(wan);
   calcVision();
 }
+function syncPrincipalBtns(val) {
+  document.querySelectorAll('#principalBtns .quick-btn').forEach(b => {
+    b.classList.toggle('active', parseInt(b.dataset.val) === val);
+  });
+}
 
-/* ==============================================
-   畫面一：年報酬率滑桿
-   月報酬率 = 年報酬率 ÷ 12（自動連動）
-   ============================================== */
+/* =====================================================
+   畫面1a：年報酬率滑桿
+   月報酬率 = 年利率 ÷ 12，自動連動
+   ===================================================== */
 function onRateSlide() {
   const val = parseFloat(document.getElementById('rateSlider').value);
-  visionAnnualRate = val / 100;  // 轉為小數
+  ageAnnualRate = val / 100;
   document.getElementById('rateDisplay').innerHTML =
     val.toFixed(1) + '<span>%／年</span>';
-  // 月報酬率連動更新
-  const monthlyRatePct = (visionAnnualRate / 12 * 100).toFixed(2);
-  document.getElementById('monthlyRateDisplay').textContent = monthlyRatePct + '%';
+  document.getElementById('monthlyRateDisplay').textContent =
+    (ageAnnualRate / 12 * 100).toFixed(2) + '%';
   calcVision();
 }
 
-/* ==============================================
-   畫面一：願景計算（核心）
-   ============================================== */
+/* =====================================================
+   畫面1b：渲染年齡對照表
+   從目前年齡到80歲，每歲一行
+   ===================================================== */
 function calcVision() {
   const age = parseInt(document.getElementById('currentAge').value) || 35;
-  const pv  = visionPrincipalWan * 10000;  // 萬 → 元
-  const r   = visionAnnualRate;
-
-  // 更新表格說明文字
-  document.getElementById('tableCaption').textContent =
-    `${age} 歲 → 80 歲，共 ${80 - age + 1} 行`;
-
-  // 渲染完整年齡對照表
-  renderAgeTable(age, pv, r);
-}
-
-/* 渲染完整年齡對照表（從目前年齡到 80 歲，每歲一行）*/
-function renderAgeTable(currentAge, pv, r) {
-  const tbody = document.getElementById('ageTableBody');
-  let rows = '';
+  const pv  = agePrincipalWan * 10000;
+  const r   = ageAnnualRate;
   const maxAge = 80;
+  const total  = maxAge - age + 1;
 
-  // 月配息的生活說明對應（以月配息金額區間給說明）
-  function lifeNote(monthly) {
-    if (monthly < 5000)   return '茶水費';
-    if (monthly < 15000)  return '家用補貼';
-    if (monthly < 30000)  return '房租無憂';
-    if (monthly < 60000)  return '輕鬆生活';
-    if (monthly < 100000) return '財務自由初階';
-    if (monthly < 200000) return '財務自由進階';
+  // 更新 header 說明
+  document.getElementById('tableCaption').textContent =
+    `${age} 歲 → ${maxAge} 歲，共 ${total} 行`;
+
+  // 月配息說明
+  function lifeNote(m) {
+    if (m < 5000)   return '茶水費';
+    if (m < 15000)  return '家用補貼';
+    if (m < 30000)  return '房租無憂';
+    if (m < 60000)  return '輕鬆生活';
+    if (m < 100000) return '財務自由初階';
+    if (m < 200000) return '財務自由進階';
     return '富足人生 🏆';
   }
 
-  for (let age = currentAge; age <= maxAge; age++) {
-    const years   = age - currentAge;
-    const fv      = futureValue(pv, r, years);
-    const monthly = monthlyIncome(fv, r);
+  let html = '';
+  for (let a = age; a <= maxAge; a++) {
+    const y   = a - age;
+    const fvv = fv(pv, r, y);
+    const mo  = monthly(fvv, r);
 
-    // 本金格式：小於1億顯示萬，大於1億顯示億
-    let fvStr;
-    if (fv >= 100000000) {
-      fvStr = (fv / 100000000).toFixed(2) + ' 億';
-    } else {
-      fvStr = (fv / 10000).toFixed(1) + ' 萬';
-    }
+    const fvStr = fvv >= 1e8
+      ? (fvv / 1e8).toFixed(2) + ' 億'
+      : (fvv / 1e4).toFixed(1) + ' 萬';
+    const moStr = '$' + Math.round(mo).toLocaleString('zh-TW');
+    const note  = lifeNote(Math.round(mo));
 
-    const moStr  = '$' + Math.round(monthly).toLocaleString('zh-TW');
-    const note   = lifeNote(Math.round(monthly));
+    let cls = '';
+    if (a === age)      cls = 'row-current';
+    else if (a % 10 === 0) cls = 'row-decade';
 
-    // 樣式：當前年齡 / 每10歲整數
-    let rowClass = '';
-    if (age === currentAge) rowClass = 'current-age';
-    else if (age % 10 === 0) rowClass = 'decade-age';
+    const ageLabel = a === age ? `${a} 歲 ★` : `${a} 歲`;
+    const yearLabel = y === 0 ? '起點' : `+${y} 年`;
 
-    const yearText = years === 0 ? '起點' : `+${years} 年`;
-    const ageBadge = age === currentAge ? `${age} 歲 ★` : `${age} 歲`;
-
-    rows += `
-      <tr class="${rowClass}">
-        <td>${ageBadge}</td>
-        <td>${yearText}</td>
-        <td>${fvStr}</td>
-        <td class="col-monthly">${moStr}</td>
-        <td class="col-note">${note}</td>
-      </tr>
-    `;
+    html += `<tr class="${cls}">
+      <td>${ageLabel}</td>
+      <td>${yearLabel}</td>
+      <td>${fvStr}</td>
+      <td class="col-monthly">${moStr}</td>
+      <td class="col-note">${note}</td>
+    </tr>`;
   }
-  tbody.innerHTML = rows;
+  document.getElementById('ageTableBody').innerHTML = html;
 }
 
-/* ==============================================
-   畫面二：儲蓄險試算
-   ==============================================
-   採用「定期定額月繳」的終值公式：
-   FV = PMT × [(1+r)^n - 1] / r
-   PMT = 每月繳費
-   r   = 月利率
-   n   = 總月數
-   ==============================================
-*/
+/* =====================================================
+   畫面2：儲蓄險試算
+   等額年金終值公式：FV = PMT × [(1+r)^n - 1] / r
+   PMT = 每月繳費；r = 月利率；n = 總月數
+   儲蓄險年利率預設 2.5%（可在此調整）
+   ===================================================== */
+const SAVINGS_ANNUAL_RATE = 0.025;
+
 function calcSavings() {
-  const pmt = budgetPerMonth;                   // 每月繳費金額（元）
-  const n   = selectedPeriod * 12;              // 總繳費月數
-  const r   = PARAMS.savingsMonthlyRate;        // 月利率
+  const pmt = budgetPerMonth;
+  const n   = selectedPeriod * 12;
+  const r   = SAVINGS_ANNUAL_RATE / 12; // 月利率
 
-  // 期滿本金（終值）：等額年金終值公式
-  let fv;
-  if (r === 0) {
-    fv = pmt * n;
-  } else {
-    fv = pmt * (Math.pow(1 + r, n) - 1) / r;
-  }
+  const fvv = r === 0 ? pmt * n : pmt * (Math.pow(1 + r, n) - 1) / r;
+  s2Principal = fvv;
 
-  // 記錄給畫面三使用
-  s2Principal = fv;
-
-  // 累積繳費總額（純本金）
   const totalPaid = pmt * n;
+  const interest  = fvv - totalPaid;
+  const ratio     = (fvv / totalPaid).toFixed(2);
+  const fvWan     = (fvv / 1e4).toFixed(1);
 
-  // 利息收益
-  const interest = fv - totalPaid;
-
-  // 本利比
-  const ratio = (fv / totalPaid).toFixed(2);
-
-  // 更新 UI
-  const fvWan = (fv / 10000).toFixed(1);
   document.getElementById('savingsTotal').innerHTML =
-    `${parseFloat(fvWan).toLocaleString('zh-TW')}<span>萬元</span>`;
-
+    parseFloat(fvWan).toLocaleString('zh-TW') + '<span>萬元</span>';
   document.getElementById('savingsSub').innerHTML =
-    `每月提撥 <strong>$${pmt.toLocaleString('zh-TW')}</strong>，
-     繳費 <strong>${selectedPeriod} 年</strong>，
-     期滿本金確定累積 <strong>${fvWan} 萬元</strong>，
-     這筆錢是您投資人生下一階段的專屬基金。`;
-
-  document.getElementById('bdTotal').textContent =
-    (totalPaid / 10000).toFixed(1) + ' 萬';
-
-  document.getElementById('bdReturn').textContent =
-    (interest / 10000).toFixed(1) + ' 萬';
-
-  document.getElementById('bdROI').textContent = ratio + ' 倍';
+    `每月 <strong>$${pmt.toLocaleString('zh-TW')}</strong>，繳 <strong>${selectedPeriod} 年</strong>，期滿確定累積 <strong>${fvWan} 萬元</strong>`;
+  document.getElementById('bdTotal').textContent  = (totalPaid / 1e4).toFixed(1) + ' 萬';
+  document.getElementById('bdReturn').textContent = (interest  / 1e4).toFixed(1) + ' 萬';
+  document.getElementById('bdROI').textContent    = ratio + ' 倍';
 }
 
-/* 滑動桿事件 */
 function onBudgetSlide() {
   const val = parseInt(document.getElementById('budgetSlider').value);
   budgetPerMonth = val;
   document.getElementById('budgetDisplay').innerHTML =
     val.toLocaleString('zh-TW') + '<span>元／月</span>';
-  // 更新快捷按鈕高亮
-  document.querySelectorAll('.quick-btn').forEach(btn => btn.classList.remove('active'));
-  calcSavings();
-}
-
-/* 快捷按鈕設定預算 */
-function setBudget(amount) {
-  budgetPerMonth = amount;
-  document.getElementById('budgetSlider').value = amount;
-  document.getElementById('budgetDisplay').innerHTML =
-    amount.toLocaleString('zh-TW') + '<span>元／月</span>';
-  document.querySelectorAll('.quick-btn').forEach(btn => {
-    const num = parseInt(btn.textContent.replace(/[$,萬]/g, ''));
-    // 只對預算快捷鍵做高亮（排除本金快捷鍵）
-    if ([5000,10000,20000,30000].includes(parseInt(btn.textContent.replace(/[$,]/g,'')))) {
-      btn.classList.toggle('active', parseInt(btn.textContent.replace(/[$,]/g,'')) === amount);
-    }
+  document.querySelectorAll('#screen2 .quick-btn').forEach(b => {
+    const n = parseInt(b.textContent.replace(/[$K,]/g,'')) * (b.textContent.includes('K') ? 1000 : 1);
+    b.classList.toggle('active', n === val);
   });
   calcSavings();
 }
-
-/* 設定期別 */
-function setPeriod(years) {
-  selectedPeriod = years;
-  document.querySelectorAll('.period-btn').forEach(btn => btn.classList.remove('active'));
-  document.getElementById('p' + years).classList.add('active');
+function setBudget(amt) {
+  budgetPerMonth = amt;
+  document.getElementById('budgetSlider').value = amt;
+  document.getElementById('budgetDisplay').innerHTML =
+    amt.toLocaleString('zh-TW') + '<span>元／月</span>';
+  document.querySelectorAll('#screen2 .quick-btn').forEach(b => {
+    const n = parseInt(b.textContent.replace(/[$K,]/g,'')) * (b.textContent.includes('K') ? 1000 : 1);
+    b.classList.toggle('active', n === amt);
+  });
+  calcSavings();
+}
+function setPeriod(y) {
+  selectedPeriod = y;
+  ['p6','p10','p20'].forEach(id => document.getElementById(id).classList.remove('active'));
+  document.getElementById('p' + y).classList.add('active');
   calcSavings();
 }
 
-/* ==============================================
-   畫面三：投資型保單成長圖表
-   ==============================================
-   以畫面二的期滿本金為起始，
-   計算第 1~20 年的本金成長與月配息變化。
-   ==============================================
-*/
-function calcAndRenderInvestment() {
-  const pv = s2Principal > 0 ? s2Principal : 1000000; // 若無資料則預設 100 萬
-  const r  = PARAMS.investAnnualRate;
+/* =====================================================
+   畫面3：投資型保單
+   ===================================================== */
+// 投資型保單年報酬率（預設10%，可自行調整）
+const INVEST_ANNUAL_RATE = 0.10;
 
-  // 更新帶入本金說明
+function calcInvestment() {
+  const pv = s2Principal > 0 ? s2Principal : 1000000;
+  const r  = INVEST_ANNUAL_RATE;
+
   document.getElementById('blueprintPrincipal').textContent =
-    (pv / 10000).toFixed(1) + ' 萬元';
+    (pv / 1e4).toFixed(1) + ' 萬元';
+  document.getElementById('blueprintRate').textContent =
+    (r * 100).toFixed(0) + '%';
 
-  // 計算 1~20 年的資料
-  const labels     = [];
-  const principals = [];
-  const monthlyIncomes = [];
-
+  // 折線圖資料（0~20年）
+  const labels = [], principals = [], monthlyArr = [];
   for (let y = 0; y <= 20; y++) {
-    const fv      = futureValue(pv, r, y);
-    const monthly = monthlyIncome(fv, r);
+    const fvv = fv(pv, r, y);
     labels.push(y === 0 ? '起點' : `第${y}年`);
-    principals.push(Math.round(fv / 10000));       // 萬元
-    monthlyIncomes.push(Math.round(monthly / 1000)); // 千元
+    principals.push(Math.round(fvv / 1e4));
+    monthlyArr.push(Math.round(monthly(fvv, r) / 1000));
   }
 
-  // 渲染 Chart.js 折線圖
-  renderGrowthChart(labels, principals, monthlyIncomes);
-
-  // 渲染里程碑卡片：第 5、10、15、20 年
-  renderMilestones(pv, r);
-}
-
-function renderGrowthChart(labels, principals, monthlyIncomes) {
+  // Chart.js
   const ctx = document.getElementById('growthChart').getContext('2d');
-
-  if (growthChart) {
-    growthChart.destroy();
-    growthChart = null;
-  }
-
+  if (growthChart) { growthChart.destroy(); growthChart = null; }
   growthChart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: labels,
+      labels,
       datasets: [
-        {
-          label: '本金（萬元）',
-          data: principals,
-          borderColor: '#00A99D',
-          backgroundColor: 'rgba(0,169,157,0.12)',
-          borderWidth: 3,
-          tension: 0.4,
-          pointRadius: 4,
-          pointBackgroundColor: '#00A99D',
-          pointHoverRadius: 8,
-          fill: true,
-          yAxisID: 'y',
-        },
-        {
-          label: '月配息（千元）',
-          data: monthlyIncomes,
-          borderColor: '#F5A623',
-          backgroundColor: 'rgba(245,166,35,0.08)',
-          borderWidth: 2.5,
-          tension: 0.4,
-          pointRadius: 3,
-          pointBackgroundColor: '#F5A623',
-          pointHoverRadius: 7,
-          fill: false,
-          borderDash: [6, 3],
-          yAxisID: 'y2',
-        }
+        { label:'本金（萬元）', data:principals, borderColor:'#00A99D', backgroundColor:'rgba(0,169,157,.1)', borderWidth:3, tension:.4, pointRadius:3, fill:true, yAxisID:'y' },
+        { label:'月配息（千元）', data:monthlyArr, borderColor:'#F5A623', borderWidth:2.5, tension:.4, pointRadius:3, fill:false, borderDash:[6,3], yAxisID:'y2' }
       ]
     },
     options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
-      animation: { duration: 1000, easing: 'easeInOutQuart' },
-      plugins: {
-        legend: {
-          display: true,
-          labels: {
-            color: 'rgba(255,255,255,0.65)',
-            font: { size: 12, family: 'Noto Sans TC' },
-            usePointStyle: true,
-            pointStyleWidth: 20,
-          }
-        },
-        tooltip: {
-          backgroundColor: 'rgba(13,46,77,0.95)',
-          titleColor: 'rgba(255,255,255,0.9)',
-          bodyColor: 'rgba(255,255,255,0.7)',
-          borderColor: 'rgba(0,169,157,0.4)',
-          borderWidth: 1,
-          padding: 12,
-          callbacks: {
-            label: function(ctx) {
-              if (ctx.datasetIndex === 0) {
-                return ` 本金：${ctx.parsed.y.toLocaleString()} 萬元`;
-              } else {
-                return ` 月配息：${ctx.parsed.y.toLocaleString()} 千元`;
-              }
-            }
-          }
-        }
+      responsive:true, maintainAspectRatio:false,
+      interaction:{ mode:'index', intersect:false },
+      animation:{ duration:900 },
+      plugins:{
+        legend:{ labels:{ color:'rgba(255,255,255,.6)', font:{size:11,family:'Noto Sans TC'}, usePointStyle:true } },
+        tooltip:{ backgroundColor:'rgba(13,46,77,.95)', titleColor:'rgba(255,255,255,.9)', bodyColor:'rgba(255,255,255,.7)', borderColor:'rgba(0,169,157,.4)', borderWidth:1, padding:10 }
       },
-      scales: {
-        x: {
-          ticks: {
-            color: 'rgba(255,255,255,0.45)',
-            font: { size: 11 },
-            maxTicksLimit: 11,
-          },
-          grid: { color: 'rgba(255,255,255,0.05)' },
-        },
-        y: {
-          type: 'linear',
-          position: 'left',
-          ticks: {
-            color: '#00A99D',
-            font: { size: 11 },
-            callback: v => v.toLocaleString() + '萬',
-          },
-          grid: { color: 'rgba(0,169,157,0.1)' },
-        },
-        y2: {
-          type: 'linear',
-          position: 'right',
-          ticks: {
-            color: '#F5A623',
-            font: { size: 11 },
-            callback: v => v.toLocaleString() + '千',
-          },
-          grid: { display: false },
-        }
+      scales:{
+        x:{ ticks:{ color:'rgba(255,255,255,.4)', font:{size:11}, maxTicksLimit:11 }, grid:{ color:'rgba(255,255,255,.05)' } },
+        y:{ position:'left', ticks:{ color:'#00A99D', font:{size:11}, callback:v=>v.toLocaleString()+'萬' }, grid:{ color:'rgba(0,169,157,.08)' } },
+        y2:{ position:'right', ticks:{ color:'#F5A623', font:{size:11}, callback:v=>v+'千' }, grid:{ display:false } }
       }
     }
   });
-}
 
-function renderMilestones(pv, r) {
-  const milestones = [5, 10, 15, 20];
+  // 里程碑卡片
   const grid = document.getElementById('milestoneGrid');
-  grid.innerHTML = milestones.map(y => {
-    const fv      = futureValue(pv, r, y);
-    const monthly = monthlyIncome(fv, r);
-    const fvWan   = (fv / 10000).toFixed(0);
-    const monthlyFmt = Math.round(monthly).toLocaleString('zh-TW');
-    return `
-      <div class="milestone-card">
-        <div class="milestone-year">第 ${y} 年</div>
-        <div class="milestone-principal">${parseFloat(fvWan).toLocaleString('zh-TW')} 萬</div>
-        <div class="milestone-monthly">月配息 <span>$${monthlyFmt}</span></div>
-      </div>
-    `;
+  grid.innerHTML = [5,10,15,20].map(y => {
+    const fvv = fv(pv, r, y);
+    const mo  = monthly(fvv, r);
+    return `<div class="ms-card">
+      <div class="ms-year">第 ${y} 年</div>
+      <div class="ms-principal">${(fvv/1e4).toFixed(0)} 萬</div>
+      <div class="ms-monthly">月配息 <span>$${Math.round(mo).toLocaleString('zh-TW')}</span></div>
+    </div>`;
   }).join('');
 }
 
-/* ==============================================
-   畫面切換邏輯
-   ============================================== */
+/* =====================================================
+   畫面切換
+   ===================================================== */
+function goTo(idx) {
+  if (idx < 0 || idx >= TOTAL) return;
+  cur = idx;
+  updateUI();
+}
+function next() { if (cur < TOTAL - 1) { cur++; updateUI(); } }
+function prev() { if (cur > 0)         { cur--; updateUI(); } }
+
 function updateUI() {
-  const wrapper = document.getElementById('screens-wrapper');
-  wrapper.style.transform = `translateX(-${currentScreen * 33.333}%)`;
-
-  // 步驟圓點
-  ['sc1','sc2','sc3'].forEach((id, i) => {
-    const el = document.getElementById(id);
-    el.classList.remove('active', 'done');
-    if (i === currentScreen) el.classList.add('active');
-    else if (i < currentScreen) el.classList.add('done');
-  });
-
-  // 步驟標籤高亮
-  ['step1','step2','step3'].forEach((id, i) => {
-    document.getElementById(id).classList.toggle('active', i === currentScreen);
-  });
-
-  // 進度線
-  document.getElementById('line1').style.width = currentScreen >= 1 ? '100%' : '0%';
-  document.getElementById('line2').style.width = currentScreen >= 2 ? '100%' : '0%';
+  // 滑動
+  document.getElementById('screens-wrapper').style.transform =
+    `translateX(-${cur * 25}%)`;
 
   // 進度條
-  const pct = Math.round(((currentScreen + 1) / TOTAL_SCREENS) * 100);
-  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressFill').style.width = ((cur + 1) / TOTAL * 100) + '%';
+
+  // 步驟圓點
+  for (let i = 0; i < TOTAL; i++) {
+    const el = document.getElementById('sc' + i);
+    el.classList.remove('active','done');
+    if (i === cur)      el.classList.add('active');
+    else if (i < cur)   el.classList.add('done');
+    document.getElementById('si' + i).classList.toggle('active', i === cur);
+  }
+
+  // 分隔線
+  [['sl01',0],['sl12',1],['sl23',2]].forEach(([id,threshold]) => {
+    document.getElementById(id).style.width = cur > threshold ? '100%' : '0%';
+  });
 
   // 上一步按鈕
-  document.getElementById('prevBtn').style.visibility =
-    currentScreen === 0 ? 'hidden' : 'visible';
+  document.getElementById('prevBtn').style.visibility = cur === 0 ? 'hidden' : 'visible';
 
   // 下一步按鈕文字
-  const nextBtn = document.getElementById('nextBtn');
-  if (currentScreen === 0) {
-    nextBtn.textContent = '開始規劃 →';
-  } else if (currentScreen === 1) {
-    nextBtn.textContent = '查看藍圖 →';
-  } else {
-    nextBtn.textContent = '✓ 完成規劃';
-  }
+  const labels = ['查看對照表 →', '儲蓄規劃 →', '投資藍圖 →', '✓ 完成規劃'];
+  document.getElementById('nextBtn').textContent = labels[cur];
 
-  // 導覽提示
-  const hints = [
-    '向右滑動或點擊「下一步」繼續',
-    '輸入每月預算，開始打造您的財富底蘊',
-    '您的專屬財富藍圖已生成',
-  ];
-  document.getElementById('navHint').textContent = hints[currentScreen];
+  // 中間提示
+  const hints = ['← 在底部左右滑動切換頁面 →','← 滑動繼續規劃 →','← 滑動繼續 →','← 滑動返回'];
+  document.getElementById('navHint').textContent = hints[cur];
 
-  // 進入畫面三時觸發計算
-  if (currentScreen === 2) {
-    setTimeout(() => calcAndRenderInvestment(), 300);
-  }
+  // 進入畫面3時計算
+  if (cur === 3) setTimeout(calcInvestment, 300);
 }
 
-function nextScreen() {
-  if (currentScreen < TOTAL_SCREENS - 1) {
-    currentScreen++;
-    updateUI();
-  }
-}
+/* =====================================================
+   觸控滑動（偵測底部列 & 頂部列，不干擾表格滾動）
+   ===================================================== */
+let tx = 0, ty = 0;
 
-function prevScreen() {
-  if (currentScreen > 0) {
-    currentScreen--;
-    updateUI();
-  }
-}
-
-function goToScreen(idx) {
-  if (idx >= 0 && idx < TOTAL_SCREENS) {
-    currentScreen = idx;
-    updateUI();
-  }
-}
-
-/* ==============================================
-   觸控滑動支援
-   偵測區域：底部導覽列（不會與表格垂直滾動衝突）
-   以及頂部導覽列
-   ============================================== */
-let touchStartX = 0;
-let touchStartY = 0;
-
-function attachSwipe(el) {
+function bindSwipe(el) {
   el.addEventListener('touchstart', e => {
-    touchStartX = e.touches[0].clientX;
-    touchStartY = e.touches[0].clientY;
+    tx = e.touches[0].clientX;
+    ty = e.touches[0].clientY;
   }, { passive: true });
-
   el.addEventListener('touchend', e => {
-    const dx = e.changedTouches[0].clientX - touchStartX;
-    const dy = e.changedTouches[0].clientY - touchStartY;
-    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
-      if (dx < 0) nextScreen();
-      else prevScreen();
+    const dx = e.changedTouches[0].clientX - tx;
+    const dy = e.changedTouches[0].clientY - ty;
+    if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+      dx < 0 ? next() : prev();
     }
   }, { passive: true });
 }
 
-// 底部導覽列 & 頂部導覽列都可以左右滑切換
-attachSwipe(document.querySelector('.bottom-nav'));
-attachSwipe(document.getElementById('topbar'));
+bindSwipe(document.getElementById('bottom-nav'));
+bindSwipe(document.getElementById('topbar'));
 
-// 步驟指示器也綁上（畫面中間上方區域）
-attachSwipe(document.getElementById('screens-wrapper'));
-
-/* ==============================================
+/* =====================================================
    初始化
-   ============================================== */
+   ===================================================== */
 window.addEventListener('DOMContentLoaded', () => {
-  // 初始計算
   calcVision();
   calcSavings();
   updateUI();
