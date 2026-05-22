@@ -860,6 +860,39 @@
   .ctrl-value-row { display: flex; align-items: baseline; }
   .ctrl-big-num { font-size: 26px; font-weight: 800; color: var(--fubon-teal-light); font-variant-numeric: tabular-nums; }
   .ctrl-big-num span { font-size: 13px; font-weight: 400; color: rgba(255,255,255,0.45); margin-left: 4px; }
+
+  /* 本金直接輸入框 */
+  .principal-input-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.07);
+    border: 2px solid rgba(0,169,157,0.35);
+    border-radius: 12px;
+    padding: 6px 14px;
+  }
+  .principal-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--fubon-teal-light);
+    font-family: 'Noto Sans TC', sans-serif;
+    font-variant-numeric: tabular-nums;
+    width: 100%;
+    min-width: 0;
+    -webkit-appearance: none;
+  }
+  .principal-input::placeholder { color: rgba(255,255,255,0.2); font-weight: 400; font-size: 18px; }
+  .principal-input::-webkit-inner-spin-button,
+  .principal-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+  .principal-unit {
+    font-size: 14px;
+    color: rgba(255,255,255,0.45);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
   .monthly-rate-badge { background: rgba(0,169,157,0.12); border: 1px solid rgba(0,169,157,0.2); border-radius: 8px; padding: 6px 10px; font-size: 12px; color: rgba(255,255,255,0.55); text-align: center; }
   .monthly-rate-badge strong { color: var(--fubon-teal-light); font-size: 13px; }
 
@@ -956,13 +989,17 @@
         <!-- 控制卡2：起始本金 -->
         <div class="ctrl-card">
           <div class="ctrl-label">💰 起始本金</div>
-          <div class="ctrl-value-row">
-            <div class="ctrl-big-num" id="principalDisplay">200<span>萬元</span></div>
+          <div class="principal-input-row">
+            <input class="principal-input" type="number" id="principalInput"
+              placeholder="200" min="10" max="10000"
+              value="200" inputmode="numeric"
+              oninput="onPrincipalInput()">
+            <span class="principal-unit">萬元</span>
           </div>
           <input type="range" id="principalSlider"
-            min="50" max="1000" step="50" value="200"
+            min="50" max="2000" step="50" value="200"
             oninput="onPrincipalSlide()">
-          <div class="quick-btns" style="margin-top:8px;" id="principalBtns">
+          <div class="quick-btns" style="margin-top:4px;" id="principalBtns">
             <button class="quick-btn" data-val="100" onclick="setPrincipal(100)">100萬</button>
             <button class="quick-btn active" data-val="200" onclick="setPrincipal(200)">200萬</button>
             <button class="quick-btn" data-val="500" onclick="setPrincipal(500)">500萬</button>
@@ -1226,26 +1263,40 @@ function monthlyIncome(principal, annualRate) {
 }
 
 /* ==============================================
+   畫面一：起始本金 - 直接輸入框
+   ============================================== */
+function onPrincipalInput() {
+  const val = parseInt(document.getElementById('principalInput').value) || 0;
+  if (val < 1) return; // 數值未完整輸入時不計算
+  visionPrincipalWan = val;
+  // 同步滑桿（滑桿上限2000萬，超過就停在最右邊）
+  document.getElementById('principalSlider').value = Math.min(val, 2000);
+  // 同步快捷鍵高亮
+  document.querySelectorAll('#principalBtns .quick-btn').forEach(btn => {
+    btn.classList.toggle('active', parseInt(btn.dataset.val) === val);
+  });
+  calcVision();
+}
+
+/* ==============================================
    畫面一：起始本金滑桿
    ============================================== */
 function onPrincipalSlide() {
   const val = parseInt(document.getElementById('principalSlider').value);
   visionPrincipalWan = val;
-  document.getElementById('principalDisplay').innerHTML =
-    val.toLocaleString('zh-TW') + '<span>萬元</span>';
+  // 同步輸入框
+  document.getElementById('principalInput').value = val;
   // 同步快捷鍵高亮
   document.querySelectorAll('#principalBtns .quick-btn').forEach(btn => {
-    const bVal = parseInt(btn.dataset.val);
-    btn.classList.toggle('active', bVal === val);
+    btn.classList.toggle('active', parseInt(btn.dataset.val) === val);
   });
   calcVision();
 }
 
 function setPrincipal(wan) {
   visionPrincipalWan = wan;
-  document.getElementById('principalSlider').value = wan;
-  document.getElementById('principalDisplay').innerHTML =
-    wan.toLocaleString('zh-TW') + '<span>萬元</span>';
+  document.getElementById('principalSlider').value = Math.min(wan, 2000);
+  document.getElementById('principalInput').value  = wan;
   document.querySelectorAll('#principalBtns .quick-btn').forEach(btn => {
     btn.classList.toggle('active', parseInt(btn.dataset.val) === wan);
   });
@@ -1667,24 +1718,41 @@ function goToScreen(idx) {
 }
 
 /* ==============================================
-   觸控滑動支援（iPad 原生手勢）
+   觸控滑動支援（解決與垂直滾動的衝突）
    ============================================== */
 let touchStartX = 0;
 let touchStartY = 0;
+let touchDirLocked = null; // 'h' = 水平, 'v' = 垂直, null = 未確定
 
 document.getElementById('app').addEventListener('touchstart', e => {
-  touchStartX = e.touches[0].clientX;
-  touchStartY = e.touches[0].clientY;
+  touchStartX    = e.touches[0].clientX;
+  touchStartY    = e.touches[0].clientY;
+  touchDirLocked = null;
 }, { passive: true });
 
+document.getElementById('app').addEventListener('touchmove', e => {
+  if (touchDirLocked) return; // 方向已鎖定，不重複判斷
+  const dx = e.touches[0].clientX - touchStartX;
+  const dy = e.touches[0].clientY - touchStartY;
+  if (Math.abs(dx) > 8 || Math.abs(dy) > 8) {
+    touchDirLocked = Math.abs(dx) > Math.abs(dy) ? 'h' : 'v';
+  }
+  // 若是水平滑動，阻止頁面上下滾動
+  if (touchDirLocked === 'h') {
+    e.preventDefault();
+  }
+}, { passive: false }); // passive: false 才能 preventDefault
+
 document.getElementById('app').addEventListener('touchend', e => {
+  if (touchDirLocked !== 'h') return; // 非水平滑動，忽略
   const dx = e.changedTouches[0].clientX - touchStartX;
   const dy = e.changedTouches[0].clientY - touchStartY;
-  // 水平滑動大於 60px 且比垂直滑動大，才切換畫面
-  if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) {
+  // 水平滑動超過 55px 且確認是橫向才切換
+  if (Math.abs(dx) > 55) {
     if (dx < 0) nextScreen();
     else prevScreen();
   }
+  touchDirLocked = null;
 }, { passive: true });
 
 /* ==============================================
