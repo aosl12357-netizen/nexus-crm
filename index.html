@@ -267,7 +267,9 @@ input[type="range"]::-webkit-slider-thumb:active { transform:scale(1.15); }
 .age-table-wrap::-webkit-scrollbar-thumb { background:rgba(0,169,157,.4); border-radius:3px; }
 .age-table { width:100%; border-collapse:collapse; font-size:14px; }
 .age-table thead th {
-  position:sticky; top:0; z-index:2;
+  position: sticky;
+  top: 0;
+  z-index: 2;
   background:rgba(13,46,77,.95); padding:11px 18px;
   text-align:left; font-size:11px; font-weight:700;
   color:rgba(255,255,255,.45); letter-spacing:1.2px; text-transform:uppercase; white-space:nowrap;
@@ -498,7 +500,7 @@ input[type="range"]::-webkit-slider-thumb:active { transform:scale(1.15); }
     </div>
   </div>
 
-  <!-- ===== 畫面 2：儲蓄險規劃 ===== -->
+  <!-- ===== 畫面 2：6年期外幣分紅壽險精準試算 ===== -->
   <div class="screen" id="screen2">
     <div class="gold-quote ai d1">
       <div style="font-size:28px;flex-shrink:0;">💎</div>
@@ -507,42 +509,72 @@ input[type="range"]::-webkit-slider-thumb:active { transform:scale(1.15); }
 
     <div class="ai d2">
       <div class="screen-tag">✦ STEP 03</div>
-      <div class="screen-title"><span>儲蓄險</span>專款專戶</div>
-      <div class="screen-desc">設定每月提撥預算與繳費期別，看看期滿能累積多少確定本金。</div>
+      <div class="screen-title"><span>穩健築底</span>專款專戶</div>
+      <div class="screen-desc">輸入月存台幣預算，依年齡性別精算保額與 6 年期滿台幣最可能紅利。</div>
     </div>
 
+    <!-- 匯率 + 性別 -->
     <div class="two-col ai d3">
-      <div class="card">
-        <div class="input-label">💰 每月提撥預算</div>
-        <div class="slider-val" id="budgetDisplay">10,000<span>元／月</span></div>
-        <input type="range" id="budgetSlider" min="3000" max="50000" step="1000" value="10000" oninput="onBudgetSlide()">
-        <div class="quick-btns" style="margin-top:6px;">
-          <button class="quick-btn" onclick="setBudget(5000)">$5K</button>
-          <button class="quick-btn active" onclick="setBudget(10000)">$10K</button>
-          <button class="quick-btn" onclick="setBudget(20000)">$20K</button>
-          <button class="quick-btn" onclick="setBudget(30000)">$30K</button>
+      <div class="card" style="gap:10px;display:flex;flex-direction:column;">
+        <div class="input-label">💱 USD/TWD 即時匯率</div>
+        <div class="principal-row" id="rateRow">
+          <input id="fxInput" type="number" inputmode="decimal"
+            value="32.5" min="20" max="50" step="0.1"
+            oninput="onFxInput()"
+            style="background:transparent;border:none;outline:none;font-size:26px;font-weight:800;color:var(--gold-light);font-family:'Noto Sans TC',sans-serif;width:100%;-webkit-appearance:none;">
+          <span class="principal-unit">TWD</span>
         </div>
+        <button onclick="fetchFxRate()" style="background:rgba(0,169,157,.15);border:1px solid rgba(0,169,157,.3);border-radius:10px;color:var(--teal-light);font-size:12px;padding:6px 12px;cursor:pointer;font-family:'Noto Sans TC',sans-serif;">
+          🔄 即時更新匯率
+        </button>
+        <div id="fxStatus" style="font-size:11px;color:rgba(255,255,255,.35);text-align:center;min-height:16px;"></div>
       </div>
-      <div class="card">
-        <div class="input-label">📅 繳費期別</div>
-        <div class="period-btns">
-          <button class="period-btn" id="p6"  onclick="setPeriod(6)">6<small>年期</small></button>
-          <button class="period-btn active" id="p10" onclick="setPeriod(10)">10<small>年期</small></button>
-          <button class="period-btn" id="p20" onclick="setPeriod(20)">20<small>年期</small></button>
+      <div class="card" style="gap:12px;display:flex;flex-direction:column;">
+        <div class="input-label">👤 被保人性別</div>
+        <div style="display:flex;gap:10px;">
+          <button class="period-btn active" id="genderM" onclick="setGender('M')" style="flex:1;">
+            ♂<small>男性</small>
+          </button>
+          <button class="period-btn" id="genderF" onclick="setGender('F')" style="flex:1;">
+            ♀<small>女性</small>
+          </button>
+        </div>
+        <div style="font-size:12px;color:rgba(255,255,255,.4);text-align:center;">
+          年齡從畫面 1 帶入：<strong id="s2AgeDisplay" style="color:var(--teal-light);">35 歲</strong>
         </div>
       </div>
     </div>
 
-    <div class="result-box ai d4">
-      <div class="result-label">▸ 期滿後預估確定本金</div>
+    <!-- 月預算輸入 -->
+    <div class="card ai d4" style="gap:8px;">
+      <div class="input-label">💰 每月台幣預算</div>
+      <div class="principal-row">
+        <input id="budgetInput" type="number" inputmode="numeric"
+          value="10000" min="1000" max="200000" step="1000"
+          oninput="onBudgetInput()"
+          style="background:transparent;border:none;outline:none;font-size:26px;font-weight:800;color:var(--teal-light);font-family:'Noto Sans TC',sans-serif;width:100%;-webkit-appearance:none;">
+        <span class="principal-unit">元／月</span>
+      </div>
+      <input type="range" id="budgetSlider" min="3000" max="80000" step="1000" value="10000" oninput="onBudgetSlide()">
+      <div class="quick-btns" style="margin-top:4px;">
+        <button class="quick-btn" onclick="setBudget(5000)">$5K</button>
+        <button class="quick-btn active" onclick="setBudget(10000)">$10K</button>
+        <button class="quick-btn" onclick="setBudget(20000)">$20K</button>
+        <button class="quick-btn" onclick="setBudget(30000)">$30K</button>
+      </div>
+    </div>
+
+    <!-- 精算結果 -->
+    <div class="result-box ai d5">
+      <div class="result-label">▸ 6 年期滿 台幣最可能紅利</div>
       <div class="result-num" id="savingsTotal">—<span>萬元</span></div>
       <div class="result-sub" id="savingsSub">—</div>
     </div>
 
     <div class="breakdown ai d5">
-      <div class="bd-item"><span class="bd-num" id="bdTotal">—</span><div class="bd-desc">累積繳費總額</div></div>
-      <div class="bd-item"><span class="bd-num" id="bdReturn">—</span><div class="bd-desc">利息收益(預估)</div></div>
-      <div class="bd-item"><span class="bd-num" id="bdROI">—</span><div class="bd-desc">本利比</div></div>
+      <div class="bd-item"><span class="bd-num" id="bdTotal">—</span><div class="bd-desc">推算美元保額</div></div>
+      <div class="bd-item"><span class="bd-num" id="bdReturn">—</span><div class="bd-desc">最可能紅利(USD)</div></div>
+      <div class="bd-item"><span class="bd-num" id="bdROI">—</span><div class="bd-desc">總繳保費(USD)</div></div>
     </div>
   </div>
 
@@ -726,61 +758,297 @@ function calcVision() {
 }
 
 /* =====================================================
-   畫面2：儲蓄險試算
-   等額年金終值公式：FV = PMT × [(1+r)^n - 1] / r
-   PMT = 每月繳費；r = 月利率；n = 總月數
-   儲蓄險年利率預設 2.5%（可在此調整）
+   PFA06（6年期外幣分紅終身壽險）正確費率查表
+   資料來源：官方建議書費率表逐欄提取並驗算
+   =====================================================
+   單位：每萬美元保額（美元）
+   prem   = 年繳保費
+   sv6    = 第6年度末解約金 (B欄)
+   bonucv = 第6年度末終期分紅-解約 (E欄) per萬USD
+   total6 = sv6 + bonucv × 1.225
+           （含增值回饋分享金 Y，Y≈E×0.225，25歲驗算誤差<2USD）
+   =====================================================
+   驗算（25歲男，保額6萬USD）：
+   · 總繳保費   = 5037 × 6 = 30,222 USD
+   · B(解約金)  = 3883 × 6 = 23,298 USD
+   · E(終期分紅)= 975.02× 6= 5,850 USD
+   · Y(增值回饋)= 219.5 × 6= 1,317 USD
+   · 合計       = 5077.4 × 6= 30,464 USD ≈ 建議書 30,466 ✓
+   · 期滿 > 總繳 +244 USD ✓
    ===================================================== */
-const SAVINGS_ANNUAL_RATE = 0.025;
+const PFA06 = {
+  M: { // 男性
+    18:{prem:759, sv6:3382,bonucv:990.3, total6:4595.1},
+    19:{prem:770, sv6:3448,bonucv:990.9, total6:4661.9},
+    20:{prem:781, sv6:3516,bonucv:979.51,total6:4715.9},
+    21:{prem:795, sv6:3586,bonucv:981.32,total6:4788.1},
+    22:{prem:808, sv6:3658,bonucv:988.5, total6:4868.9},
+    23:{prem:821, sv6:3731,bonucv:982.56,total6:4934.6},
+    24:{prem:834, sv6:3807,bonucv:979.86,total6:5007.3},
+    25:{prem:848, sv6:3883,bonucv:975.02,total6:5077.4},
+    26:{prem:861, sv6:3962,bonucv:962.39,total6:5140.9},
+    27:{prem:874, sv6:4042,bonucv:951.69,total6:5207.8},
+    28:{prem:888, sv6:4124,bonucv:931.34,total6:5264.9},
+    29:{prem:901, sv6:4208,bonucv:922.55,total6:5338.1},
+    30:{prem:914, sv6:4294,bonucv:889.61,total6:5383.8},
+    31:{prem:929, sv6:4381,bonucv:893.62,total6:5475.7},
+    32:{prem:943, sv6:4471,bonucv:882.25,total6:5551.8},
+    33:{prem:958, sv6:4562,bonucv:885.47,total6:5646.7},
+    34:{prem:972, sv6:4655,bonucv:867.96,total6:5718.3},
+    35:{prem:987, sv6:4750,bonucv:863.05,total6:5807.2},
+    36:{prem:1002,sv6:4846,bonucv:840.81,total6:5876.0},
+    37:{prem:1016,sv6:4944,bonucv:821.17,total6:5949.9},
+    38:{prem:1031,sv6:5045,bonucv:791.05,total6:6014.0},
+    39:{prem:1045,sv6:5147,bonucv:761.72,total6:6080.1},
+    40:{prem:1060,sv6:5250,bonucv:716.3, total6:6127.5},
+    41:{prem:1099,sv6:5355,bonucv:815.94,total6:6354.5},
+    42:{prem:1139,sv6:5463,bonucv:918.41,total6:6588.1},
+    43:{prem:1179,sv6:5573,bonucv:1027.39,total6:6831.6},
+    44:{prem:1219,sv6:5686,bonucv:1135.3, total6:7076.7},
+    45:{prem:1265,sv6:5803,bonucv:1266.66,total6:7354.7},
+    46:{prem:1306,sv6:5922,bonucv:1381.62,total6:7614.5},
+    47:{prem:1347,sv6:6045,bonucv:1503.38,total6:7886.6},
+    48:{prem:1388,sv6:6172,bonucv:1620.26,total6:8156.8},
+    49:{prem:1429,sv6:6303,bonucv:1738.99,total6:8433.3},
+    50:{prem:1470,sv6:6438,bonucv:1851.03,total6:8705.5},
+    51:{prem:1519,sv6:6577,bonucv:1986.23,total6:9010.1},
+    52:{prem:1568,sv6:6722,bonucv:2119.5, total6:9318.4},
+    53:{prem:1617,sv6:6873,bonucv:2245.81,total6:9624.1},
+    54:{prem:1666,sv6:7032,bonucv:2367.95,total6:9932.7},
+    55:{prem:1715,sv6:7338,bonucv:2338.23,total6:10202.3},
+    56:{prem:1759,sv6:7637,bonucv:2289.83,total6:10442.0},
+    57:{prem:1809,sv6:7959,bonucv:2243.24,total6:10707.0},
+    58:{prem:1859,sv6:8289,bonucv:2181.9, total6:10961.8},
+    59:{prem:1909,sv6:8626,bonucv:2124.28,total6:11228.2},
+    60:{prem:1960,sv6:8966,bonucv:2050.14,total6:11477.4},
+    61:{prem:2009,sv6:9303,bonucv:2003.22,total6:11756.9},
+    62:{prem:2068,sv6:9677,bonucv:1982.38,total6:12105.4},
+    63:{prem:2119,sv6:10027,bonucv:1935.85,total6:12398.4},
+    64:{prem:2176,sv6:10396,bonucv:1895.42,total6:12717.9},
+    65:{prem:2229,sv6:10751,bonucv:1833.53,total6:12997.1},
+    66:{prem:2279,sv6:11095,bonucv:1763.08,total6:13254.8},
+    67:{prem:2337,sv6:11461,bonucv:1708.75,total6:13554.2},
+    68:{prem:2389,sv6:11814,bonucv:1624.74,total6:13804.3},
+    69:{prem:2445,sv6:12174,bonucv:1553.35,total6:14076.9},
+    70:{prem:2499,sv6:12524,bonucv:1465.22,total6:14318.9},
+  },
+  F: { // 女性
+    18:{prem:709, sv6:2994,bonucv:1218.49,total6:4486.7},
+    19:{prem:720, sv6:3054,bonucv:1230.39,total6:4561.2},
+    20:{prem:731, sv6:3114,bonucv:1227.75,total6:4618.0},
+    21:{prem:742, sv6:3176,bonucv:1219.16,total6:4669.5},
+    22:{prem:752, sv6:3239,bonucv:1204.52,total6:4714.5},
+    23:{prem:762, sv6:3303,bonucv:1190.14,total6:4760.9},
+    24:{prem:772, sv6:3368,bonucv:1173.87,total6:4806.0},
+    25:{prem:783, sv6:3435,bonucv:1160.82,total6:4857.0},
+    26:{prem:793, sv6:3504,bonucv:1142.26,total6:4903.3},
+    27:{prem:803, sv6:3574,bonucv:1124.23,total6:4951.2},
+    28:{prem:814, sv6:3645,bonucv:1106.89,total6:5000.9},
+    29:{prem:824, sv6:3718,bonucv:1086.63,total6:5049.1},
+    30:{prem:834, sv6:3792,bonucv:1064.01,total6:5095.4},
+    31:{prem:846, sv6:3868,bonucv:1061.89,total6:5168.8},
+    32:{prem:857, sv6:3946,bonucv:1059.16,total6:5243.5},
+    33:{prem:869, sv6:4025,bonucv:1043.18,total6:5302.9},
+    34:{prem:880, sv6:4105,bonucv:1043.08,total6:5382.8},
+    35:{prem:892, sv6:4188,bonucv:1036.02,total6:5457.1},
+    36:{prem:903, sv6:4272,bonucv:1016.51,total6:5517.2},
+    37:{prem:915, sv6:4357,bonucv:1010.7, total6:5595.1},
+    38:{prem:926, sv6:4444,bonucv:970.93, total6:5633.4},
+    39:{prem:938, sv6:4534,bonucv:935.8,  total6:5680.4},
+    40:{prem:949, sv6:4624,bonucv:891.82, total6:5716.5},
+    41:{prem:975, sv6:4716,bonucv:974.87, total6:5910.2},
+    42:{prem:999, sv6:4811,bonucv:1022.2, total6:6063.2},
+    43:{prem:1027,sv6:4908,bonucv:1092.77,total6:6246.6},
+    44:{prem:1049,sv6:5007,bonucv:1139.43,total6:6402.8},
+    45:{prem:1079,sv6:5109,bonucv:1211.37,total6:6592.9},
+    46:{prem:1105,sv6:5214,bonucv:1244.48,total6:6738.5},
+    47:{prem:1129,sv6:5322,bonucv:1263.32,total6:6869.6},
+    48:{prem:1157,sv6:5434,bonucv:1302.55,total6:7029.6},
+    49:{prem:1179,sv6:5550,bonucv:1269.22,total6:7104.8},
+    50:{prem:1209,sv6:5668,bonucv:1239.47,total6:7186.4},
+    51:{prem:1256,sv6:5791,bonucv:1366.34,total6:7464.8},
+    52:{prem:1299,sv6:5918,bonucv:1478.34,total6:7729.0},
+    53:{prem:1349,sv6:6052,bonucv:1626.18,total6:8044.1},
+    54:{prem:1397,sv6:6191,bonucv:1755.22,total6:8341.1},
+    55:{prem:1444,sv6:6334,bonucv:1886.14,total6:8644.5},
+    56:{prem:1489,sv6:6483,bonucv:1990.93,total6:8921.9},
+    57:{prem:1538,sv6:6640,bonucv:2121.82,total6:9239.2},
+    58:{prem:1585,sv6:6803,bonucv:2233.35,total6:9538.9},
+    59:{prem:1629,sv6:6975,bonucv:2333.91,total6:9834.0},
+    60:{prem:1679,sv6:7188,bonucv:2414.6, total6:10145.9},
+    61:{prem:1729,sv6:7524,bonucv:2364.84,total6:10420.9},
+    62:{prem:1787,sv6:7889,bonucv:2324.9, total6:10737.0},
+    63:{prem:1839,sv6:8242,bonucv:2261.24,total6:11012.0},
+    64:{prem:1895,sv6:8617,bonucv:2194.79,total6:11305.6},
+    65:{prem:1949,sv6:8986,bonucv:2115.03,total6:11576.9},
+    66:{prem:1999,sv6:9345,bonucv:2021.89,total6:11821.8},
+    67:{prem:2057,sv6:9739,bonucv:1934.74,total6:12109.1},
+    68:{prem:2109,sv6:10114,bonucv:1827.67,total6:12352.9},
+    69:{prem:2165,sv6:10501,bonucv:1725.18,total6:12614.3},
+    70:{prem:2219,sv6:10893,bonucv:1606.92,total6:12861.5},
+  }
+};
 
-function calcSavings() {
-  const pmt = budgetPerMonth;
-  const n   = selectedPeriod * 12;
-  const r   = SAVINGS_ANNUAL_RATE / 12; // 月利率
+/* =====================================================
+   畫面2：狀態變數
+   ===================================================== */
+let currentGender = 'M';      // 'M' 男 / 'F' 女
+let fxRate = 32.5;            // USD/TWD 匯率預設值
 
-  const fvv = r === 0 ? pmt * n : pmt * (Math.pow(1 + r, n) - 1) / r;
-  s2Principal = fvv;
-
-  const totalPaid = pmt * n;
-  const interest  = fvv - totalPaid;
-  const ratio     = (fvv / totalPaid).toFixed(2);
-  const fvWan     = (fvv / 1e4).toFixed(1);
-
-  document.getElementById('savingsTotal').innerHTML =
-    parseFloat(fvWan).toLocaleString('zh-TW') + '<span>萬元</span>';
-  document.getElementById('savingsSub').innerHTML =
-    `每月 <strong>$${pmt.toLocaleString('zh-TW')}</strong>，繳 <strong>${selectedPeriod} 年</strong>，期滿確定累積 <strong>${fvWan} 萬元</strong>`;
-  document.getElementById('bdTotal').textContent  = (totalPaid / 1e4).toFixed(1) + ' 萬';
-  document.getElementById('bdReturn').textContent = (interest  / 1e4).toFixed(1) + ' 萬';
-  document.getElementById('bdROI').textContent    = ratio + ' 倍';
+/* =====================================================
+   性別切換
+   ===================================================== */
+function setGender(g) {
+  currentGender = g;
+  document.getElementById('genderM').classList.toggle('active', g === 'M');
+  document.getElementById('genderF').classList.toggle('active', g === 'F');
+  calcSavings();
 }
 
+/* =====================================================
+   匯率：即時 Fetch
+   使用 open.er-api.com 免費 API
+   失敗則使用預設值 32.5
+   ===================================================== */
+/* =====================================================
+   匯率：即時 Fetch
+   使用 exchangerate-api.com（免費、有 CORS）
+   失敗則保留使用者目前輸入值（預設 32.5）
+   ===================================================== */
+async function fetchFxRate() {
+  const status = document.getElementById('fxStatus');
+  status.textContent = '🔄 更新中…';
+  try {
+    const res  = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+    const data = await res.json();
+    if (data && data.rates && data.rates.TWD) {
+      fxRate = parseFloat(data.rates.TWD.toFixed(2));
+      document.getElementById('fxInput').value = fxRate;
+      status.textContent = `✓ 已更新 ${new Date().toLocaleTimeString('zh-TW')}`;
+      calcSavings();
+    } else {
+      status.textContent = '⚠ 查無 TWD 匯率，請手動輸入';
+    }
+  } catch(e) {
+    status.textContent = '⚠ 網路失敗，可手動修改匯率';
+  }
+}
+
+/* 匯率 input 即時修改 → 重算 */
+function onFxInput() {
+  const val = parseFloat(document.getElementById('fxInput').value);
+  if (val > 0) { fxRate = val; calcSavings(); }
+}
+
+/* =====================================================
+   PFA06 核心試算邏輯（5步驟靠攏保額算法）
+   =====================================================
+   步驟1：目標美金年保費 = (台幣月預算×12) ÷ 匯率
+   步驟2：理論保額 → 四捨五入至千位 = 最終鎖定保額
+   步驟3：真實年保費 = (保額÷10000)×prem×折扣(0.99)
+          真實台幣月繳 反向更新輸入框
+   步驟4：期滿價值 = (保額÷10000)×total6
+   步驟5：台幣期滿 = 美元期滿×匯率 → 顯示
+
+   折扣說明：建議書實際年保費5037 vs 定價5088(=848×6萬÷1萬)
+   折扣率 = 5037÷5088 = 0.98997 ≈ 0.99（金融機構轉帳1%折扣）
+   ===================================================== */
+const PREM_DISCOUNT = 0.99;  // 1% 繳別折扣（可調整）
+
+function calcSavings() {
+  /* 年齡查表 */
+  const age        = parseInt(document.getElementById('currentAge').value) || 35;
+  const clampedAge = Math.min(70, Math.max(18, age));
+  document.getElementById('s2AgeDisplay').textContent = `${age} 歲`;
+  const row = PFA06[currentGender][clampedAge] || PFA06[currentGender][35];
+
+  /* 步驟1：目標美金年保費 */
+  const targetUsdPerYear = (budgetPerMonth * 12) / fxRate;
+
+  /* 步驟2：理論保額 → 四捨五入到千位 = 最終鎖定保額
+     公式：理論保額 = (目標年保費 ÷ prem) × 10000
+     但 prem 是定價（未折扣），先用定價反推保額，再鎖定 */
+  const theoreticalSum = (targetUsdPerYear / (row.prem * PREM_DISCOUNT)) * 10000;
+  const lockedSum      = Math.round(theoreticalSum / 1000) * 1000;  // 靠攏千位
+  const finalSum       = Math.max(lockedSum, 1000);                 // 最小1千USD
+
+  /* 步驟3：真實年保費（含折扣）與真實台幣月繳 */
+  const realUsdPerYear  = (finalSum / 10000) * row.prem * PREM_DISCOUNT;
+  const realTwdPerMonth = Math.round((realUsdPerYear * fxRate) / 12);
+
+  // 反向更新輸入框（靜默更新，不觸發遞迴）
+  const budgetEl = document.getElementById('budgetInput');
+  if (Math.abs(parseInt(budgetEl.value) - realTwdPerMonth) > 50) {
+    budgetEl.value = realTwdPerMonth;
+  }
+
+  /* 步驟4：期滿美元最可能紅利
+     total6 = B(解約金)+E(終期分紅)+Y(增值回饋)，per 萬USD */
+  const totalUsd = (finalSum / 10000) * row.total6;
+
+  /* 步驟5：換算台幣 */
+  const totalTwd = totalUsd * fxRate;
+  s2Principal    = totalTwd;
+
+  /* 驗算：期滿美元 vs 真實總繳美元 */
+  const paidUsd    = realUsdPerYear * 6;
+  const surplusUsd = totalUsd - paidUsd;
+  const okFlag     = surplusUsd >= 0;
+
+  /* UI 更新 */
+  const totalWan       = (totalTwd / 1e4).toFixed(1);
+  const realPaidTwd    = realTwdPerMonth * 72;
+
+  document.getElementById('savingsTotal').innerHTML =
+    parseFloat(totalWan).toLocaleString('zh-TW') + '<span>萬元</span>';
+
+  document.getElementById('savingsSub').innerHTML =
+    `鎖定保額 <strong>${finalSum.toLocaleString()} USD</strong>，` +
+    `實際月繳 <strong>$${realTwdPerMonth.toLocaleString('zh-TW')}</strong>，` +
+    `6年總繳 <strong>${(realPaidTwd/1e4).toFixed(1)} 萬元</strong>，` +
+    `期滿最可能紅利 <strong>${Math.round(totalUsd).toLocaleString()} USD</strong>` +
+    (okFlag
+      ? `（多 <strong style="color:var(--teal-light)">+${Math.round(surplusUsd).toLocaleString()} USD ✓</strong>）`
+      : `（差 <strong style="color:var(--gold-light)">${Math.round(surplusUsd).toLocaleString()} USD</strong>）`);
+
+  document.getElementById('bdTotal').textContent  = finalSum.toLocaleString() + ' USD';
+  document.getElementById('bdReturn').textContent = Math.round(totalUsd).toLocaleString() + ' USD';
+  document.getElementById('bdROI').textContent    = Math.round(paidUsd).toLocaleString() + ' USD';
+}
+
+/* =====================================================
+   預算輸入三向同步
+   ===================================================== */
+function syncBudgetBtns(val) {
+  document.querySelectorAll('#screen2 .quick-btn').forEach(b => {
+    const m = b.getAttribute('onclick').match(/\d+/);
+    if (m) b.classList.toggle('active', parseInt(m[0]) === val);
+  });
+}
+function onBudgetInput() {
+  const val = parseInt(document.getElementById('budgetInput').value) || 0;
+  if (val < 1) return;
+  budgetPerMonth = val;
+  document.getElementById('budgetSlider').value = Math.min(val, 80000);
+  syncBudgetBtns(val);
+  calcSavings();
+}
 function onBudgetSlide() {
   const val = parseInt(document.getElementById('budgetSlider').value);
   budgetPerMonth = val;
-  document.getElementById('budgetDisplay').innerHTML =
-    val.toLocaleString('zh-TW') + '<span>元／月</span>';
-  document.querySelectorAll('#screen2 .quick-btn').forEach(b => {
-    const n = parseInt(b.textContent.replace(/[$K,]/g,'')) * (b.textContent.includes('K') ? 1000 : 1);
-    b.classList.toggle('active', n === val);
-  });
+  document.getElementById('budgetInput').value = val;
+  syncBudgetBtns(val);
   calcSavings();
 }
 function setBudget(amt) {
   budgetPerMonth = amt;
-  document.getElementById('budgetSlider').value = amt;
-  document.getElementById('budgetDisplay').innerHTML =
-    amt.toLocaleString('zh-TW') + '<span>元／月</span>';
-  document.querySelectorAll('#screen2 .quick-btn').forEach(b => {
-    const n = parseInt(b.textContent.replace(/[$K,]/g,'')) * (b.textContent.includes('K') ? 1000 : 1);
-    b.classList.toggle('active', n === amt);
-  });
+  document.getElementById('budgetInput').value  = amt;
+  document.getElementById('budgetSlider').value = Math.min(amt, 80000);
+  syncBudgetBtns(amt);
   calcSavings();
 }
 function setPeriod(y) {
-  selectedPeriod = y;
-  ['p6','p10','p20'].forEach(id => document.getElementById(id).classList.remove('active'));
-  document.getElementById('p' + y).classList.add('active');
+  // 保留舊函式避免錯誤（6年期已鎖定）
   calcSavings();
 }
 
@@ -954,6 +1222,7 @@ document.getElementById('bottom-nav').addEventListener('touchend', e => {
 window.addEventListener('DOMContentLoaded', () => {
   calcVision();
   calcSavings();
+  fetchFxRate();   // 頁面載入時自動嘗試取得即時匯率
   updateUI();
 });
 </script>
